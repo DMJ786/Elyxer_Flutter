@@ -13,6 +13,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/info_banner.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class PhoneInputScreen extends ConsumerStatefulWidget {
   const PhoneInputScreen({super.key});
@@ -26,40 +27,34 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   String _selectedCountryCode = '+1';
   bool _isLoading = false;
 
-  Future<void> _handleContinue() async {
+  void _handleContinue() {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
 
       final phoneNumber = _formKey.currentState!.value['phoneNumber'] as String;
+      final phoneData = PhoneInputData(
+        countryCode: _selectedCountryCode,
+        phoneNumber: phoneNumber,
+      );
 
-      try {
-        // Send OTP via provider
-        await ref.read(verificationProvider.notifier).sendPhoneOTP(
-              countryCode: _selectedCountryCode,
-              phoneNumber: phoneNumber,
-            );
+      // Store phone data in provider
+      ref.read(phoneInputProvider.notifier).state = phoneData;
 
+      // Send OTP (fire and forget or handle async separately)
+      ref.read(sendPhoneOTPProvider(phoneData).future).then((_) {
         if (mounted) {
+          setState(() => _isLoading = false);
           // Navigate to OTP verification screen
-          context.push(
-            '/phone-otp',
-            extra: {
-              'phoneNumber': phoneNumber,
-              'countryCode': _selectedCountryCode,
-            },
-          );
+          context.push('/phone-otp');
         }
-      } catch (e) {
+      }).catchError((e) {
         if (mounted) {
+          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
+      });
     }
   }
 
@@ -130,7 +125,15 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 const SizedBox(height: AppSpacing.x14),
 
                 // Progress Indicator
-                const CustomProgressIndicator(currentStep: 0),
+                ProgressIndicatorWidget(
+                  currentStep: 0,
+                  steps: const [
+                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
+                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
+                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                  ],
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -194,7 +197,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
                           FormBuilderValidators.match(
-                            r'^[0-9]{10}$',
+                            RegExp(r'^[0-9]{10}$'),
                             errorText: 'Enter a valid 10-digit phone number',
                           ),
                         ]),
@@ -215,15 +218,15 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 // Information Banner
                 const InfoBanner(
                   message: 'Secure, private and only used for verification',
-                  icon: Icons.info_outline,
                 ),
                 const SizedBox(height: AppSpacing.x6),
 
                 // Continue Button
                 CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
+                  title: 'Continue',
+                  onPressed: _handleContinue,
                   isLoading: _isLoading,
+                  isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
                 ),
                 const SizedBox(height: AppSpacing.x4),

@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class UsernameScreen extends ConsumerStatefulWidget {
   const UsernameScreen({super.key});
@@ -24,33 +25,35 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
 
-  Future<void> _handleContinue() async {
+  void _handleContinue() {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
 
       final firstName = _formKey.currentState!.value['firstName'] as String;
       final lastName = _formKey.currentState!.value['lastName'] as String?;
 
-      try {
-        await ref.read(verificationProvider.notifier).submitUsername(
-              firstName: firstName,
-              lastName: lastName ?? '',
-            );
+      final usernameData = UsernameData(
+        firstName: firstName,
+        lastName: lastName,
+      );
 
+      // Store username data
+      ref.read(usernameProvider.notifier).state = usernameData;
+
+      // Submit username
+      ref.read(submitUsernameProvider(usernameData).future).then((_) {
         if (mounted) {
+          setState(() => _isLoading = false);
           context.push('/email');
         }
-      } catch (e) {
+      }).catchError((e) {
         if (mounted) {
+          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
+      });
     }
   }
 
@@ -69,7 +72,15 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                 const SizedBox(height: AppSpacing.x14),
 
                 // Progress Indicator
-                const CustomProgressIndicator(currentStep: 2),
+                ProgressIndicatorWidget(
+                  currentStep: 2,
+                  steps: const [
+                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
+                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
+                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                  ],
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -95,7 +106,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                       errorText: 'First name must be at least 2 characters',
                     ),
                     FormBuilderValidators.match(
-                      r"^[a-zA-Z\s'-]+$",
+                      RegExp(r"^[a-zA-Z\s'-]+$"),
                       errorText: 'Only letters, spaces, hyphens and apostrophes allowed',
                     ),
                   ]),
@@ -120,7 +131,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                   textInputAction: TextInputAction.done,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.match(
-                      r"^[a-zA-Z\s'-]*$",
+                      RegExp(r"^[a-zA-Z\s'-]*$"),
                       errorText: 'Only letters, spaces, hyphens and apostrophes allowed',
                     ),
                   ]),
@@ -130,9 +141,10 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 // Continue Button
                 CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
+                  title: 'Continue',
+                  onPressed: _handleContinue,
                   isLoading: _isLoading,
+                  isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
                 ),
                 const SizedBox(height: AppSpacing.x4),

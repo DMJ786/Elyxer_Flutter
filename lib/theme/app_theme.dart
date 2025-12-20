@@ -155,7 +155,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppRadius.large),
           ),
           elevation: 8,
-          shadowColor: Colors.black.withOpacity(0.25),
+          shadowColor: Colors.black.withValues(alpha: 0.25),
         ),
       ),
 
