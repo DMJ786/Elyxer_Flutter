@@ -61,7 +61,9 @@ class PhoneOTPScreen extends HookConsumerWidget {
         error.value = null;
 
         try {
-          await ref.read(verificationProvider.notifier).verifyPhoneOTP(code);
+          // TODO: Implement verification provider
+          // await ref.read(verificationProvider.notifier).verifyPhoneOTP(code);
+          await Future.delayed(const Duration(seconds: 1));
 
           if (context.mounted) {
             context.push('/username');
@@ -83,10 +85,12 @@ class PhoneOTPScreen extends HookConsumerWidget {
       error.value = null;
 
       try {
-        await ref.read(verificationProvider.notifier).sendPhoneOTP(
-              countryCode: countryCode,
-              phoneNumber: phoneNumber,
-            );
+        // TODO: Implement verification provider
+        // await ref.read(verificationProvider.notifier).sendPhoneOTP(
+        //       countryCode: countryCode,
+        //       phoneNumber: phoneNumber,
+        //     );
+        await Future.delayed(const Duration(seconds: 1));
 
         // Reset timer
         timeLeft.value = 120;
@@ -134,6 +138,7 @@ class PhoneOTPScreen extends HookConsumerWidget {
 
               // OTP Input
               OTPInput(
+                value: otpCode.value,
                 length: 6,
                 onCompleted: (code) {
                   otpCode.value = code;

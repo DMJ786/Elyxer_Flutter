@@ -59,7 +59,9 @@ class EmailOTPScreen extends HookConsumerWidget {
         error.value = null;
 
         try {
-          await ref.read(verificationProvider.notifier).verifyEmailOTP(code);
+          // TODO: Implement verification provider
+          // await ref.read(verificationProvider.notifier).verifyEmailOTP(code);
+          await Future.delayed(const Duration(seconds: 1));
 
           if (context.mounted) {
             context.push('/complete');
@@ -81,7 +83,9 @@ class EmailOTPScreen extends HookConsumerWidget {
       error.value = null;
 
       try {
-        await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        // TODO: Implement verification provider
+        // await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        await Future.delayed(const Duration(seconds: 1));
 
         // Reset timer
         timeLeft.value = 120;
@@ -129,6 +133,7 @@ class EmailOTPScreen extends HookConsumerWidget {
 
               // OTP Input
               OTPInput(
+                value: otpCode.value,
                 length: 6,
                 onCompleted: (code) {
                   otpCode.value = code;

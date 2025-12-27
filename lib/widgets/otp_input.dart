@@ -9,12 +9,16 @@ import '../theme/app_theme.dart';
 class OTPInput extends StatefulWidget {
   final String value;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String>? onCompleted;
+  final int? length;
   final bool hasError;
 
   const OTPInput({
     super.key,
     required this.value,
     required this.onChanged,
+    this.onCompleted,
+    this.length,
     this.hasError = false,
   });
 
@@ -77,6 +81,12 @@ class _OTPInputState extends State<OTPInput> {
     // Build complete OTP code
     final code = _controllers.map((c) => c.text).join();
     widget.onChanged(code);
+    
+    // Call onCompleted if all digits are filled
+    final otpLength = widget.length ?? 6;
+    if (code.length == otpLength && widget.onCompleted != null) {
+      widget.onCompleted!(code);
+    }
   }
 
   Color _getBorderColor(int index) {

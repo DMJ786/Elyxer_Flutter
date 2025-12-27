@@ -6,6 +6,51 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/verification_models.dart';
 
+class CustomProgressIndicator extends StatelessWidget {
+  final int currentStep;
+
+  const CustomProgressIndicator({
+    super.key,
+    required this.currentStep,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Generate steps based on current step
+    final steps = List.generate(4, (index) {
+      return ProgressStep(
+        id: index.toString(),
+        icon: _getStepIcon(index),
+        status: index < currentStep
+            ? StepStatus.completed
+            : index == currentStep
+                ? StepStatus.inProgress
+                : StepStatus.incomplete,
+      );
+    });
+
+    return ProgressIndicatorWidget(
+      steps: steps,
+      currentStep: currentStep,
+    );
+  }
+
+  StepIcon _getStepIcon(int index) {
+    switch (index) {
+      case 0:
+        return StepIcon.phone;
+      case 1:
+        return StepIcon.account;
+      case 2:
+        return StepIcon.mail;
+      case 3:
+        return StepIcon.complete;
+      default:
+        return StepIcon.phone;
+    }
+  }
+}
+
 class ProgressIndicatorWidget extends StatelessWidget {
   final List<ProgressStep> steps;
   final int currentStep;

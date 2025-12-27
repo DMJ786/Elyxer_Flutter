@@ -7,10 +7,12 @@ import '../theme/app_theme.dart';
 
 class InfoBanner extends StatelessWidget {
   final String message;
+  final IconData? icon;
 
   const InfoBanner({
     super.key,
     required this.message,
+    this.icon,
   });
 
   @override

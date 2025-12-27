@@ -223,7 +223,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
                 // Continue Button
                 CustomButton(
-                  title: 'Continue',
+                  label: 'Continue',
                   onPressed: _handleContinue,
                   isLoading: _isLoading,
                   isDisabled: _isLoading,

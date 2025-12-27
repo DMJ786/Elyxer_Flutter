@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
 class CustomButton extends StatelessWidget {
-  final String? title;
-  final VoidCallback onPressed;
+  final String? label;
+  final VoidCallback? onPressed;
   final bool isLoading;
   final bool isDisabled;
   final ButtonVariant variant;
@@ -15,7 +15,7 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    this.title,
+    this.label,
     required this.onPressed,
     this.isLoading = false,
     this.isDisabled = false,
@@ -78,9 +78,9 @@ class CustomButton extends StatelessWidget {
                         icon!,
                         const SizedBox(width: AppSpacing.x2),
                       ],
-                      if (title != null)
+                      if (label != null)
                         Text(
-                          title!,
+                          label!,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -103,7 +103,7 @@ class CustomButton extends StatelessWidget {
           Rect.fromLTWH(0, 0, bounds.width, bounds.height),
         ),
         child: Text(
-          title ?? '',
+          label ?? '',
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,

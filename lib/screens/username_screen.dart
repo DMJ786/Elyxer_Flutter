@@ -141,7 +141,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 // Continue Button
                 CustomButton(
-                  title: 'Continue',
+                  label: 'Continue',
                   onPressed: _handleContinue,
                   isLoading: _isLoading,
                   isDisabled: _isLoading,

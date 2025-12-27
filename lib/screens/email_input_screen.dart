@@ -34,14 +34,16 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
           _formKey.currentState!.value['enableNotifications'] as bool? ?? false;
 
       try {
+        // TODO: Implement verification provider
         // Submit email preferences
-        await ref.read(verificationProvider.notifier).submitEmailPreferences(
-              email: email,
-              enableNotifications: enableNotifications,
-            );
+        // await ref.read(verificationProvider.notifier).submitEmailPreferences(
+        //       email: email,
+        //       enableNotifications: enableNotifications,
+        //     );
 
         // Send OTP
-        await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        // await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        await Future.delayed(const Duration(seconds: 1));
 
         if (mounted) {
           context.push('/email-otp', extra: {'email': email});
