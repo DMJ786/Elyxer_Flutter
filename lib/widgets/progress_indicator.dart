@@ -101,11 +101,15 @@ class ProgressIndicatorWidget extends StatelessWidget {
                   
                   return Row(
                     children: [
-                      // Centered dot under each step
-                      SizedBox(
+                      // Centered dot under each step with smooth animation
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 450),
+                        curve: Curves.easeInOutCubic,
                         width: iconSize,
                         child: Center(
-                          child: Container(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 450),
+                            curve: Curves.easeInOutCubic,
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
@@ -156,7 +160,9 @@ class ProgressIndicatorWidget extends StatelessWidget {
     // Get SVG asset path based on step icon and status
     final svgPath = _getSvgPath(step.icon, step.status);
 
-    return SizedBox(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 450),
+      curve: Curves.easeInOutCubic,
       width: size,
       height: size,
       child: SvgPicture.asset(
@@ -245,7 +251,7 @@ class _AnimatedConnectorBarState extends State<AnimatedConnectorBar>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 450),
       vsync: this,
     );
 

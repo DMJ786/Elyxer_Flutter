@@ -23,76 +23,40 @@ CustomTransitionPage<T> buildContentTransition<T>({
     key: state.pageKey,
     child: child,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      // Smart animate: Slide + Fade for smoother transitions
-      const begin = Offset(1.0, 0.0); // Enter from right
-      const end = Offset.zero;
-
+      // Smoother curve for better slide feel
+      const curve = Curves.easeInOutCubic;
+      
       // Incoming screen animation (slide + fade in)
-      final slideInAnimation = Tween<Offset>(
-        begin: begin,
-        end: end,
+      final slideAnimation = Tween<Offset>(
+        begin: const Offset(1.0, 0.0), // Enter from right
+        end: Offset.zero,
       ).animate(
         CurvedAnimation(
           parent: animation,
-          curve: Curves.easeOut,
+          curve: curve,
         ),
       );
 
-      final fadeInAnimation = Tween<double>(
+      final fadeAnimation = Tween<double>(
         begin: 0.0,
         end: 1.0,
       ).animate(
         CurvedAnimation(
           parent: animation,
-          curve: Curves.easeOut, // Full duration fade in
+          curve: curve,
         ),
       );
 
-      // Outgoing screen animation (slide + fade out)
-      final slideOutAnimation = Tween<Offset>(
-        begin: Offset.zero,
-        end: const Offset(-0.3, 0.0), // Slight slide out (Smart animate style)
-      ).animate(
-        CurvedAnimation(
-          parent: secondaryAnimation,
-          curve: Curves.easeOut,
+      return SlideTransition(
+        position: slideAnimation,
+        child: FadeTransition(
+          opacity: fadeAnimation,
+          child: child,
         ),
-      );
-
-      final fadeOutAnimation = Tween<double>(
-        begin: 1.0,
-        end: 0.0,
-      ).animate(
-        CurvedAnimation(
-          parent: secondaryAnimation,
-          curve: Curves.easeOut, // Full duration fade out
-        ),
-      );
-
-      return Stack(
-        children: [
-          // Old content sliding out with fade
-          if (secondaryAnimation.status != AnimationStatus.dismissed)
-            SlideTransition(
-              position: slideOutAnimation,
-              child: FadeTransition(
-                opacity: fadeOutAnimation,
-                child: child,
-              ),
-            ),
-          // New content sliding in with fade
-          SlideTransition(
-            position: slideInAnimation,
-            child: FadeTransition(
-              opacity: fadeInAnimation,
-              child: child,
-            ),
-          ),
-        ],
       );
     },
-    transitionDuration: const Duration(milliseconds: 250),
-    reverseTransitionDuration: const Duration(milliseconds: 250),
+    transitionDuration: const Duration(milliseconds: 450),
+    reverseTransitionDuration: const Duration(milliseconds: 450),
   );
 }
 
