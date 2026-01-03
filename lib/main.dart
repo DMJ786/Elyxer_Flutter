@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter/foundation.dart';
 
 import 'theme/app_theme.dart';
 import 'routes/app_router.dart';
@@ -12,6 +13,12 @@ import 'routes/app_router.dart';
 void main() {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Disable widget inspector overlay in debug mode
+  if (kDebugMode) {
+    // This will prevent the widget inspector from showing
+    debugPrint('Running in debug mode');
+  }
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(

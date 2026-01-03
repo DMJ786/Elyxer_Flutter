@@ -9,7 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
+import '../widgets/next_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
@@ -71,15 +71,21 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
               children: [
                 const SizedBox(height: AppSpacing.x14),
 
-                // Progress Indicator
-                ProgressIndicatorWidget(
-                  currentStep: 2,
-                  steps: const [
-                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
-                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
-                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
-                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
-                  ],
+                // Progress Indicator - wrapped in Hero to keep it static during transitions
+                Hero(
+                  tag: 'progress_indicator',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: ProgressIndicatorWidget(
+                      currentStep: 1,
+                      steps: const [
+                        ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+                        ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
+                        ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+                        ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.x8),
 
@@ -139,16 +145,6 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 const Spacer(),
 
-                // Continue Button
-                CustomButton(
-                  label: 'Continue',
-                  onPressed: _handleContinue,
-                  isLoading: _isLoading,
-                  isDisabled: _isLoading,
-                  variant: ButtonVariant.primary,
-                ),
-                const SizedBox(height: AppSpacing.x4),
-
                 // Footer Link
                 Center(
                   child: TextButton(
@@ -170,6 +166,10 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
             ),
           ),
         ),
+      ),
+      floatingActionButton: NextButton(
+        onPressed: _handleContinue,
+        isLoading: _isLoading,
       ),
     );
   }

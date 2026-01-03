@@ -22,8 +22,14 @@ class CompleteScreen extends StatelessWidget {
             children: [
               const SizedBox(height: AppSpacing.x14),
 
-              // Progress Indicator - All completed
-              const CustomProgressIndicator(currentStep: 4),
+              // Progress Indicator - All completed - wrapped in Hero to keep it static during transitions
+              Hero(
+                tag: 'progress_indicator',
+                child: Material(
+                  color: Colors.transparent,
+                  child: const CustomProgressIndicator(currentStep: 3),
+                ),
+              ),
               const SizedBox(height: AppSpacing.x8),
 
               const Spacer(),

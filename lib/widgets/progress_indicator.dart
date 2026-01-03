@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import '../models/verification_models.dart';
 
@@ -65,35 +66,74 @@ class ProgressIndicatorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 78,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          // Step indicators and bars
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _buildStepsWithBars(),
-          ),
-          // Progress dot indicator
-          Positioned(
-            top: 68,
-            left: MediaQuery.of(context).size.width / 2 -
-                140 + // Approximate center offset
-                (currentStep * 95), // Spacing between steps
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: AppColors.brandDark,
-                shape: BoxShape.circle,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final availableWidth = constraints.maxWidth;
+          final stepCount = steps.length;
+          
+          // Calculate responsive sizing
+          final activeSize = 60.0;
+          final inactiveSize = 40.0;
+          final spacing = AppSpacing.x1;
+          
+          // Total width needed for icons
+          final totalIconWidth = activeSize + (inactiveSize * (stepCount - 1));
+          // Remaining width for bars and spacing
+          final remainingWidth = availableWidth - totalIconWidth - (spacing * 2 * (stepCount - 1));
+          // Calculate bar width to fit perfectly with some margin
+          final barWidth = (remainingWidth / (stepCount - 1)) - 2; // Subtract 2px safety margin
+          
+          return Column(
+            children: [
+              // Step indicators and bars
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _buildStepsWithBars(barWidth.clamp(20.0, 50.0)),
               ),
-            ),
-          ),
-        ],
+              const SizedBox(height: 8),
+              // Progress dot indicator
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(steps.length, (index) {
+                  final isActive = index == currentStep;
+                  final iconSize = isActive ? activeSize : inactiveSize;
+                  final clampedBarWidth = barWidth.clamp(20.0, 50.0);
+                  
+                  return Row(
+                    children: [
+                      // Centered dot under each step
+                      SizedBox(
+                        width: iconSize,
+                        child: Center(
+                          child: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: isActive 
+                                  ? AppColors.brandDark 
+                                  : Colors.transparent,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Add spacing for progress bar between steps
+                      if (index < steps.length - 1)
+                        SizedBox(
+                          width: clampedBarWidth + (spacing * 2),
+                        ),
+                    ],
+                  );
+                }),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  List<Widget> _buildStepsWithBars() {
+  List<Widget> _buildStepsWithBars(double barWidth) {
     final widgets = <Widget>[];
 
     for (int i = 0; i < steps.length; i++) {
@@ -102,7 +142,7 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
       // Add progress bar between steps (except after last step)
       if (i < steps.length - 1) {
-        widgets.add(_buildProgressBar(i));
+        widgets.add(_buildProgressBar(i, barWidth));
       }
     }
 
@@ -111,73 +151,176 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
   Widget _buildStepIcon(ProgressStep step, int index) {
     final isActive = index == currentStep;
-    final isCompleted = step.status == StepStatus.completed;
     final size = isActive ? 60.0 : 40.0;
-    final iconSize = isActive ? 24.0 : 16.0;
 
-    if (isCompleted || isActive) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          gradient: AppColors.brandGradient,
-          shape: BoxShape.circle,
-          boxShadow: isActive ? AppShadows.defaultShadow : null,
-        ),
-        child: Icon(
-          _getIconData(step.icon),
-          size: iconSize,
-          color: Colors.white,
-        ),
-      );
-    } else {
-      return Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          color: AppColors.interactive100,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          _getIconData(step.icon),
-          size: iconSize,
-          color: AppColors.interactive300,
-        ),
-      );
-    }
-  }
+    // Get SVG asset path based on step icon and status
+    final svgPath = _getSvgPath(step.icon, step.status);
 
-  Widget _buildProgressBar(int index) {
-    final isCompleted = steps[index].status == StepStatus.completed;
-    final isInProgress =
-        steps[index].status == StepStatus.completed &&
-        index + 1 < steps.length &&
-        steps[index + 1].status == StepStatus.inProgress;
-
-    return Container(
-      width: 39.667,
-      height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.x1),
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? AppColors.brandDark
-            : isInProgress
-                ? AppColors.brandLight
-                : AppColors.interactive100,
+    return SizedBox(
+      width: size,
+      height: size,
+      child: SvgPicture.asset(
+        svgPath,
+        fit: BoxFit.contain,
       ),
     );
   }
 
-  IconData _getIconData(StepIcon icon) {
+  String _getSvgPath(StepIcon icon, StepStatus status) {
+    // Map icon to folder name
+    final folderName = _getIconFolder(icon);
+    
+    // Map status to filename
+    final fileName = _getStatusFileName(icon, status);
+    
+    return 'assets/images/$folderName/$fileName';
+  }
+
+  String _getIconFolder(StepIcon icon) {
     switch (icon) {
       case StepIcon.phone:
-        return Icons.phone_outlined;
+        return 'PhonenumberIconContainer';
       case StepIcon.account:
-        return Icons.person_outline;
+        return 'AccountIconContainer';
       case StepIcon.mail:
-        return Icons.mail_outline;
+        return 'MailIconContainer';
       case StepIcon.complete:
-        return Icons.check;
+        return 'CompleteIconContainer';
     }
+  }
+
+  String _getStatusFileName(StepIcon icon, StepStatus status) {
+    // All SVG files now use consistent naming
+    switch (status) {
+      case StepStatus.completed:
+        return 'Completed.svg';
+      case StepStatus.inProgress:
+        return 'Inprogress.svg';
+      case StepStatus.incomplete:
+        return 'Incomplete.svg';
+    }
+  }
+
+  Widget _buildProgressBar(int index, double barWidth) {
+    // Connector is completed if it's before the current step
+    final completed = index < currentStep;
+    
+    // Connector should animate NOW if we just moved to the next step
+    // (i.e., the connector at index == currentStep - 1)
+    final animateNow = (index == currentStep - 1 && currentStep > 0);
+
+    return AnimatedConnectorBar(
+      key: ValueKey('bar-$index-$currentStep'), // Force rebuild on step change
+      width: barWidth,
+      completed: completed,
+      animateNow: animateNow,
+    );
+  }
+}
+
+/// Animated Connector Bar Widget
+/// Animates the horizontal progress bar between steps
+class AnimatedConnectorBar extends StatefulWidget {
+  final double width;
+  final bool completed;
+  final bool animateNow;
+
+  const AnimatedConnectorBar({
+    super.key,
+    required this.width,
+    required this.completed,
+    required this.animateNow,
+  });
+
+  @override
+  State<AnimatedConnectorBar> createState() => _AnimatedConnectorBarState();
+}
+
+class _AnimatedConnectorBarState extends State<AnimatedConnectorBar>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fillAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _fillAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+    );
+
+    // Set initial state based on completed status
+    if (widget.completed && !widget.animateNow) {
+      // Already completed from previous steps
+      _controller.value = 1.0;
+    } else if (widget.animateNow) {
+      // Should animate now
+      _controller.forward(from: 0.0);
+    }
+  }
+
+  @override
+  void didUpdateWidget(AnimatedConnectorBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Trigger animation when animateNow becomes true
+    if (!oldWidget.animateNow && widget.animateNow) {
+      _controller.forward(from: 0.0);
+    } else if (widget.completed && !widget.animateNow && _controller.value != 1.0) {
+      // Instantly show as completed if already passed
+      _controller.value = 1.0;
+    } else if (!widget.completed) {
+      // Reset if not completed
+      _controller.value = 0.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: 2,
+      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.x1),
+      child: Stack(
+        children: [
+          // Background line (always visible - grey)
+          Container(
+            width: widget.width,
+            height: 2,
+            decoration: const BoxDecoration(
+              color: AppColors.interactive100,
+            ),
+          ),
+          // Animated foreground fill (gold)
+          AnimatedBuilder(
+            animation: _fillAnimation,
+            builder: (context, child) {
+              final fillWidth = widget.completed || widget.animateNow
+                  ? widget.width * _fillAnimation.value
+                  : 0.0;
+              
+              return Container(
+                width: fillWidth,
+                height: 2,
+                decoration: const BoxDecoration(
+                  color: AppColors.brandDark,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 }

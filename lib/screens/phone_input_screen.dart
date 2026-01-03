@@ -7,9 +7,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
 import '../widgets/info_banner.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
@@ -114,6 +114,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.cream,
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: FormBuilder(
           key: _formKey,
@@ -124,15 +125,21 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
               children: [
                 const SizedBox(height: AppSpacing.x14),
 
-                // Progress Indicator
-                ProgressIndicatorWidget(
-                  currentStep: 0,
-                  steps: const [
-                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
-                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
-                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
-                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
-                  ],
+                // Progress Indicator - wrapped in Hero to keep it static during transitions
+                Hero(
+                  tag: 'progress_indicator',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: ProgressIndicatorWidget(
+                      currentStep: 0,
+                      steps: const [
+                        ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
+                        ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
+                        ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+                        ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.x8),
 
@@ -153,7 +160,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                       borderRadius: BorderRadius.circular(AppRadius.medium),
                       child: Container(
                         width: 99,
-                        height: 56,
+                        height: 48,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
@@ -187,20 +194,27 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
                     // Phone Number Input
                     Expanded(
-                      child: FormBuilderTextField(
-                        name: 'phoneNumber',
-                        decoration: const InputDecoration(
-                          hintText: 'Phone number',
-                        ),
-                        keyboardType: TextInputType.phone,
-                        textInputAction: TextInputAction.done,
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(),
-                          FormBuilderValidators.match(
-                            RegExp(r'^[0-9]{10}$'),
-                            errorText: 'Enter a valid 10-digit phone number',
+                      child: SizedBox(
+                        height: 48,
+                        child: FormBuilderTextField(
+                          name: 'phoneNumber',
+                          decoration: const InputDecoration(
+                            hintText: 'Phone number',
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: AppSpacing.x4,
+                              vertical: AppSpacing.x3,
+                            ),
                           ),
-                        ]),
+                          keyboardType: TextInputType.phone,
+                          textInputAction: TextInputAction.done,
+                          validator: FormBuilderValidators.compose([
+                            FormBuilderValidators.required(),
+                            FormBuilderValidators.match(
+                              RegExp(r'^[0-9]{10}$'),
+                              errorText: 'Enter a valid 10-digit phone number',
+                            ),
+                          ]),
+                        ),
                       ),
                     ),
                   ],
@@ -219,33 +233,55 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 const InfoBanner(
                   message: 'Secure, private and only used for verification',
                 ),
-                const SizedBox(height: AppSpacing.x6),
-
-                // Continue Button
-                CustomButton(
-                  label: 'Continue',
-                  onPressed: _handleContinue,
-                  isLoading: _isLoading,
-                  isDisabled: _isLoading,
-                  variant: ButtonVariant.primary,
-                ),
                 const SizedBox(height: AppSpacing.x4),
 
-                // Footer Link
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      // TODO: Navigate to help/support
-                    },
-                    child: const Text(
-                      'What if my phone number changes?',
-                      style: TextStyle(
-                        color: AppColors.interactive400,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
+                // Footer Section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // TODO: Navigate to help/support
+                      },
+                      child: const Text(
+                        'What if my phone number changes?',
+                        style: TextStyle(
+                          color: AppColors.interactive400,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: (!_isLoading) ? _handleContinue : null,
+                      child: SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              (!_isLoading)
+                                  ? 'assets/images/NextButton/Default.svg'
+                                  : 'assets/images/NextButton/Disabled.svg',
+                              width: 64,
+                              height: 64,
+                            ),
+                            if (_isLoading)
+                              const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.x6),
               ],

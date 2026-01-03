@@ -11,6 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
+import '../widgets/next_button.dart';
 import '../providers/verification_provider.dart';
 
 class PhoneOTPScreen extends HookConsumerWidget {
@@ -118,8 +119,14 @@ class PhoneOTPScreen extends HookConsumerWidget {
             children: [
               const SizedBox(height: AppSpacing.x14),
 
-              // Progress Indicator
-              const CustomProgressIndicator(currentStep: 1),
+              // Progress Indicator - wrapped in Hero to keep it static during transitions
+              Hero(
+                tag: 'progress_indicator',
+                child: Material(
+                  color: Colors.transparent,
+                  child: const CustomProgressIndicator(currentStep: 0),
+                ),
+              ),
               const SizedBox(height: AppSpacing.x8),
 
               // Title
@@ -142,7 +149,7 @@ class PhoneOTPScreen extends HookConsumerWidget {
                 length: 6,
                 onCompleted: (code) {
                   otpCode.value = code;
-                  verifyOTP(code);
+                  // Don't auto-verify, wait for Next button
                 },
                 onChanged: (code) {
                   otpCode.value = code;
@@ -189,26 +196,23 @@ class PhoneOTPScreen extends HookConsumerWidget {
 
               const Spacer(),
 
-              // Loading indicator
-              if (isLoading.value)
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-
-              const SizedBox(height: AppSpacing.x6),
-
-              // Change phone number link
-              Center(
+              // Change phone number link - aligned to the right
+              Align(
+                alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () {
                     context.pop();
                   },
-                  child: const Text(
-                    'Change phone number',
-                    style: TextStyle(
-                      color: AppColors.interactive400,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => AppColors.brandGradient.createShader(bounds),
+                    child: const Text(
+                      'Change phone number',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -217,6 +221,15 @@ class PhoneOTPScreen extends HookConsumerWidget {
             ],
           ),
         ),
+      ),
+      floatingActionButton: NextButton(
+        onPressed: otpCode.value.length == 6 
+            ? () {
+                verifyOTP(otpCode.value);
+              }
+            : null,
+        isLoading: isLoading.value,
+        isEnabled: otpCode.value.length == 6,
       ),
     );
   }

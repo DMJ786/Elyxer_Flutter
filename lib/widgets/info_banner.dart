@@ -1,8 +1,9 @@
 /// Info Banner Widget
-/// Displays informational messages with gradient icon
+/// Displays informational messages with custom SVG icon
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 
 class InfoBanner extends StatelessWidget {
@@ -30,22 +31,13 @@ class InfoBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gradient icon container
-          Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              gradient: AppColors.brandGradient,
-              borderRadius: BorderRadius.circular(AppRadius.round),
-              boxShadow: AppShadows.pressedShadow,
-            ),
-            child: const Icon(
-              Icons.info_outline,
-              size: 14,
-              color: Colors.white,
-            ),
+          // Custom SVG icon
+          SvgPicture.asset(
+            'assets/images/InformationIconContainer/InformationIconContainer.svg',
+            width: 36,
+            height: 36,
           ),
-          const SizedBox(width: AppSpacing.x4),
+          const SizedBox(width: AppSpacing.x3),
           // Message text
           Expanded(
             child: Text(

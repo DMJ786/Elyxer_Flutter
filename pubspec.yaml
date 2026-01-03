@@ -50,6 +50,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Assets
+  assets:
+    - assets/images/AccountIconContainer/
+    - assets/images/PhonenumberIconContainer/
+    - assets/images/MailIconContainer/
+    - assets/images/CompleteIconContainer/
+    - assets/images/NextButton/
+    - assets/images/InformationIconContainer/
+
   # Custom fonts will be added here
   # fonts:
   #   - family: PlayfairDisplay

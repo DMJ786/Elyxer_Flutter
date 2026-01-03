@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
+import '../widgets/next_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
 
@@ -83,8 +83,14 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
               children: [
                 const SizedBox(height: AppSpacing.x14),
 
-                // Progress Indicator
-                const CustomProgressIndicator(currentStep: 3),
+                // Progress Indicator - wrapped in Hero to keep it static during transitions
+                Hero(
+                  tag: 'progress_indicator',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: const CustomProgressIndicator(currentStep: 2),
+                  ),
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -131,26 +137,29 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
                 const Spacer(),
 
-                // Continue Button
-                CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
-                  isLoading: _isLoading,
-                  variant: ButtonVariant.primary,
-                ),
-                const SizedBox(height: AppSpacing.x4),
-
                 // Skip Button
-                CustomButton(
-                  label: 'Skip for now',
-                  onPressed: _handleSkip,
-                  variant: ButtonVariant.text,
+                Center(
+                  child: TextButton(
+                    onPressed: _handleSkip,
+                    child: const Text(
+                      'Skip for now',
+                      style: TextStyle(
+                        color: AppColors.interactive400,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.x6),
               ],
             ),
           ),
         ),
+      ),
+      floatingActionButton: NextButton(
+        onPressed: _handleContinue,
+        isLoading: _isLoading,
       ),
     );
   }
