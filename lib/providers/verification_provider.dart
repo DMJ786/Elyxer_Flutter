@@ -16,17 +16,48 @@ VerificationService verificationService(Ref ref) {
 }
 
 /// Verification Data State Provider
-final verificationDataProvider =
-    StateProvider<VerificationData?>((ref) => null);
+@riverpod
+class VerificationDataNotifier extends _$VerificationDataNotifier {
+  @override
+  VerificationData? build() => null;
+
+  void update(VerificationData? data) {
+    state = data;
+  }
+}
 
 /// Phone Input Provider
-final phoneInputProvider = StateProvider<PhoneInputData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class PhoneInputNotifier extends _$PhoneInputNotifier {
+  @override
+  PhoneInputData? build() => null;
+
+  void update(PhoneInputData? data) {
+    state = data;
+  }
+}
 
 /// Username Provider
-final usernameProvider = StateProvider<UsernameData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class UsernameNotifier extends _$UsernameNotifier {
+  @override
+  UsernameData? build() => null;
+
+  void update(UsernameData? data) {
+    state = data;
+  }
+}
 
 /// Email Input Provider
-final emailInputProvider = StateProvider<EmailInputData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class EmailInputNotifier extends _$EmailInputNotifier {
+  @override
+  EmailInputData? build() => null;
+
+  void update(EmailInputData? data) {
+    state = data;
+  }
+}
 
 /// OTP Timer Provider (for phone verification)
 @riverpod

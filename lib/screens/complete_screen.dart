@@ -6,9 +6,18 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/custom_button.dart';
+import '../models/verification_models.dart';
 
 class CompleteScreen extends StatelessWidget {
   const CompleteScreen({super.key});
+
+  // Define progress steps
+  static const List<ProgressStep> _steps = [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.completed),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.completed),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +32,10 @@ class CompleteScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.x14),
 
               // Progress Indicator - All completed
-              const CustomProgressIndicator(currentStep: 4),
+              ProgressIndicatorWidget(
+                steps: _steps,
+                currentStep: 3,
+              ),
               const SizedBox(height: AppSpacing.x8),
 
               const Spacer(),
@@ -63,7 +75,7 @@ class CompleteScreen extends StatelessWidget {
 
               // Get Started Button
               CustomButton(
-                label: 'Get Started',
+                title: 'Get Started',
                 onPressed: () {
                   // TODO: Navigate to main app
                 },

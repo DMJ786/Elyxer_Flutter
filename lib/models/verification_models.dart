@@ -9,7 +9,7 @@ part 'verification_models.g.dart';
 
 /// Phone input data
 @freezed
-class PhoneInputData with _$PhoneInputData {
+abstract class PhoneInputData with _$PhoneInputData {
   const factory PhoneInputData({
     required String countryCode,
     required String phoneNumber,
@@ -21,7 +21,7 @@ class PhoneInputData with _$PhoneInputData {
 
 /// OTP data
 @freezed
-class OTPData with _$OTPData {
+abstract class OTPData with _$OTPData {
   const factory OTPData({
     required String code,
     DateTime? expiresAt,
@@ -33,7 +33,7 @@ class OTPData with _$OTPData {
 
 /// Username data
 @freezed
-class UsernameData with _$UsernameData {
+abstract class UsernameData with _$UsernameData {
   const factory UsernameData({
     required String firstName,
     String? lastName,
@@ -45,7 +45,7 @@ class UsernameData with _$UsernameData {
 
 /// Email input data
 @freezed
-class EmailInputData with _$EmailInputData {
+abstract class EmailInputData with _$EmailInputData {
   const factory EmailInputData({
     required String email,
     @Default(false) bool enableNotifications,
@@ -57,7 +57,7 @@ class EmailInputData with _$EmailInputData {
 
 /// Complete verification data
 @freezed
-class VerificationData with _$VerificationData {
+abstract class VerificationData with _$VerificationData {
   const factory VerificationData({
     required PhoneInputData phone,
     @Default(false) bool phoneVerified,
@@ -72,7 +72,7 @@ class VerificationData with _$VerificationData {
 
 /// API Response for sending OTP
 @freezed
-class SendOTPResponse with _$SendOTPResponse {
+abstract class SendOTPResponse with _$SendOTPResponse {
   const factory SendOTPResponse({
     required bool success,
     required String expiresAt,
@@ -85,7 +85,7 @@ class SendOTPResponse with _$SendOTPResponse {
 
 /// API Response for verifying OTP
 @freezed
-class VerifyOTPResponse with _$VerifyOTPResponse {
+abstract class VerifyOTPResponse with _$VerifyOTPResponse {
   const factory VerifyOTPResponse({
     required bool success,
     String? token,
@@ -105,7 +105,7 @@ enum StepStatus {
 
 /// Progress step model
 @freezed
-class ProgressStep with _$ProgressStep {
+abstract class ProgressStep with _$ProgressStep {
   const factory ProgressStep({
     required String id,
     required StepIcon icon,
@@ -123,7 +123,7 @@ enum StepIcon {
 
 /// OTP Timer State
 @freezed
-class OTPTimerState with _$OTPTimerState {
+abstract class OTPTimerState with _$OTPTimerState {
   const factory OTPTimerState({
     required int timeLeft,
     required bool isExpired,
