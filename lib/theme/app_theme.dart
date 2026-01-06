@@ -22,6 +22,7 @@ class AppColors {
   static const interactive300 = Color(0xFF666666); // Medium gray - tertiary
   static const interactive200 = Color(0xFFB3B3B3); // Light gray - placeholders
   static const interactive100 = Color(0xFFE0E0E0); // Very light gray - borders
+  static const interactive50 = Color(0xFFF5F5F5); // Very light gray - backgrounds
 
   // Semantic colors (proper semantic colors)
   static const error = Color(0xFFEF4444); // Red for errors

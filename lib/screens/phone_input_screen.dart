@@ -13,6 +13,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/info_banner.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class PhoneInputScreen extends ConsumerStatefulWidget {
   const PhoneInputScreen({super.key});
@@ -26,6 +27,14 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   String _selectedCountryCode = '+1';
   bool _isLoading = false;
 
+  // Define progress steps
+  final List<ProgressStep> _steps = const [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+  ];
+
   Future<void> _handleContinue() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
@@ -33,11 +42,16 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
       final phoneNumber = _formKey.currentState!.value['phoneNumber'] as String;
 
       try {
-        // Send OTP via provider
-        await ref.read(verificationProvider.notifier).sendPhoneOTP(
-              countryCode: _selectedCountryCode,
-              phoneNumber: phoneNumber,
-            );
+        // Send OTP via service
+        final service = ref.read(verificationServiceProvider);
+        final phoneData = PhoneInputData(
+          countryCode: _selectedCountryCode,
+          phoneNumber: phoneNumber,
+        );
+        await service.sendPhoneOTP(phoneData);
+
+        // Save phone input data
+        ref.read(phoneInputProvider.notifier).update(phoneData);
 
         if (mounted) {
           // Navigate to OTP verification screen
@@ -130,7 +144,10 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 const SizedBox(height: AppSpacing.x14),
 
                 // Progress Indicator
-                const CustomProgressIndicator(currentStep: 0),
+                ProgressIndicatorWidget(
+                  steps: _steps,
+                  currentStep: 0,
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -194,7 +211,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                         validator: FormBuilderValidators.compose([
                           FormBuilderValidators.required(),
                           FormBuilderValidators.match(
-                            r'^[0-9]{10}$',
+                            RegExp(r'^[0-9]{10}$'),
                             errorText: 'Enter a valid 10-digit phone number',
                           ),
                         ]),
@@ -215,16 +232,42 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 // Information Banner
                 const InfoBanner(
                   message: 'Secure, private and only used for verification',
-                  icon: Icons.info_outline,
                 ),
                 const SizedBox(height: AppSpacing.x6),
 
                 // Continue Button
                 CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
+                  title: 'Continue',
+                  onPressed: () => _handleContinue(),
                   isLoading: _isLoading,
+                  isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
+                ),
+                const SizedBox(height: AppSpacing.x4),
+
+                // TEST: Onboarding Flow Button
+                OutlinedButton(
+                  onPressed: () => context.push('/onboarding'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 54),
+                    side: const BorderSide(color: AppColors.brandDark, width: 2),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.large),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.play_arrow, color: AppColors.brandDark),
+                      const SizedBox(width: AppSpacing.x2),
+                      Text(
+                        'Test Onboarding Animations',
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: AppColors.brandDark,
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.x4),
 

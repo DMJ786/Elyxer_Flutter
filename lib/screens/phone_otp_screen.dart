@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class PhoneOTPScreen extends HookConsumerWidget {
   final String phoneNumber;
@@ -22,6 +23,14 @@ class PhoneOTPScreen extends HookConsumerWidget {
     required this.phoneNumber,
     required this.countryCode,
   });
+
+  // Define progress steps
+  static const List<ProgressStep> _steps = [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +70,12 @@ class PhoneOTPScreen extends HookConsumerWidget {
         error.value = null;
 
         try {
-          await ref.read(verificationProvider.notifier).verifyPhoneOTP(code);
+          final service = ref.read(verificationServiceProvider);
+          final phoneData = PhoneInputData(
+            countryCode: countryCode,
+            phoneNumber: phoneNumber,
+          );
+          await service.verifyPhoneOTP(phoneData, code);
 
           if (context.mounted) {
             context.push('/username');
@@ -83,10 +97,12 @@ class PhoneOTPScreen extends HookConsumerWidget {
       error.value = null;
 
       try {
-        await ref.read(verificationProvider.notifier).sendPhoneOTP(
-              countryCode: countryCode,
-              phoneNumber: phoneNumber,
-            );
+        final service = ref.read(verificationServiceProvider);
+        final phoneData = PhoneInputData(
+          countryCode: countryCode,
+          phoneNumber: phoneNumber,
+        );
+        await service.sendPhoneOTP(phoneData);
 
         // Reset timer
         timeLeft.value = 120;
@@ -115,7 +131,10 @@ class PhoneOTPScreen extends HookConsumerWidget {
               const SizedBox(height: AppSpacing.x14),
 
               // Progress Indicator
-              const CustomProgressIndicator(currentStep: 1),
+              ProgressIndicatorWidget(
+                steps: _steps,
+                currentStep: 1,
+              ),
               const SizedBox(height: AppSpacing.x8),
 
               // Title
@@ -134,14 +153,13 @@ class PhoneOTPScreen extends HookConsumerWidget {
 
               // OTP Input
               OTPInput(
-                length: 6,
-                onCompleted: (code) {
-                  otpCode.value = code;
-                  verifyOTP(code);
-                },
+                value: otpCode.value,
                 onChanged: (code) {
                   otpCode.value = code;
                   error.value = null; // Clear error on change
+                  if (code.length == 6) {
+                    verifyOTP(code);
+                  }
                 },
                 hasError: error.value != null,
               ),

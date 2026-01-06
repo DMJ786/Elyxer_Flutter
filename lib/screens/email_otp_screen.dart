@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class EmailOTPScreen extends HookConsumerWidget {
   final String email;
@@ -20,6 +21,14 @@ class EmailOTPScreen extends HookConsumerWidget {
     super.key,
     required this.email,
   });
+
+  // Define progress steps
+  static const List<ProgressStep> _steps = [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.completed),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.inProgress),
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,7 +68,8 @@ class EmailOTPScreen extends HookConsumerWidget {
         error.value = null;
 
         try {
-          await ref.read(verificationProvider.notifier).verifyEmailOTP(code);
+          final service = ref.read(verificationServiceProvider);
+          await service.verifyEmailOTP(email, code);
 
           if (context.mounted) {
             context.push('/complete');
@@ -81,7 +91,8 @@ class EmailOTPScreen extends HookConsumerWidget {
       error.value = null;
 
       try {
-        await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        final service = ref.read(verificationServiceProvider);
+        await service.sendEmailOTP(email);
 
         // Reset timer
         timeLeft.value = 120;
@@ -110,7 +121,10 @@ class EmailOTPScreen extends HookConsumerWidget {
               const SizedBox(height: AppSpacing.x14),
 
               // Progress Indicator
-              const CustomProgressIndicator(currentStep: 4),
+              ProgressIndicatorWidget(
+                steps: _steps,
+                currentStep: 3,
+              ),
               const SizedBox(height: AppSpacing.x8),
 
               // Title
@@ -129,14 +143,13 @@ class EmailOTPScreen extends HookConsumerWidget {
 
               // OTP Input
               OTPInput(
-                length: 6,
-                onCompleted: (code) {
-                  otpCode.value = code;
-                  verifyOTP(code);
-                },
+                value: otpCode.value,
                 onChanged: (code) {
                   otpCode.value = code;
                   error.value = null; // Clear error on change
+                  if (code.length == 6) {
+                    verifyOTP(code);
+                  }
                 },
                 hasError: error.value != null,
               ),

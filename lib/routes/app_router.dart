@@ -11,15 +11,24 @@ import '../screens/username_screen.dart';
 import '../screens/email_input_screen.dart';
 import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
+import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/verification_flow_screen.dart';
 
 /// App router instance
 final appRouter = GoRouter(
   initialLocation: '/',
   debugLogDiagnostics: true,
   routes: [
-    // Route 1: Phone Input Screen (Initial screen)
+    // Route 1: Verification Flow (Initial screen - with animations)
     GoRoute(
       path: '/',
+      name: 'verification-flow',
+      builder: (context, state) => const VerificationFlowScreen(),
+    ),
+
+    // Legacy Route: Phone Input Screen (standalone, for testing)
+    GoRoute(
+      path: '/phone-input-standalone',
       name: 'phone-input',
       builder: (context, state) => const PhoneInputScreen(),
     ),
@@ -37,21 +46,28 @@ final appRouter = GoRouter(
       },
     ),
 
-    // Route 3: Username Input
+    // Route 3: Onboarding Flow (Age, Gender, Pronoun)
+    GoRoute(
+      path: '/onboarding',
+      name: 'onboarding',
+      builder: (context, state) => const OnboardingScreen(),
+    ),
+
+    // Route 4: Username Input
     GoRoute(
       path: '/username',
       name: 'username',
       builder: (context, state) => const UsernameScreen(),
     ),
 
-    // Route 4: Email Input
+    // Route 5: Email Input
     GoRoute(
-      path: '/email',
-      name: 'email',
+      path: '/email-input',
+      name: 'email-input',
       builder: (context, state) => const EmailInputScreen(),
     ),
 
-    // Route 5: Email OTP Verification
+    // Route 6: Email OTP Verification
     GoRoute(
       path: '/email-otp',
       name: 'email-otp',
@@ -63,7 +79,7 @@ final appRouter = GoRouter(
       },
     ),
 
-    // Route 6: Completion Screen
+    // Route 7: Completion Screen
     GoRoute(
       path: '/complete',
       name: 'complete',

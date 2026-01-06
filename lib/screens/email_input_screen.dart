@@ -13,6 +13,7 @@ import '../theme/app_theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class EmailInputScreen extends ConsumerStatefulWidget {
   const EmailInputScreen({super.key});
@@ -25,6 +26,14 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
 
+  // Define progress steps
+  final List<ProgressStep> _steps = const [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+  ];
+
   Future<void> _handleContinue() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
@@ -34,14 +43,22 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
           _formKey.currentState!.value['enableNotifications'] as bool? ?? false;
 
       try {
-        // Submit email preferences
-        await ref.read(verificationProvider.notifier).submitEmailPreferences(
-              email: email,
-              enableNotifications: enableNotifications,
-            );
+        final service = ref.read(verificationServiceProvider);
+
+        // Create email data
+        final emailData = EmailInputData(
+          email: email,
+          enableNotifications: enableNotifications,
+        );
+
+        // Submit email preferences first
+        await service.submitEmailPreferences(emailData);
 
         // Send OTP
-        await ref.read(verificationProvider.notifier).sendEmailOTP(email);
+        await service.sendEmailOTP(email);
+
+        // Save email input data
+        ref.read(emailInputProvider.notifier).update(emailData);
 
         if (mounted) {
           context.push('/email-otp', extra: {'email': email});
@@ -82,7 +99,10 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                 const SizedBox(height: AppSpacing.x14),
 
                 // Progress Indicator
-                const CustomProgressIndicator(currentStep: 3),
+                ProgressIndicatorWidget(
+                  steps: _steps,
+                  currentStep: 2,
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -131,17 +151,18 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
                 // Continue Button
                 CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
+                  title: 'Continue',
+                  onPressed: () => _handleContinue(),
                   isLoading: _isLoading,
+                  isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
                 ),
                 const SizedBox(height: AppSpacing.x4),
 
                 // Skip Button
                 CustomButton(
-                  label: 'Skip for now',
-                  onPressed: _handleSkip,
+                  title: 'Skip for now',
+                  onPressed: () => _handleSkip(),
                   variant: ButtonVariant.text,
                 ),
                 const SizedBox(height: AppSpacing.x6),

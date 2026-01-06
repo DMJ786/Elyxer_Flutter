@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
+import '../models/verification_models.dart';
 
 class UsernameScreen extends ConsumerStatefulWidget {
   const UsernameScreen({super.key});
@@ -24,6 +25,14 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
 
+  // Define progress steps
+  final List<ProgressStep> _steps = const [
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+  ];
+
   Future<void> _handleContinue() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
@@ -32,10 +41,15 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
       final lastName = _formKey.currentState!.value['lastName'] as String?;
 
       try {
-        await ref.read(verificationProvider.notifier).submitUsername(
-              firstName: firstName,
-              lastName: lastName ?? '',
-            );
+        final service = ref.read(verificationServiceProvider);
+        final usernameData = UsernameData(
+          firstName: firstName,
+          lastName: lastName,
+        );
+        await service.submitUsername(usernameData);
+
+        // Save username data
+        ref.read(usernameProvider.notifier).update(usernameData);
 
         if (mounted) {
           context.push('/email');
@@ -69,7 +83,10 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                 const SizedBox(height: AppSpacing.x14),
 
                 // Progress Indicator
-                const CustomProgressIndicator(currentStep: 2),
+                ProgressIndicatorWidget(
+                  steps: _steps,
+                  currentStep: 1,
+                ),
                 const SizedBox(height: AppSpacing.x8),
 
                 // Title
@@ -95,7 +112,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                       errorText: 'First name must be at least 2 characters',
                     ),
                     FormBuilderValidators.match(
-                      r"^[a-zA-Z\s'-]+$",
+                      RegExp(r"^[a-zA-Z\s'-]+$"),
                       errorText: 'Only letters, spaces, hyphens and apostrophes allowed',
                     ),
                   ]),
@@ -120,7 +137,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                   textInputAction: TextInputAction.done,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.match(
-                      r"^[a-zA-Z\s'-]*$",
+                      RegExp(r"^[a-zA-Z\s'-]*$"),
                       errorText: 'Only letters, spaces, hyphens and apostrophes allowed',
                     ),
                   ]),
@@ -130,9 +147,10 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 // Continue Button
                 CustomButton(
-                  label: 'Continue',
-                  onPressed: _isLoading ? null : _handleContinue,
+                  title: 'Continue',
+                  onPressed: () => _handleContinue(),
                   isLoading: _isLoading,
+                  isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
                 ),
                 const SizedBox(height: AppSpacing.x4),

@@ -11,22 +11,53 @@ part 'verification_provider.g.dart';
 
 /// Verification Service Provider
 @riverpod
-VerificationService verificationService(VerificationServiceRef ref) {
+VerificationService verificationService(Ref ref) {
   return VerificationService();
 }
 
 /// Verification Data State Provider
-final verificationDataProvider =
-    StateProvider<VerificationData?>((ref) => null);
+@riverpod
+class VerificationDataNotifier extends _$VerificationDataNotifier {
+  @override
+  VerificationData? build() => null;
+
+  void update(VerificationData? data) {
+    state = data;
+  }
+}
 
 /// Phone Input Provider
-final phoneInputProvider = StateProvider<PhoneInputData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class PhoneInputNotifier extends _$PhoneInputNotifier {
+  @override
+  PhoneInputData? build() => null;
+
+  void update(PhoneInputData? data) {
+    state = data;
+  }
+}
 
 /// Username Provider
-final usernameProvider = StateProvider<UsernameData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class UsernameNotifier extends _$UsernameNotifier {
+  @override
+  UsernameData? build() => null;
+
+  void update(UsernameData? data) {
+    state = data;
+  }
+}
 
 /// Email Input Provider
-final emailInputProvider = StateProvider<EmailInputData?>((ref) => null);
+@Riverpod(keepAlive: true)
+class EmailInputNotifier extends _$EmailInputNotifier {
+  @override
+  EmailInputData? build() => null;
+
+  void update(EmailInputData? data) {
+    state = data;
+  }
+}
 
 /// OTP Timer Provider (for phone verification)
 @riverpod
@@ -109,7 +140,7 @@ class EmailOTPTimer extends _$EmailOTPTimer {
 /// Send Phone OTP Provider
 @riverpod
 Future<SendOTPResponse> sendPhoneOTP(
-  SendPhoneOTPRef ref,
+  Ref ref,
   PhoneInputData phoneData,
 ) async {
   final service = ref.read(verificationServiceProvider);
@@ -119,7 +150,7 @@ Future<SendOTPResponse> sendPhoneOTP(
 /// Verify Phone OTP Provider
 @riverpod
 Future<VerifyOTPResponse> verifyPhoneOTP(
-  VerifyPhoneOTPRef ref,
+  Ref ref,
   PhoneInputData phoneData,
   String code,
 ) async {
@@ -130,7 +161,7 @@ Future<VerifyOTPResponse> verifyPhoneOTP(
 /// Submit Username Provider
 @riverpod
 Future<bool> submitUsername(
-  SubmitUsernameRef ref,
+  Ref ref,
   UsernameData usernameData,
 ) async {
   final service = ref.read(verificationServiceProvider);
@@ -140,7 +171,7 @@ Future<bool> submitUsername(
 /// Send Email OTP Provider
 @riverpod
 Future<SendOTPResponse> sendEmailOTP(
-  SendEmailOTPRef ref,
+  Ref ref,
   String email,
 ) async {
   final service = ref.read(verificationServiceProvider);
@@ -150,7 +181,7 @@ Future<SendOTPResponse> sendEmailOTP(
 /// Verify Email OTP Provider
 @riverpod
 Future<VerifyOTPResponse> verifyEmailOTP(
-  VerifyEmailOTPRef ref,
+  Ref ref,
   String email,
   String code,
 ) async {
@@ -161,7 +192,7 @@ Future<VerifyOTPResponse> verifyEmailOTP(
 /// Submit Email Preferences Provider
 @riverpod
 Future<bool> submitEmailPreferences(
-  SubmitEmailPreferencesRef ref,
+  Ref ref,
   EmailInputData emailData,
 ) async {
   final service = ref.read(verificationServiceProvider);

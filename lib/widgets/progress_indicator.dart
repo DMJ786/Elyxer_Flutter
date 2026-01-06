@@ -31,10 +31,12 @@ class ProgressIndicatorWidget extends StatelessWidget {
           // Progress dot indicator
           Positioned(
             top: 68,
-            left: MediaQuery.of(context).size.width / 2 -
-                140 + // Approximate center offset
-                (currentStep * 95), // Spacing between steps
-            child: Container(
+            left: (MediaQuery.of(context).size.width - 40) / 2 - // Account for 20px padding on each side
+                166.5 + // Center offset for first icon
+                (currentStep * 107.667), // Spacing: 60px icon + 47.667px bar
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
               width: 10,
               height: 10,
               decoration: const BoxDecoration(
@@ -70,36 +72,29 @@ class ProgressIndicatorWidget extends StatelessWidget {
     final size = isActive ? 60.0 : 40.0;
     final iconSize = isActive ? 24.0 : 16.0;
 
-    if (isCompleted || isActive) {
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          gradient: AppColors.brandGradient,
-          shape: BoxShape.circle,
-          boxShadow: isActive ? AppShadows.defaultShadow : null,
+    return SizedBox(
+      width: 60.0,
+      height: 60.0,
+      child: Center(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            gradient: (isCompleted || isActive) ? AppColors.brandGradient : null,
+            color: (!isCompleted && !isActive) ? AppColors.interactive100 : null,
+            shape: BoxShape.circle,
+            boxShadow: isActive ? AppShadows.defaultShadow : null,
+          ),
+          child: Icon(
+            _getIconData(step.icon),
+            size: iconSize,
+            color: (isCompleted || isActive) ? Colors.white : AppColors.interactive300,
+          ),
         ),
-        child: Icon(
-          _getIconData(step.icon),
-          size: iconSize,
-          color: Colors.white,
-        ),
-      );
-    } else {
-      return Container(
-        width: size,
-        height: size,
-        decoration: const BoxDecoration(
-          color: AppColors.interactive100,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          _getIconData(step.icon),
-          size: iconSize,
-          color: AppColors.interactive300,
-        ),
-      );
-    }
+      ),
+    );
   }
 
   Widget _buildProgressBar(int index) {
