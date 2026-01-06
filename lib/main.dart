@@ -55,7 +55,9 @@ class DatingAppVerification extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(
-            textScaleFactor: MediaQuery.of(context).textScaleFactor.clamp(1.0, 1.3),
+            textScaler: TextScaler.linear(
+              MediaQuery.textScalerOf(context).scale(1.0).clamp(1.0, 1.3),
+            ),
           ),
           child: child!,
         );

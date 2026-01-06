@@ -4,15 +4,15 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.8.0 <4.0.0'
+  sdk: '^3.8.0'
 
 dependencies:
   flutter:
     sdk: flutter
 
   # State Management
-  flutter_riverpod: ^3.1.0
-  riverpod_annotation: ^4.0.0
+  flutter_riverpod: ^3.0.3
+  riverpod_annotation: ^3.0.3
 
   # Navigation
   go_router: ^17.0.1
@@ -21,19 +21,15 @@ dependencies:
   flutter_form_builder: ^10.2.0
   form_builder_validators: ^11.2.0
 
-  # Networking
-  dio: ^5.4.0
-  retrofit: ^4.0.3
-  json_annotation: ^4.8.1
-
   # Models & Serialization
   freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
 
   # UI Components
   flutter_svg: ^2.0.9
   google_fonts: ^6.1.0
   flutter_hooks: ^0.21.3+1
-  hooks_riverpod: ^3.1.0
+  hooks_riverpod: ^3.0.3
 
 dev_dependencies:
   flutter_test:
@@ -41,18 +37,13 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   # Code Generation
-  build_runner: ^2.10.4
+  build_runner: ^2.4.7
   freezed: ^3.2.3
-  json_serializable: ^6.11.2
-  riverpod_generator: ^4.0.0+1
-  retrofit_generator: ^10.2.1
+  json_serializable: ^6.7.1
+  riverpod_generator: ^3.0.3
 
 flutter:
   uses-material-design: true
 
-  # Custom fonts will be added here
-  # fonts:
-  #   - family: PlayfairDisplay
-  #     fonts:
-  #       - asset: fonts/PlayfairDisplay-Bold.ttf
-  #         weight: 700
+  # Fonts are automatically downloaded by google_fonts package
+  # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API

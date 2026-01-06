@@ -1,0 +1,37 @@
+Analyzing dating-app-verification-flutter...                    
+
+  error - Missing concrete implementations of 'getter mixin _$PhoneInputData on Object.countryCode', 'getter mixin _$PhoneInputData on Object.phoneNumber', and 'mixin _$PhoneInputData on Object.toJson' - lib\models\verification_models.dart:12:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$OTPData on Object.code', 'getter mixin _$OTPData on Object.expiresAt', and 'mixin _$OTPData on Object.toJson' - lib\models\verification_models.dart:24:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$UsernameData on Object.firstName', 'getter mixin _$UsernameData on Object.lastName', and 'mixin _$UsernameData on Object.toJson' - lib\models\verification_models.dart:36:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$EmailInputData on Object.email', 'getter mixin _$EmailInputData on Object.enableNotifications', and 'mixin _$EmailInputData on Object.toJson' - lib\models\verification_models.dart:48:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$VerificationData on Object.email', 'getter mixin _$VerificationData on Object.emailVerified', 'getter mixin _$VerificationData on Object.phone', 'getter mixin _$VerificationData on Object.phoneVerified', and 2 more - lib\models\verification_models.dart:60:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$SendOTPResponse on Object.expiresAt', 'getter mixin _$SendOTPResponse on Object.message', 'getter mixin _$SendOTPResponse on Object.success', and 'mixin _$SendOTPResponse on Object.toJson' - lib\models\verification_models.dart:75:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$VerifyOTPResponse on Object.message', 'getter mixin _$VerifyOTPResponse on Object.success', 'getter mixin _$VerifyOTPResponse on Object.token', and 'mixin _$VerifyOTPResponse on Object.toJson' - lib\models\verification_models.dart:88:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$ProgressStep on Object.icon', 'getter mixin _$ProgressStep on Object.id', and 'getter mixin _$ProgressStep on Object.status' - lib\models\verification_models.dart:108:7 - non_abstract_class_inherits_abstract_member
+  error - Missing concrete implementations of 'getter mixin _$OTPTimerState on Object.canResend', 'getter mixin _$OTPTimerState on Object.isExpired', and 'getter mixin _$OTPTimerState on Object.timeLeft' - lib\models\verification_models.dart:126:7 - non_abstract_class_inherits_abstract_member
+  error - The function 'StateProvider' isn't defined - lib\providers\verification_provider.dart:20:5 - undefined_function
+  error - The function 'StateProvider' isn't defined - lib\providers\verification_provider.dart:23:28 - undefined_function
+  error - The function 'StateProvider' isn't defined - lib\providers\verification_provider.dart:26:26 - undefined_function
+  error - The function 'StateProvider' isn't defined - lib\providers\verification_provider.dart:29:28 - undefined_function
+  error - The name 'CustomProgressIndicator' isn't a class - lib\screens\complete_screen.dart:26:21 - creation_with_non_type
+  error - The named parameter 'label' isn't defined - lib\screens\complete_screen.dart:66:17 - undefined_named_parameter
+  error - Undefined name 'verificationProvider' - lib\screens\email_input_screen.dart:38:24 - undefined_identifier
+  error - Undefined name 'verificationProvider' - lib\screens\email_input_screen.dart:44:24 - undefined_identifier
+  error - The name 'CustomProgressIndicator' isn't a class - lib\screens\email_input_screen.dart:85:23 - creation_with_non_type
+  error - The named parameter 'label' isn't defined - lib\screens\email_input_screen.dart:134:19 - undefined_named_parameter
+  error - The argument type 'Future<void> Function()?' can't be assigned to the parameter type 'VoidCallback'.  - lib\screens\email_input_screen.dart:135:30 - argument_type_not_assignable
+  error - The named parameter 'label' isn't defined - lib\screens\email_input_screen.dart:143:19 - undefined_named_parameter
+  error - Undefined name 'verificationProvider' - lib\screens\email_otp_screen.dart:62:26 - undefined_identifier
+  error - Undefined name 'verificationProvider' - lib\screens\email_otp_screen.dart:84:24 - undefined_identifier
+  error - The name 'CustomProgressIndicator' isn't a class - lib\screens\email_otp_screen.dart:113:21 - creation_with_non_type
+  error - The named parameter 'value' is required, but there's no corresponding argument - lib\screens\email_otp_screen.dart:131:15 - missing_required_argument
+  error - The named parameter 'length' isn't defined - lib\screens\email_otp_screen.dart:132:17 - undefined_named_parameter
+  error - The named parameter 'onCompleted' isn't defined - lib\screens\email_otp_screen.dart:133:17 - undefined_named_parameter
+  error - Undefined name 'verificationProvider' - lib\screens\phone_otp_screen.dart:64:26 - undefined_identifier
+  error - Undefined name 'verificationProvider' - lib\screens\phone_otp_screen.dart:86:24 - undefined_identifier
+  error - The name 'CustomProgressIndicator' isn't a class - lib\screens\phone_otp_screen.dart:118:21 - creation_with_non_type
+  error - The named parameter 'value' is required, but there's no corresponding argument - lib\screens\phone_otp_screen.dart:136:15 - missing_required_argument
+  error - The named parameter 'length' isn't defined - lib\screens\phone_otp_screen.dart:137:17 - undefined_named_parameter
+  error - The named parameter 'onCompleted' isn't defined - lib\screens\phone_otp_screen.dart:138:17 - undefined_named_parameter
+
+33 issues found. (ran in 17.3s)

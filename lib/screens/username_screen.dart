@@ -25,46 +25,35 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _isLoading = false;
 
-  // Define progress steps
-  final List<ProgressStep> _steps = const [
-    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
-    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
-    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
-    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
-  ];
-
-  Future<void> _handleContinue() async {
+  void _handleContinue() {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
 
       final firstName = _formKey.currentState!.value['firstName'] as String;
       final lastName = _formKey.currentState!.value['lastName'] as String?;
 
-      try {
-        final service = ref.read(verificationServiceProvider);
-        final usernameData = UsernameData(
-          firstName: firstName,
-          lastName: lastName,
-        );
-        await service.submitUsername(usernameData);
+      final usernameData = UsernameData(
+        firstName: firstName,
+        lastName: lastName,
+      );
 
-        // Save username data
-        ref.read(usernameProvider.notifier).update(usernameData);
+      // Store username data
+      ref.read(usernameProvider.notifier).state = usernameData;
 
+      // Submit username
+      ref.read(submitUsernameProvider(usernameData).future).then((_) {
         if (mounted) {
+          setState(() => _isLoading = false);
           context.push('/email');
         }
-      } catch (e) {
+      }).catchError((e) {
         if (mounted) {
+          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
+      });
     }
   }
 
@@ -84,8 +73,13 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 // Progress Indicator
                 ProgressIndicatorWidget(
-                  steps: _steps,
-                  currentStep: 1,
+                  currentStep: 2,
+                  steps: const [
+                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
+                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
+                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
+                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.x8),
 
@@ -148,7 +142,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                 // Continue Button
                 CustomButton(
                   title: 'Continue',
-                  onPressed: () => _handleContinue(),
+                  onPressed: _handleContinue,
                   isLoading: _isLoading,
                   isDisabled: _isLoading,
                   variant: ButtonVariant.primary,

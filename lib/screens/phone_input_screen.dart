@@ -27,53 +27,34 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   String _selectedCountryCode = '+1';
   bool _isLoading = false;
 
-  // Define progress steps
-  final List<ProgressStep> _steps = const [
-    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
-    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
-    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
-    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
-  ];
-
-  Future<void> _handleContinue() async {
+  void _handleContinue() {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       setState(() => _isLoading = true);
 
       final phoneNumber = _formKey.currentState!.value['phoneNumber'] as String;
+      final phoneData = PhoneInputData(
+        countryCode: _selectedCountryCode,
+        phoneNumber: phoneNumber,
+      );
 
-      try {
-        // Send OTP via service
-        final service = ref.read(verificationServiceProvider);
-        final phoneData = PhoneInputData(
-          countryCode: _selectedCountryCode,
-          phoneNumber: phoneNumber,
-        );
-        await service.sendPhoneOTP(phoneData);
+      // Store phone data in provider
+      ref.read(phoneInputProvider.notifier).state = phoneData;
 
-        // Save phone input data
-        ref.read(phoneInputProvider.notifier).update(phoneData);
-
+      // Send OTP (fire and forget or handle async separately)
+      ref.read(sendPhoneOTPProvider(phoneData).future).then((_) {
         if (mounted) {
+          setState(() => _isLoading = false);
           // Navigate to OTP verification screen
-          context.push(
-            '/phone-otp',
-            extra: {
-              'phoneNumber': phoneNumber,
-              'countryCode': _selectedCountryCode,
-            },
-          );
+          context.push('/phone-otp');
         }
-      } catch (e) {
+      }).catchError((e) {
         if (mounted) {
+          setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error: ${e.toString()}')),
           );
         }
-      } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
-      }
+      });
     }
   }
 
@@ -145,8 +126,13 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
                 // Progress Indicator
                 ProgressIndicatorWidget(
-                  steps: _steps,
                   currentStep: 0,
+                  steps: const [
+                    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
+                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
+                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
+                    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.x8),
 
@@ -238,7 +224,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 // Continue Button
                 CustomButton(
                   title: 'Continue',
-                  onPressed: () => _handleContinue(),
+                  onPressed: _handleContinue,
                   isLoading: _isLoading,
                   isDisabled: _isLoading,
                   variant: ButtonVariant.primary,
