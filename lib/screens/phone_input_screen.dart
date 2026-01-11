@@ -11,7 +11,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/info_banner.dart';
-import '../widgets/progress_indicator.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -112,43 +111,19 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.cream,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: FormBuilder(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSpacing.x14),
-
-                // Progress Indicator - wrapped in Hero to keep it static during transitions
-                Hero(
-                  tag: 'progress_indicator',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: ProgressIndicatorWidget(
-                      currentStep: 0,
-                      steps: const [
-                        ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
-                        ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
-                        ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
-                        ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.x8),
-
-                // Title
-                Text(
-                  "Let's verify your account",
-                  style: Theme.of(context).textTheme.displayLarge,
-                ),
-                const SizedBox(height: AppSpacing.x4),
+    return FormBuilder(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Title
+            Text(
+              "Let's verify your account",
+              style: Theme.of(context).textTheme.displayLarge,
+            ),
+            const SizedBox(height: AppSpacing.x4),
 
                 // Input Row: Country Code + Phone Number
                 Row(
@@ -287,8 +262,6 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }

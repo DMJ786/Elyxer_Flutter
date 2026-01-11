@@ -10,7 +10,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
-import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
 import '../providers/verification_provider.dart';
 
@@ -109,35 +108,20 @@ class PhoneOTPScreen extends HookConsumerWidget {
       }
     }
 
-    return Scaffold(
-      backgroundColor: AppColors.cream,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: AppSpacing.x14),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Title
+          Text(
+            'Enter verification code',
+            style: Theme.of(context).textTheme.displayLarge,
+          ),
+          const SizedBox(height: AppSpacing.x2),
 
-              // Progress Indicator - wrapped in Hero to keep it static during transitions
-              Hero(
-                tag: 'progress_indicator',
-                child: Material(
-                  color: Colors.transparent,
-                  child: const CustomProgressIndicator(currentStep: 0),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.x8),
-
-              // Title
-              Text(
-                'Enter verification code',
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              const SizedBox(height: AppSpacing.x2),
-
-              // Subtitle
-              Text(
+          // Subtitle
+          Text(
                 'We sent a code to $countryCode $phoneNumber',
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
@@ -217,20 +201,23 @@ class PhoneOTPScreen extends HookConsumerWidget {
                   ),
                 ),
               ),
+              const Spacer(),
+              // Next Button at bottom
+              Align(
+                alignment: Alignment.centerRight,
+                child: NextButton(
+                  onPressed: otpCode.value.length == 6 
+                      ? () {
+                          verifyOTP(otpCode.value);
+                        }
+                      : null,
+                  isLoading: isLoading.value,
+                  isEnabled: otpCode.value.length == 6,
+                ),
+              ),
               const SizedBox(height: AppSpacing.x6),
             ],
           ),
-        ),
-      ),
-      floatingActionButton: NextButton(
-        onPressed: otpCode.value.length == 6 
-            ? () {
-                verifyOTP(otpCode.value);
-              }
-            : null,
-        isLoading: isLoading.value,
-        isEnabled: otpCode.value.length == 6,
-      ),
-    );
+        );
   }
 }

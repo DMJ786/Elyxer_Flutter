@@ -11,9 +11,27 @@ import '../screens/username_screen.dart';
 import '../screens/email_input_screen.dart';
 import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
+import '../layouts/verification_layout.dart';
 
-/// Custom page transition that animates only content, not progress bar
-/// Mimics Figma's Smart Animate behavior
+/// Helper function to determine step based on route path
+int _getStepFromPath(String path) {
+  switch (path) {
+    case '/':
+    case '/phone-otp':
+      return 0; // Phone step
+    case '/username':
+      return 1; // Account step
+    case '/email':
+    case '/email-otp':
+      return 2; // Email step
+    case '/complete':
+      return 3; // Complete step
+    default:
+      return 0;
+  }
+}
+
+/// Custom page transition that animates only content
 CustomTransitionPage<T> buildContentTransition<T>({
   required BuildContext context,
   required GoRouterState state,
@@ -23,10 +41,8 @@ CustomTransitionPage<T> buildContentTransition<T>({
     key: state.pageKey,
     child: child,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      // Smoother curve for better slide feel
       const curve = Curves.easeInOutCubic;
       
-      // Incoming screen animation (slide + fade in)
       final slideAnimation = Tween<Offset>(
         begin: const Offset(1.0, 0.0), // Enter from right
         end: Offset.zero,
@@ -65,81 +81,95 @@ final appRouter = GoRouter(
   initialLocation: '/',
   debugLogDiagnostics: true,
   routes: [
-    // Route 1: Phone Input Screen (Initial screen)
-    GoRoute(
-      path: '/',
-      name: 'phone-input',
-      pageBuilder: (context, state) => buildContentTransition(
-        context: context,
-        state: state,
-        child: const PhoneInputScreen(),
-      ),
-    ),
-
-    // Route 2: Phone OTP Verification
-    GoRoute(
-      path: '/phone-otp',
-      name: 'phone-otp',
-      pageBuilder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return buildContentTransition(
-          context: context,
-          state: state,
-          child: PhoneOTPScreen(
-            phoneNumber: extra?['phoneNumber'] as String? ?? '',
-            countryCode: extra?['countryCode'] as String? ?? '+1',
-          ),
+    // ShellRoute wraps all verification screens with the progress bar layout
+    ShellRoute(
+      builder: (context, state, child) {
+        // Determine current step based on current route
+        final currentStep = _getStepFromPath(state.uri.path);
+        
+        return VerificationLayout(
+          currentStep: currentStep,
+          child: child,
         );
       },
-    ),
-
-    // Route 3: Username Input
-    GoRoute(
-      path: '/username',
-      name: 'username',
-      pageBuilder: (context, state) => buildContentTransition(
-        context: context,
-        state: state,
-        child: const UsernameScreen(),
-      ),
-    ),
-
-    // Route 4: Email Input
-    GoRoute(
-      path: '/email',
-      name: 'email',
-      pageBuilder: (context, state) => buildContentTransition(
-        context: context,
-        state: state,
-        child: const EmailInputScreen(),
-      ),
-    ),
-
-    // Route 5: Email OTP Verification
-    GoRoute(
-      path: '/email-otp',
-      name: 'email-otp',
-      pageBuilder: (context, state) {
-        final extra = state.extra as Map<String, dynamic>?;
-        return buildContentTransition(
-          context: context,
-          state: state,
-          child: EmailOTPScreen(
-            email: extra?['email'] as String? ?? '',
+      routes: [
+        // Route 1: Phone Input Screen (Initial screen)
+        GoRoute(
+          path: '/',
+          name: 'phone-input',
+          pageBuilder: (context, state) => buildContentTransition(
+            context: context,
+            state: state,
+            child: const PhoneInputScreen(),
           ),
-        );
-      },
-    ),
+        ),
 
-    // Route 6: Completion Screen
-    GoRoute(
-      path: '/complete',
-      name: 'complete',
-      pageBuilder: (context, state) => buildContentTransition(
-        context: context,
-        state: state,
-        child: const CompleteScreen(),
-      ),
+        // Route 2: Phone OTP Verification
+        GoRoute(
+          path: '/phone-otp',
+          name: 'phone-otp',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return buildContentTransition(
+              context: context,
+              state: state,
+              child: PhoneOTPScreen(
+                phoneNumber: extra?['phoneNumber'] as String? ?? '',
+                countryCode: extra?['countryCode'] as String? ?? '+1',
+              ),
+            );
+          },
+        ),
+
+        // Route 3: Username Input
+        GoRoute(
+          path: '/username',
+          name: 'username',
+          pageBuilder: (context, state) => buildContentTransition(
+            context: context,
+            state: state,
+            child: const UsernameScreen(),
+          ),
+        ),
+
+        // Route 4: Email Input
+        GoRoute(
+          path: '/email',
+          name: 'email',
+          pageBuilder: (context, state) => buildContentTransition(
+            context: context,
+            state: state,
+            child: const EmailInputScreen(),
+          ),
+        ),
+
+        // Route 5: Email OTP Verification
+        GoRoute(
+          path: '/email-otp',
+          name: 'email-otp',
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return buildContentTransition(
+              context: context,
+              state: state,
+              child: EmailOTPScreen(
+                email: extra?['email'] as String? ?? '',
+              ),
+            );
+          },
+        ),
+
+        // Route 6: Completion Screen
+        GoRoute(
+          path: '/complete',
+          name: 'complete',
+          pageBuilder: (context, state) => buildContentTransition(
+            context: context,
+            state: state,
+            child: const CompleteScreen(),
+          ),
+        ),
+      ],
     ),
   ],
 
