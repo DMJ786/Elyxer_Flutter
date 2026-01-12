@@ -5,7 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
-import '../widgets/custom_button.dart';
+import '../widgets/next_button.dart';
 import '../models/verification_models.dart';
 
 class CompleteScreen extends StatelessWidget {
@@ -73,13 +73,16 @@ class CompleteScreen extends StatelessWidget {
 
               const Spacer(),
 
-              // Get Started Button
-              CustomButton(
-                title: 'Get Started',
-                onPressed: () {
-                  // TODO: Navigate to main app
-                },
-                variant: ButtonVariant.primary,
+              // Next Button - Positioned at bottom right
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  NextButton(
+                    onPressed: () {
+                      // TODO: Navigate to main app
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.x6),
             ],

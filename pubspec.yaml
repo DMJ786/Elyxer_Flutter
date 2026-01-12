@@ -45,5 +45,14 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  # Assets
+  assets:
+    - assets/images/PhonenumberIconContainer/
+    - assets/images/AccountIconContainer/
+    - assets/images/MailIconContainer/
+    - assets/images/CompleteIconContainer/
+    - assets/images/NextButton/
+    - assets/images/InformationIconContainer/
+
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API

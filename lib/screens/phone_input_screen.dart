@@ -9,9 +9,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
 import '../widgets/info_banner.dart';
 import '../widgets/progress_indicator.dart';
+import '../widgets/next_button.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -219,42 +219,6 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 const InfoBanner(
                   message: 'Secure, private and only used for verification',
                 ),
-                const SizedBox(height: AppSpacing.x6),
-
-                // Continue Button
-                CustomButton(
-                  title: 'Continue',
-                  onPressed: _handleContinue,
-                  isLoading: _isLoading,
-                  isDisabled: _isLoading,
-                  variant: ButtonVariant.primary,
-                ),
-                const SizedBox(height: AppSpacing.x4),
-
-                // TEST: Onboarding Flow Button
-                OutlinedButton(
-                  onPressed: () => context.push('/onboarding'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 54),
-                    side: const BorderSide(color: AppColors.brandDark, width: 2),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.large),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.play_arrow, color: AppColors.brandDark),
-                      const SizedBox(width: AppSpacing.x2),
-                      Text(
-                        'Test Onboarding Animations',
-                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: AppColors.brandDark,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
                 const SizedBox(height: AppSpacing.x4),
 
                 // Footer Link
@@ -271,6 +235,16 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                         decoration: TextDecoration.underline,
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.x6),
+
+                // Next Button - Positioned at bottom right
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: NextButton(
+                    onPressed: _isLoading ? null : _handleContinue,
+                    isDisabled: _isLoading,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.x6),
