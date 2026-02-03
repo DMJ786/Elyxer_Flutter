@@ -48,6 +48,7 @@ class _NextButtonState extends State<NextButton> {
       onTapCancel: () => setState(() => _isPressed = false),
       child: SvgPicture.asset(
         _assetPath,
+        key: ValueKey(_assetPath),
         width: 54,
         height: 54,
         fit: BoxFit.contain,
