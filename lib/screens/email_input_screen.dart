@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/progress_indicator.dart';
+import '../widgets/next_button.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -149,21 +150,23 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
                 const Spacer(),
 
-                // Continue Button
-                CustomButton(
-                  title: 'Continue',
-                  onPressed: () => _handleContinue(),
-                  isLoading: _isLoading,
-                  isDisabled: _isLoading,
-                  variant: ButtonVariant.primary,
-                ),
-                const SizedBox(height: AppSpacing.x4),
-
                 // Skip Button
                 CustomButton(
                   title: 'Skip for now',
                   onPressed: () => _handleSkip(),
                   variant: ButtonVariant.text,
+                ),
+                const SizedBox(height: AppSpacing.x6),
+
+                // Next Button - Positioned at bottom right
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    NextButton(
+                      onPressed: _isLoading ? null : () => _handleContinue(),
+                      isDisabled: _isLoading,
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.x6),
               ],

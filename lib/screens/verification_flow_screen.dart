@@ -14,6 +14,7 @@ import '../models/verification_models.dart';
 import '../providers/verification_provider.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/otp_input.dart';
+import '../widgets/next_button.dart';
 
 class VerificationFlowScreen extends ConsumerStatefulWidget {
   const VerificationFlowScreen({super.key});
@@ -385,26 +386,12 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
             ),
             const SizedBox(height: AppSpacing.x6),
 
-            Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.brandGradient,
-                borderRadius: BorderRadius.circular(AppRadius.large),
-                boxShadow: AppShadows.defaultShadow,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: _isLoading ? null : _handleContinue,
-                  borderRadius: BorderRadius.circular(AppRadius.large),
-                  child: Container(
-                    width: double.infinity,
-                    height: 54,
-                    alignment: Alignment.center,
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.arrow_forward, color: Colors.white, size: 24),
-                  ),
-                ),
+            // Next Button - uses SVG assets with proper state handling
+            Align(
+              alignment: Alignment.centerRight,
+              child: NextButton(
+                onPressed: _isLoading ? null : _handleContinue,
+                isDisabled: _isLoading,
               ),
             ),
             const SizedBox(height: AppSpacing.x6),
@@ -717,27 +704,12 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
 
             const Spacer(),
 
-            // Continue Button
-            Container(
-              decoration: BoxDecoration(
-                gradient: AppColors.brandGradient,
-                borderRadius: BorderRadius.circular(AppRadius.large),
-                boxShadow: AppShadows.defaultShadow,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: _isLoading ? null : _handleContinue,
-                  borderRadius: BorderRadius.circular(AppRadius.large),
-                  child: Container(
-                    width: double.infinity,
-                    height: 54,
-                    alignment: Alignment.center,
-                    child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.arrow_forward, color: Colors.white, size: 24),
-                  ),
-                ),
+            // Next Button - uses SVG assets with proper state handling
+            Align(
+              alignment: Alignment.centerRight,
+              child: NextButton(
+                onPressed: _isLoading ? null : _handleContinue,
+                isDisabled: _isLoading,
               ),
             ),
             const SizedBox(height: AppSpacing.x4),

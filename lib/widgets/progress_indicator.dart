@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 import '../models/verification_models.dart';
 
@@ -68,29 +69,20 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
   Widget _buildStepIcon(ProgressStep step, int index) {
     final isActive = index == currentStep;
-    final isCompleted = step.status == StepStatus.completed;
     final size = isActive ? 60.0 : 40.0;
-    final iconSize = isActive ? 24.0 : 16.0;
 
     return SizedBox(
       width: 60.0,
       height: 60.0,
       child: Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+        child: SizedBox(
           width: size,
           height: size,
-          decoration: BoxDecoration(
-            gradient: (isCompleted || isActive) ? AppColors.brandGradient : null,
-            color: (!isCompleted && !isActive) ? AppColors.interactive100 : null,
-            shape: BoxShape.circle,
-            boxShadow: isActive ? AppShadows.defaultShadow : null,
-          ),
-          child: Icon(
-            _getIconData(step.icon),
-            size: iconSize,
-            color: (isCompleted || isActive) ? Colors.white : AppColors.interactive300,
+          child: SvgPicture.asset(
+            _getIconAssetPath(step.icon, step.status),
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
           ),
         ),
       ),
@@ -105,9 +97,9 @@ class ProgressIndicatorWidget extends StatelessWidget {
         steps[index + 1].status == StepStatus.inProgress;
 
     return Container(
-      width: 39.667,
+      width: 30.0,
       height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.x1),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: isCompleted
             ? AppColors.brandDark
@@ -118,16 +110,20 @@ class ProgressIndicatorWidget extends StatelessWidget {
     );
   }
 
-  IconData _getIconData(StepIcon icon) {
-    switch (icon) {
-      case StepIcon.phone:
-        return Icons.phone_outlined;
-      case StepIcon.account:
-        return Icons.person_outline;
-      case StepIcon.mail:
-        return Icons.mail_outline;
-      case StepIcon.complete:
-        return Icons.check;
-    }
+  String _getIconAssetPath(StepIcon icon, StepStatus status) {
+    final statusFolder = switch (status) {
+      StepStatus.completed => 'Completed',
+      StepStatus.inProgress => 'Inprogress',
+      StepStatus.incomplete => 'Incomplete',
+    };
+
+    final iconFolder = switch (icon) {
+      StepIcon.phone => 'PhonenumberIconContainer',
+      StepIcon.account => 'AccountIconContainer',
+      StepIcon.mail => 'MailIconContainer',
+      StepIcon.complete => 'CompleteIconContainer',
+    };
+
+    return 'assets/images/$iconFolder/$statusFolder.svg';
   }
 }

@@ -13,6 +13,7 @@ import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/verification_flow_screen.dart';
+import '../screens/debug/next_button_debug_screen.dart';
 
 /// App router instance
 final appRouter = GoRouter(
@@ -84,6 +85,13 @@ final appRouter = GoRouter(
       path: '/complete',
       name: 'complete',
       builder: (context, state) => const CompleteScreen(),
+    ),
+
+    // Debug Route: NextButton Debug Screen
+    GoRoute(
+      path: '/debug/next-button',
+      name: 'next-button-debug',
+      builder: (context, state) => const NextButtonDebugScreen(),
     ),
   ],
 
