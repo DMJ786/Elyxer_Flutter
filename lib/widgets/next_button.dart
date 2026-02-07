@@ -46,6 +46,11 @@ class _NextButtonState extends State<NextButton> {
               widget.onPressed?.call();
             },
       onTapCancel: () => setState(() => _isPressed = false),
+      // ValueKey forces Flutter to rebuild the widget when asset path changes.
+      // Without this, Flutter's widget reconciliation caches the SvgPicture
+      // and doesn't recognize that the asset path has changed, causing the
+      // button to display the wrong state (e.g., showing Default.svg when
+      // it should show Disabled.svg).
       child: SvgPicture.asset(
         _assetPath,
         key: ValueKey(_assetPath),
