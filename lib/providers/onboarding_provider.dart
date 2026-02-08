@@ -75,6 +75,37 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     );
   }
 
+  void updateSexualOrientation(SexualOrientation orientation) {
+    state = state.copyWith(sexualOrientation: orientation);
+  }
+
+  void toggleShowSexualOrientationOnProfile() {
+    state = state.copyWith(
+      showSexualOrientationOnProfile: !state.showSexualOrientationOnProfile,
+    );
+  }
+
+  void toggleDatingPreference(DatingPreference preference) {
+    final preferences = List<DatingPreference>.from(state.datingPreferences);
+    if (preferences.contains(preference)) {
+      preferences.remove(preference);
+    } else {
+      preferences.add(preference);
+    }
+    state = state.copyWith(datingPreferences: preferences);
+  }
+
+  void toggleDatingGoal(String goalId) {
+    final goals = List<String>.from(state.datingGoalIds);
+    if (goals.contains(goalId)) {
+      goals.remove(goalId);
+    } else if (goals.length < 2) {
+      // Enforce max 2 selections
+      goals.add(goalId);
+    }
+    state = state.copyWith(datingGoalIds: goals);
+  }
+
   /// Validate if current step can proceed
   bool canProceed(OnboardingStep step) {
     switch (step) {
@@ -84,6 +115,12 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
         return state.gender != null;
       case OnboardingStep.pronoun:
         return state.pronouns.isNotEmpty || state.customPronoun != null;
+      case OnboardingStep.sexualOrientation:
+        return state.sexualOrientation != null;
+      case OnboardingStep.datingPreference:
+        return state.datingPreferences.isNotEmpty;
+      case OnboardingStep.datingGoals:
+        return state.datingGoalIds.isNotEmpty && state.datingGoalIds.length <= 2;
       case OnboardingStep.complete:
         // Complete step can always proceed (it's the final step)
         return true;
