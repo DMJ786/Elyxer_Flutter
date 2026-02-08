@@ -99,12 +99,20 @@ class _NextButtonState extends State<NextButton> {
       // and doesn't recognize that the asset path has changed, causing the
       // button to display the wrong state (e.g., showing Default.svg when
       // it should show Disabled.svg).
-      child: SvgPicture.asset(
-        currentAsset,
-        key: ValueKey(currentAsset),
-        width: 54,
-        height: 54,
-        fit: BoxFit.contain,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          // Responsive sizing: 14% of screen width, min 44px, max 64px
+          final screenWidth = MediaQuery.of(context).size.width;
+          final size = (screenWidth * 0.14).clamp(44.0, 64.0);
+
+          return SvgPicture.asset(
+            currentAsset,
+            key: ValueKey(currentAsset),
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+          );
+        },
       ),
     );
   }
