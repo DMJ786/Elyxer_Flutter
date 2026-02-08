@@ -19,6 +19,10 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Find which step is currently in progress for the dot position
+    final inProgressIndex = steps.indexWhere((step) => step.status == StepStatus.inProgress);
+    final dotPosition = inProgressIndex >= 0 ? inProgressIndex : currentStep;
+    
     return SizedBox(
       height: 78,
       child: Stack(
@@ -34,7 +38,7 @@ class ProgressIndicatorWidget extends StatelessWidget {
             top: 68,
             left: (MediaQuery.of(context).size.width - 40) / 2 - // Account for 20px padding on each side
                 166.5 + // Center offset for first icon
-                (currentStep * 107.667), // Spacing: 60px icon + 47.667px bar
+                (dotPosition * 107.667), // Spacing: 60px icon + 47.667px bar
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOut,
@@ -68,7 +72,8 @@ class ProgressIndicatorWidget extends StatelessWidget {
   }
 
   Widget _buildStepIcon(ProgressStep step, int index) {
-    final isActive = index == currentStep;
+    // Icon is active if it's in progress status
+    final isActive = step.status == StepStatus.inProgress;
     final size = isActive ? 60.0 : 40.0;
 
     return SizedBox(
