@@ -19,69 +19,56 @@ class ProgressIndicatorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Responsive icon size: 15% of screen width, clamped between 48-70px
+    final iconSize = (screenWidth * 0.15).clamp(48.0, 70.0);
+
     return SizedBox(
-      height: 78,
-      child: Stack(
-        alignment: Alignment.topCenter,
-        children: [
-          // Step indicators and bars
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: _buildStepsWithBars(),
-          ),
-          // Progress dot indicator
-          Positioned(
-            top: 68,
-            left: (MediaQuery.of(context).size.width - 40) / 2 - // Account for 20px padding on each side
-                166.5 + // Center offset for first icon
-                (currentStep * 107.667), // Spacing: 60px icon + 47.667px bar
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              width: 10,
-              height: 10,
-              decoration: const BoxDecoration(
-                color: AppColors.brandDark,
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-        ],
+      height: iconSize,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: _buildStepsWithBars(context),
       ),
     );
   }
 
-  List<Widget> _buildStepsWithBars() {
+  List<Widget> _buildStepsWithBars(BuildContext context) {
     final widgets = <Widget>[];
 
     for (int i = 0; i < steps.length; i++) {
       // Add step icon
-      widgets.add(_buildStepIcon(steps[i], i));
+      widgets.add(_buildStepIcon(steps[i], i, context));
 
       // Add progress bar between steps (except after last step)
       if (i < steps.length - 1) {
-        widgets.add(_buildProgressBar(i));
+        widgets.add(_buildProgressBar(i, context));
       }
     }
 
     return widgets;
   }
 
-  Widget _buildStepIcon(ProgressStep step, int index) {
+  Widget _buildStepIcon(ProgressStep step, int index, BuildContext context) {
     final isActive = index == currentStep;
-    final size = isActive ? 60.0 : 40.0;
+
+    // Responsive sizing based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    final activeSize = (screenWidth * 0.15).clamp(48.0, 70.0);
+    final inactiveSize = (screenWidth * 0.10).clamp(32.0, 50.0);
+    final containerSize = activeSize;
+    final iconSize = isActive ? activeSize : inactiveSize;
 
     return SizedBox(
-      width: 60.0,
-      height: 60.0,
+      width: containerSize,
+      height: containerSize,
       child: Center(
         child: SizedBox(
-          width: size,
-          height: size,
+          width: iconSize,
+          height: iconSize,
           child: SvgPicture.asset(
             _getIconAssetPath(step.icon, step.status),
-            width: size,
-            height: size,
+            width: iconSize,
+            height: iconSize,
             fit: BoxFit.contain,
           ),
         ),
@@ -89,15 +76,19 @@ class ProgressIndicatorWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(int index) {
+  Widget _buildProgressBar(int index, BuildContext context) {
     final isCompleted = steps[index].status == StepStatus.completed;
     final isInProgress =
         steps[index].status == StepStatus.completed &&
         index + 1 < steps.length &&
         steps[index + 1].status == StepStatus.inProgress;
 
+    // Responsive bar width: 8% of screen width, clamped between 20-40px
+    final screenWidth = MediaQuery.of(context).size.width;
+    final barWidth = (screenWidth * 0.08).clamp(20.0, 40.0);
+
     return Container(
-      width: 30.0,
+      width: barWidth,
       height: 2,
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
