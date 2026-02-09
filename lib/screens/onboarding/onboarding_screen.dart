@@ -12,6 +12,9 @@ import '../../widgets/onboarding_progress_indicator.dart';
 import 'age_input_screen.dart';
 import 'gender_selection_screen.dart';
 import 'pronoun_selection_screen.dart';
+import 'sexual_orientation_screen.dart';
+import 'dating_preference_screen.dart';
+import 'dating_goals_screen.dart';
 import 'onboarding_complete_screen.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -112,6 +115,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       case OnboardingStep.pronoun:
         message = 'Please select at least one pronoun';
         break;
+      case OnboardingStep.sexualOrientation:
+        message = 'Please select your sexual orientation';
+        break;
+      case OnboardingStep.datingPreference:
+        message = 'Please select at least one preference';
+        break;
+      case OnboardingStep.datingGoals:
+        message = 'Please select 1-2 dating goals';
+        break;
       default:
         message = 'Please complete this step';
     }
@@ -182,6 +194,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                     AgeInputScreen(),
                     GenderSelectionScreen(),
                     PronounSelectionScreen(),
+                    SexualOrientationScreen(),
+                    DatingPreferenceScreen(),
+                    DatingGoalsScreen(),
                     OnboardingCompleteScreen(),
                   ],
                 ),
