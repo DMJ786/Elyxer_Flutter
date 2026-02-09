@@ -26,8 +26,8 @@ class PhoneOTPScreen extends HookConsumerWidget {
 
   // Define progress steps
   static const List<ProgressStep> _steps = [
-    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
-    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
+    ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
+    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
     ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
     ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
   ];

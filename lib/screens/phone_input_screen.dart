@@ -6,9 +6,9 @@ library;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:intl_phone_field/phone_number.dart';
 import 'package:intl_phone_field/country_picker_dialog.dart';
+import 'package:intl_phone_field/countries.dart';
 
 import '../theme/app_theme.dart';
 import '../widgets/info_banner.dart';
@@ -26,9 +26,29 @@ class PhoneInputScreen extends ConsumerStatefulWidget {
 
 class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
   bool _isLoading = false;
   bool _isValidPhone = false;
   PhoneNumber? _phoneNumber;
+  late Country _selectedCountry;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with US as default
+    _selectedCountry = countries.firstWhere((country) => country.code == 'US');
+    _phoneNumber = PhoneNumber(
+      countryISOCode: _selectedCountry.code,
+      countryCode: _selectedCountry.dialCode,
+      number: '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
 
   void _handleContinue() {
     if (_formKey.currentState?.validate() ?? false) {
@@ -47,7 +67,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
       );
 
       // Store phone data in provider
-      ref.read(phoneInputProvider.notifier).state = phoneData;
+      ref.read(phoneInputProvider.notifier).update(phoneData);
 
       // Send OTP
       ref.read(sendPhoneOTPProvider(phoneData).future).then((_) {
@@ -103,134 +123,175 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                 ),
                 const SizedBox(height: AppSpacing.x4),
 
-                // Phone Input with Country Picker
-                IntlPhoneField(
-                  decoration: InputDecoration(
-                    hintText: 'Phone number',
-                    hintStyle: const TextStyle(
-                      color: AppColors.interactive200,
-                      fontSize: 16,
-                    ),
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.x4,
-                      vertical: AppSpacing.x3,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      borderSide: const BorderSide(
-                        color: AppColors.interactive200,
-                        width: 2,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      borderSide: const BorderSide(
-                        color: AppColors.interactive200,
-                        width: 2,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      borderSide: const BorderSide(
-                        color: AppColors.focus,
-                        width: 2,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      borderSide: const BorderSide(
-                        color: AppColors.error,
-                        width: 2,
-                      ),
-                    ),
-                    focusedErrorBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      borderSide: const BorderSide(
-                        color: AppColors.error,
-                        width: 2,
-                      ),
-                    ),
-                    counterText: '', // Hide character counter
-                  ),
-                  initialCountryCode: 'US',
-                  disableLengthCheck: false,
-                  dropdownTextStyle: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.interactive500,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: AppColors.interactive500,
-                  ),
-                  flagsButtonPadding: const EdgeInsets.only(left: AppSpacing.x3),
-                  dropdownIconPosition: IconPosition.trailing,
-                  dropdownIcon: const Icon(
-                    Icons.arrow_drop_down,
-                    color: AppColors.interactive300,
-                  ),
-                  showCountryFlag: true,
-                  showDropdownIcon: true,
-                  pickerDialogStyle: PickerDialogStyle(
-                    backgroundColor: AppColors.cream,
-                    countryNameStyle: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.interactive500,
-                    ),
-                    countryCodeStyle: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.interactive300,
-                    ),
-                    searchFieldInputDecoration: InputDecoration(
-                      hintText: 'Search country',
-                      hintStyle: const TextStyle(
-                        color: AppColors.interactive200,
-                      ),
-                      prefixIcon: const Icon(
-                        Icons.search,
-                        color: AppColors.interactive300,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium),
-                        borderSide: const BorderSide(
+                // Phone Input with separate country code and number boxes
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Country Code Selector Box
+                    Container(
+                      constraints: const BoxConstraints(minWidth: 110),
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border.all(
                           color: AppColors.interactive200,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(AppRadius.medium),
+                      ),
+                      child: InkWell(
+                          onTap: () async {
+                            await showDialog<Country>(
+                              context: context,
+                              builder: (context) => Theme(
+                                data: Theme.of(context).copyWith(
+                                  scaffoldBackgroundColor: AppColors.cream,
+                                ),
+                                child: CountryPickerDialog(
+                                  filteredCountries: countries,
+                                  searchText: 'Search country',
+                                  countryList: countries,
+                                  selectedCountry: _selectedCountry,
+                                  languageCode: 'en',
+                                  onCountryChanged: (country) {
+                                    setState(() {
+                                      _selectedCountry = country;
+                                      _phoneNumber = PhoneNumber(
+                                        countryISOCode: country.code,
+                                        countryCode: country.dialCode,
+                                        number: _phoneController.text,
+                                      );
+                                    });
+                                  },
+                                  style: PickerDialogStyle(
+                                    backgroundColor: AppColors.cream,
+                                    countryNameStyle: const TextStyle(
+                                      fontSize: 16,
+                                      color: AppColors.interactive500,
+                                    ),
+                                    countryCodeStyle: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.interactive300,
+                                    ),
+                                    searchFieldInputDecoration: InputDecoration(
+                                      hintText: 'Search country',
+                                      hintStyle: const TextStyle(color: AppColors.interactive200),
+                                      prefixIcon: const Icon(Icons.search, color: AppColors.interactive300),
+                                      filled: true,
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(AppRadius.medium),
+                                        borderSide: const BorderSide(color: AppColors.interactive200),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.x4,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _selectedCountry.flag,
+                                style: const TextStyle(fontSize: 24),
+                              ),
+                              const SizedBox(width: AppSpacing.x2),
+                              Text(
+                                '+${_selectedCountry.dialCode}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.interactive500,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.x1),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                                color: AppColors.interactive300,
+                              ),
+                            ],
+                            ),
+                          ),
                         ),
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium),
-                        borderSide: const BorderSide(
-                          color: AppColors.interactive200,
+
+                    const SizedBox(width: AppSpacing.x3),
+                    
+                    // Phone Number Input Box
+                    Expanded(
+                      child: Container(
+                        height: 56,
+                        alignment: Alignment.center,
+                        child: TextField(
+                          controller: _phoneController,
+                          keyboardType: TextInputType.phone,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: AppColors.interactive500,
+                          ),
+                          decoration: InputDecoration(
+                          hintText: 'Phone number',
+                          hintStyle: const TextStyle(
+                            color: AppColors.interactive200,
+                            fontSize: 16,
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.x4,
+                            vertical: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            borderSide: const BorderSide(
+                              color: AppColors.interactive200,
+                              width: 2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            borderSide: const BorderSide(
+                              color: AppColors.interactive200,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            borderSide: const BorderSide(
+                              color: AppColors.focus,
+                              width: 2,
+                            ),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.medium),
+                            borderSide: const BorderSide(
+                              color: AppColors.error,
+                              width: 2,
+                            ),
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.medium),
-                        borderSide: const BorderSide(
-                          color: AppColors.focus,
-                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _phoneNumber = PhoneNumber(
+                              countryISOCode: _selectedCountry.code,
+                              countryCode: _selectedCountry.dialCode,
+                              number: value,
+                            );
+                            _isValidPhone = value.length >= 10;
+                          });
+                        },
                       ),
                     ),
                   ),
-                  onChanged: (phone) {
-                    _phoneNumber = phone;
-                    // Check if phone is complete (has required digits)
-                    setState(() {
-                      _isValidPhone = phone.completeNumber.length > 5;
-                    });
-                  },
-                  onCountryChanged: (country) {
-                    debugPrint('Country changed to: ${country.name} (+${country.dialCode})');
-                  },
-                  validator: (phone) {
-                    if (phone == null || phone.number.isEmpty) {
-                      return 'Please enter your phone number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.x2),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.x2),
 
                 // Helper Text
                 Text(

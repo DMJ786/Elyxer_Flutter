@@ -26,8 +26,8 @@ class EmailOTPScreen extends HookConsumerWidget {
   static const List<ProgressStep> _steps = [
     ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
     ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
-    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.completed),
-    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.inProgress),
+    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
+    ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
   ];
 
   @override
@@ -72,7 +72,7 @@ class EmailOTPScreen extends HookConsumerWidget {
           await service.verifyEmailOTP(email, code);
 
           if (context.mounted) {
-            context.push('/complete');
+            context.push('/onboarding');
           }
         } catch (e) {
           error.value = 'Invalid code. Please try again.';

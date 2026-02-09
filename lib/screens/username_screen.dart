@@ -38,13 +38,13 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
       );
 
       // Store username data
-      ref.read(usernameProvider.notifier).state = usernameData;
+      ref.read(usernameProvider.notifier).update(usernameData);
 
       // Submit username
       ref.read(submitUsernameProvider(usernameData).future).then((_) {
         if (mounted) {
           setState(() => _isLoading = false);
-          context.push('/email');
+          context.push('/email-input');
         }
       }).catchError((e) {
         if (mounted) {
@@ -76,8 +76,8 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                   currentStep: 2,
                   steps: const [
                     ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.completed),
-                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.completed),
-                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.inProgress),
+                    ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.inProgress),
+                    ProgressStep(id: '3', icon: StepIcon.mail, status: StepStatus.incomplete),
                     ProgressStep(id: '4', icon: StepIcon.complete, status: StepStatus.incomplete),
                   ],
                 ),

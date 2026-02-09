@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../theme/app_theme.dart';
 
 class InfoBanner extends StatelessWidget {
@@ -28,20 +29,12 @@ class InfoBanner extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Gradient icon container
-          Container(
+          // Information icon from SVG asset
+          SvgPicture.asset(
+            'assets/images/InformationIconContainer/InformationIconContainer.svg',
             width: 24,
             height: 24,
-            decoration: BoxDecoration(
-              gradient: AppColors.brandGradient,
-              borderRadius: BorderRadius.circular(AppRadius.round),
-              boxShadow: AppShadows.pressedShadow,
-            ),
-            child: const Icon(
-              Icons.info_outline,
-              size: 14,
-              color: Colors.white,
-            ),
+            fit: BoxFit.contain,
           ),
           const SizedBox(width: AppSpacing.x4),
           // Message text
