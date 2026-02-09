@@ -11,6 +11,10 @@ class OnboardingData {
   final String? customPronoun;
   final bool showGenderOnProfile;
   final bool showPronounsOnProfile;
+  final SexualOrientation? sexualOrientation;
+  final bool showSexualOrientationOnProfile;
+  final List<DatingPreference> datingPreferences;
+  final List<String> datingGoalIds;
 
   const OnboardingData({
     this.birthdate,
@@ -20,6 +24,10 @@ class OnboardingData {
     this.customPronoun,
     this.showGenderOnProfile = false,
     this.showPronounsOnProfile = false,
+    this.sexualOrientation,
+    this.showSexualOrientationOnProfile = false,
+    this.datingPreferences = const [],
+    this.datingGoalIds = const [],
   });
 
   OnboardingData copyWith({
@@ -30,6 +38,10 @@ class OnboardingData {
     String? customPronoun,
     bool? showGenderOnProfile,
     bool? showPronounsOnProfile,
+    SexualOrientation? sexualOrientation,
+    bool? showSexualOrientationOnProfile,
+    List<DatingPreference>? datingPreferences,
+    List<String>? datingGoalIds,
   }) {
     return OnboardingData(
       birthdate: birthdate ?? this.birthdate,
@@ -40,6 +52,11 @@ class OnboardingData {
       showGenderOnProfile: showGenderOnProfile ?? this.showGenderOnProfile,
       showPronounsOnProfile:
           showPronounsOnProfile ?? this.showPronounsOnProfile,
+      sexualOrientation: sexualOrientation ?? this.sexualOrientation,
+      showSexualOrientationOnProfile:
+          showSexualOrientationOnProfile ?? this.showSexualOrientationOnProfile,
+      datingPreferences: datingPreferences ?? this.datingPreferences,
+      datingGoalIds: datingGoalIds ?? this.datingGoalIds,
     );
   }
 }
@@ -90,11 +107,106 @@ class Pronouns {
   ];
 }
 
+/// Sexual Orientation enum
+enum SexualOrientation {
+  straight,
+  gay,
+  lesbian,
+  bisexual,
+  pansexual,
+  asexual,
+  queer;
+
+  String get displayName {
+    switch (this) {
+      case SexualOrientation.straight:
+        return 'Straight';
+      case SexualOrientation.gay:
+        return 'Gay';
+      case SexualOrientation.lesbian:
+        return 'Lesbian';
+      case SexualOrientation.bisexual:
+        return 'Bisexual';
+      case SexualOrientation.pansexual:
+        return 'Pansexual';
+      case SexualOrientation.asexual:
+        return 'Asexual';
+      case SexualOrientation.queer:
+        return 'Queer';
+    }
+  }
+}
+
+/// Dating Preference enum
+enum DatingPreference {
+  men,
+  women,
+  nonBinary,
+  openToAll;
+
+  String get displayName {
+    switch (this) {
+      case DatingPreference.men:
+        return 'Men';
+      case DatingPreference.women:
+        return 'Women';
+      case DatingPreference.nonBinary:
+        return 'Non-Binary';
+      case DatingPreference.openToAll:
+        return 'Open to All';
+    }
+  }
+}
+
+/// Dating Goal model
+class DatingGoal {
+  final String id;
+  final String title;
+  final String subtitle;
+
+  const DatingGoal({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+  });
+
+  static const List<DatingGoal> all = [
+    DatingGoal(
+      id: 'long_term',
+      title: 'Long-term relationship',
+      subtitle: 'Looking for something serious and committed',
+    ),
+    DatingGoal(
+      id: 'casual',
+      title: 'Casual dating',
+      subtitle: 'Open to seeing where things go',
+    ),
+    DatingGoal(
+      id: 'friendship',
+      title: 'New friends',
+      subtitle: 'Looking to expand my social circle',
+    ),
+    DatingGoal(
+      id: 'fun',
+      title: 'Something fun',
+      subtitle: 'Just here to have a good time',
+    ),
+    DatingGoal(
+      id: 'unsure',
+      title: 'Still figuring it out',
+      subtitle: 'Open to possibilities',
+    ),
+  ];
+}
+
 /// Onboarding step enum
 enum OnboardingStep {
   age,
   gender,
   pronoun,
+  sexualOrientation,
+  datingPreference,
+  datingGoals,
   complete;
 
   bool get isLast => this == OnboardingStep.complete;

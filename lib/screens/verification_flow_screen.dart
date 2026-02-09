@@ -447,7 +447,7 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
           const SizedBox(height: AppSpacing.x2),
 
             Text(
-              'Elyxer will send you a text with a verification code.',
+              'Elyxer will send you a text with a verification code. Message and data rates may apply.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
 
@@ -456,15 +456,38 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
             const InfoBanner(
               message: 'Secure, private and only used for verification',
             ),
-            const SizedBox(height: AppSpacing.x6),
+            const SizedBox(height: AppSpacing.x4),
 
-            // Next Button - uses SVG assets with proper state handling
-            Align(
-              alignment: Alignment.centerRight,
-              child: NextButton(
-                onPressed: (_isLoading || !_isValidPhone) ? null : _handleContinue,
-                isDisabled: _isLoading || !_isValidPhone,
-              ),
+            // Footer row with link and NextButton
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    // TODO: Navigate to help/support
+                  },
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text(
+                    'What if my phone number changes?',
+                    style: TextStyle(
+                      color: AppColors.brandDark,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColors.brandDark,
+                    ),
+                  ),
+                ),
+                // Next Button - uses SVG assets with proper state handling
+                NextButton(
+                  onPressed: (_isLoading || !_isValidPhone) ? null : _handleContinue,
+                  isDisabled: _isLoading || !_isValidPhone,
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.x6),
           ],
