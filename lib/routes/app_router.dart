@@ -12,6 +12,7 @@ import '../screens/email_input_screen.dart';
 import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/onboarding/module4_screen.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -52,6 +53,13 @@ final appRouter = GoRouter(
       path: '/onboarding',
       name: 'onboarding',
       builder: (context, state) => const OnboardingScreen(),
+    ),
+
+    // Route: Module 4 - Education, Profession, Location
+    GoRoute(
+      path: '/module4',
+      name: 'module4',
+      builder: (context, state) => const Module4Screen(),
     ),
 
     // Route 4: Username Input
