@@ -8,7 +8,10 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
+<<<<<<< HEAD
 import '../../widgets/gradient_text_link.dart';
+=======
+>>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
 
 class PronounSelectionScreen extends ConsumerWidget {
   const PronounSelectionScreen({super.key});
@@ -93,6 +96,10 @@ class PronounSelectionScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Helps others refer to you correctly. You can change this anytime.',
+<<<<<<< HEAD
+=======
+            iconStyle: InfoBannerIcon.gradientCircle,
+>>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
           ),
           const SizedBox(height: AppSpacing.x3),
 

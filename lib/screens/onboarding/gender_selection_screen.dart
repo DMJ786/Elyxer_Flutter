@@ -8,7 +8,10 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
+<<<<<<< HEAD
 import '../../widgets/gradient_text_link.dart';
+=======
+>>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
 
 class GenderSelectionScreen extends ConsumerWidget {
   const GenderSelectionScreen({super.key});
@@ -122,6 +125,10 @@ class GenderSelectionScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Helps represent you as you identify. You can change this anytime.',
+<<<<<<< HEAD
+=======
+            iconStyle: InfoBannerIcon.gradientCircle,
+>>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
           ),
           const SizedBox(height: AppSpacing.x3),
 
