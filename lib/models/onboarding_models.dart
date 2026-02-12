@@ -16,6 +16,14 @@ class OnboardingData {
   final List<DatingPreference> datingPreferences;
   final List<String> datingGoalIds;
 
+  // Module 4 fields
+  final String? industry;
+  final String? role;
+  final EducationLevel? educationLevel;
+  final String? locationQuery;
+  final double? latitude;
+  final double? longitude;
+
   const OnboardingData({
     this.birthdate,
     this.gender,
@@ -28,6 +36,12 @@ class OnboardingData {
     this.showSexualOrientationOnProfile = false,
     this.datingPreferences = const [],
     this.datingGoalIds = const [],
+    this.industry,
+    this.role,
+    this.educationLevel,
+    this.locationQuery,
+    this.latitude,
+    this.longitude,
   });
 
   OnboardingData copyWith({
@@ -42,6 +56,12 @@ class OnboardingData {
     bool? showSexualOrientationOnProfile,
     List<DatingPreference>? datingPreferences,
     List<String>? datingGoalIds,
+    String? industry,
+    String? role,
+    EducationLevel? educationLevel,
+    String? locationQuery,
+    double? latitude,
+    double? longitude,
   }) {
     return OnboardingData(
       birthdate: birthdate ?? this.birthdate,
@@ -57,6 +77,12 @@ class OnboardingData {
           showSexualOrientationOnProfile ?? this.showSexualOrientationOnProfile,
       datingPreferences: datingPreferences ?? this.datingPreferences,
       datingGoalIds: datingGoalIds ?? this.datingGoalIds,
+      industry: industry ?? this.industry,
+      role: role ?? this.role,
+      educationLevel: educationLevel ?? this.educationLevel,
+      locationQuery: locationQuery ?? this.locationQuery,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 }
@@ -197,6 +223,43 @@ class DatingGoal {
       subtitle: 'Open to possibilities',
     ),
   ];
+}
+
+/// Education level enum for Module 4
+enum EducationLevel {
+  highSchool,
+  undergraduate,
+  postgraduate,
+  doctorate,
+  studying,
+  preferNotToSay;
+
+  String get displayName {
+    switch (this) {
+      case EducationLevel.highSchool:
+        return 'High School';
+      case EducationLevel.undergraduate:
+        return 'Undergraduate';
+      case EducationLevel.postgraduate:
+        return 'Postgraduate';
+      case EducationLevel.doctorate:
+        return 'Doctorate/PhD';
+      case EducationLevel.studying:
+        return 'Studying';
+      case EducationLevel.preferNotToSay:
+        return 'Prefer not to say';
+    }
+  }
+}
+
+/// Module 4 step enum
+enum Module4Step {
+  education,
+  profession,
+  location,
+  complete;
+
+  bool get isLast => this == Module4Step.complete;
 }
 
 /// Onboarding step enum

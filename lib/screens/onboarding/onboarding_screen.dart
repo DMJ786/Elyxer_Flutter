@@ -141,8 +141,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     try {
       await ref.read(onboardingDataProvider.notifier).submit();
       if (mounted) {
-        // Navigate to completion screen
-        context.push('/complete');
+        // Navigate to Module 4 (Education, Profession, Location)
+        context.push('/module4');
       }
     } catch (e) {
       if (mounted) {
