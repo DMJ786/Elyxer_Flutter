@@ -8,10 +8,8 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
-<<<<<<< HEAD
 import '../../widgets/gradient_text_link.dart';
-=======
->>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
+import '../../widgets/profile_visibility_checkbox.dart';
 
 class GenderSelectionScreen extends ConsumerWidget {
   const GenderSelectionScreen({super.key});
@@ -99,25 +97,12 @@ class GenderSelectionScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.x4),
 
           // Show on profile checkbox
-          Row(
-            children: [
-              SizedBox(
-                width: 44,
-                height: 44,
-                child: Checkbox(
-                  value: onboardingData.showGenderOnProfile,
-                  onChanged: (value) {
-                    ref.read(onboardingDataProvider.notifier)
-                        .toggleShowGenderOnProfile();
-                  },
-                ),
-              ),
-              const SizedBox(width: AppSpacing.x2),
-              Text(
-                'Show on your profile',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
+          ProfileVisibilityCheckbox(
+            value: onboardingData.showGenderOnProfile,
+            onToggle: () {
+              ref.read(onboardingDataProvider.notifier)
+                  .toggleShowGenderOnProfile();
+            },
           ),
 
           const Spacer(),
@@ -125,10 +110,7 @@ class GenderSelectionScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Helps represent you as you identify. You can change this anytime.',
-<<<<<<< HEAD
-=======
             iconStyle: InfoBannerIcon.gradientCircle,
->>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
           ),
           const SizedBox(height: AppSpacing.x3),
 

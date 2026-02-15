@@ -8,10 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
-<<<<<<< HEAD
 import '../../widgets/gradient_text_link.dart' show GradientTextLink;
-=======
->>>>>>> eddd983 (Deduplicate inline info banners across 6 onboarding screens)
 
 class AgeInputScreen extends ConsumerStatefulWidget {
   const AgeInputScreen({super.key});

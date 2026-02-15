@@ -8,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
+import '../../widgets/profile_visibility_checkbox.dart';
 
 class SexualOrientationScreen extends ConsumerWidget {
   const SexualOrientationScreen({super.key});
@@ -52,25 +53,12 @@ class SexualOrientationScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.x4),
 
           // Show on profile checkbox
-          Row(
-            children: [
-              SizedBox(
-                width: 44,
-                height: 44,
-                child: Checkbox(
-                  value: onboardingData.showSexualOrientationOnProfile,
-                  onChanged: (value) {
-                    ref.read(onboardingDataProvider.notifier)
-                        .toggleShowSexualOrientationOnProfile();
-                  },
-                ),
-              ),
-              const SizedBox(width: AppSpacing.x2),
-              Text(
-                'Show on your profile',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
+          ProfileVisibilityCheckbox(
+            value: onboardingData.showSexualOrientationOnProfile,
+            onToggle: () {
+              ref.read(onboardingDataProvider.notifier)
+                  .toggleShowSexualOrientationOnProfile();
+            },
           ),
           const SizedBox(height: AppSpacing.x4),
 
