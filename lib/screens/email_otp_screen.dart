@@ -11,6 +11,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
+import '../widgets/next_button.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -147,11 +148,18 @@ class EmailOTPScreen extends HookConsumerWidget {
                 onChanged: (code) {
                   otpCode.value = code;
                   error.value = null; // Clear error on change
-                  if (code.length == 6) {
-                    verifyOTP(code);
-                  }
                 },
                 hasError: error.value != null,
+              ),
+              const SizedBox(height: AppSpacing.x2),
+
+              // Security message
+              Text(
+                'For your security, don\'t share this code',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 12,
+                  color: AppColors.interactive300,
+                ),
               ),
               const SizedBox(height: AppSpacing.x2),
 
@@ -192,29 +200,35 @@ class EmailOTPScreen extends HookConsumerWidget {
 
               const Spacer(),
 
-              // Loading indicator
-              if (isLoading.value)
-                const Center(
-                  child: CircularProgressIndicator(),
-                ),
-
-              const SizedBox(height: AppSpacing.x6),
-
-              // Change email address link
-              Center(
-                child: TextButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                  child: const Text(
-                    'Change email address',
-                    style: TextStyle(
-                      color: AppColors.interactive400,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
+              // Bottom navigation row with back link and next button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                    child: ShaderMask(
+                      shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                      ),
+                      child: const Text(
+                        'Change email address',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  NextButton(
+                    onPressed: (isLoading.value || otpCode.value.length != 6)
+                        ? null
+                        : () => verifyOTP(otpCode.value),
+                    isDisabled: isLoading.value || otpCode.value.length != 6,
+                  ),
+                ],
               ),
               const SizedBox(height: AppSpacing.x6),
             ],

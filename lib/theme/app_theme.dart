@@ -98,7 +98,7 @@ class AppTheme {
       // Input Decoration Theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppColors.interactive50,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.x4,
           vertical: AppSpacing.x3,

@@ -132,7 +132,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                       constraints: const BoxConstraints(minWidth: 110),
                       height: 56,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.interactive50,
                         border: Border.all(
                           color: AppColors.interactive200,
                           width: 2,
@@ -178,7 +178,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                                       hintStyle: const TextStyle(color: AppColors.interactive200),
                                       prefixIcon: const Icon(Icons.search, color: AppColors.interactive300),
                                       filled: true,
-                                      fillColor: Colors.white,
+                                      fillColor: AppColors.interactive50,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(AppRadius.medium),
                                         borderSide: const BorderSide(color: AppColors.interactive200),
@@ -241,7 +241,7 @@ class _PhoneInputScreenState extends ConsumerState<PhoneInputScreen> {
                             fontSize: 16,
                           ),
                           filled: true,
-                          fillColor: Colors.white,
+                          fillColor: AppColors.interactive50,
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.x4,

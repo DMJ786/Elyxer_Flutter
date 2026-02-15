@@ -27,7 +27,7 @@ class InfoBanner extends StatelessWidget {
         ),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Information icon from SVG asset
           SvgPicture.asset(

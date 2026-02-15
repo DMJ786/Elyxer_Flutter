@@ -286,14 +286,16 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                   constraints: const BoxConstraints(minWidth: 110),
                   height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.interactive50,
                     border: Border.all(
                       color: AppColors.interactive200,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
-                  child: InkWell(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
                       onTap: () async {
                         await showDialog<Country>(
                           context: context,
@@ -332,7 +334,7 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                                   hintStyle: const TextStyle(color: AppColors.interactive200),
                                   prefixIcon: const Icon(Icons.search, color: AppColors.interactive300),
                                   filled: true,
-                                  fillColor: Colors.white,
+                                  fillColor: AppColors.interactive50,
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(AppRadius.medium),
                                     borderSide: const BorderSide(color: AppColors.interactive200),
@@ -343,32 +345,35 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                           ),
                         );
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.x4,
-                          vertical: 14,
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.x4,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _selectedCountry.flag,
+                                style: const TextStyle(fontSize: 24, height: 1.0),
+                              ),
+                              const SizedBox(width: AppSpacing.x2),
+                              Text(
+                                '+${_selectedCountry.dialCode}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: AppColors.interactive500,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.x1),
+                              const Icon(
+                                Icons.arrow_drop_down,
+                                color: AppColors.interactive300,
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _selectedCountry.flag,
-                            style: const TextStyle(fontSize: 24),
-                          ),
-                          const SizedBox(width: AppSpacing.x2),
-                          Text(
-                            '+${_selectedCountry.dialCode}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: AppColors.interactive500,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.x1),
-                          const Icon(
-                            Icons.arrow_drop_down,
-                            color: AppColors.interactive300,
-                          ),
-                        ],
                       ),
                     ),
                   ),
@@ -377,9 +382,8 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                 
                 // Phone Number Input Box
                 Expanded(
-                  child: Container(
+                  child: SizedBox(
                     height: 56,
-                    alignment: Alignment.center,
                     child: TextField(
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
@@ -388,18 +392,18 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                         color: AppColors.interactive500,
                       ),
                       decoration: InputDecoration(
-                      hintText: 'Phone number',
-                      hintStyle: const TextStyle(
-                        color: AppColors.interactive200,
-                        fontSize: 16,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.x4,
-                        vertical: 14,
-                      ),
+                        hintText: 'Phone number',
+                        hintStyle: const TextStyle(
+                          color: AppColors.interactive200,
+                          fontSize: 16,
+                        ),
+                        filled: true,
+                        fillColor: AppColors.interactive50,
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.x4,
+                          vertical: 14,
+                        ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.medium),
                         borderSide: const BorderSide(
@@ -440,10 +444,10 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
                       });
                     },
                   ),
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
           const SizedBox(height: AppSpacing.x2),
 
             Text(
@@ -614,11 +618,18 @@ class PhoneOTPContent extends HookConsumerWidget {
             onChanged: (code) {
               otpCode.value = code;
               error.value = null;
-              if (code.length == 6) {
-                verifyOTP(code);
-              }
             },
             hasError: error.value != null,
+          ),
+          const SizedBox(height: AppSpacing.x2),
+
+          // Security message
+          Text(
+            'For your security, don\'t share this code',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 12,
+              color: AppColors.interactive300,
+            ),
           ),
           const SizedBox(height: AppSpacing.x2),
 
@@ -659,27 +670,33 @@ class PhoneOTPContent extends HookConsumerWidget {
 
           const Spacer(),
 
-          // Loading indicator
-          if (isLoading.value)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-
-          const SizedBox(height: AppSpacing.x6),
-
-          // Back button
-          Center(
-            child: TextButton(
-              onPressed: onBack,
-              child: const Text(
-                'Change phone number',
-                style: TextStyle(
-                  color: AppColors.interactive400,
-                  fontSize: 14,
-                  decoration: TextDecoration.underline,
+          // Bottom navigation row with back link and next button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: onBack,
+                child: ShaderMask(
+                  shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  ),
+                  child: const Text(
+                    'Change phone number',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              NextButton(
+                onPressed: (isLoading.value || otpCode.value.length != 6)
+                    ? null
+                    : () => verifyOTP(otpCode.value),
+                isDisabled: isLoading.value || otpCode.value.length != 6,
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.x6),
         ],
@@ -746,7 +763,7 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "What's your name?",
+              "Your name is your first charm",
               style: Theme.of(context).textTheme.displayLarge,
             ),
             const SizedBox(height: AppSpacing.x4),
@@ -755,8 +772,7 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
             FormBuilderTextField(
               name: 'firstName',
               decoration: const InputDecoration(
-                labelText: 'First name',
-                hintText: 'Enter your first name',
+                hintText: 'First name (Minimum 2 characters)',
               ),
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
@@ -772,20 +788,13 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
                 ),
               ]),
             ),
-            const SizedBox(height: AppSpacing.x2),
-
-            Text(
-              'Must be at least 2 characters',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
             const SizedBox(height: AppSpacing.x4),
 
             // Last Name Input (Optional)
             FormBuilderTextField(
               name: 'lastName',
               decoration: const InputDecoration(
-                labelText: 'Last name (optional)',
-                hintText: 'Enter your last name',
+                hintText: 'Last name (Optional)',
               ),
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.done,
@@ -796,32 +805,52 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
                 ),
               ]),
             ),
+            const SizedBox(height: AppSpacing.x2),
+
+            // Helper text
+            Text(
+              'This name will be visible on your Elyxer profile.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 12,
+                color: AppColors.interactive300,
+              ),
+            ),
 
             const Spacer(),
 
-            // Next Button - uses SVG assets with proper state handling
-            Align(
-              alignment: Alignment.centerRight,
-              child: NextButton(
-                onPressed: _isLoading ? null : _handleContinue,
-                isDisabled: _isLoading,
-              ),
+            // Information Banner
+            const InfoBanner(
+              message: 'Genuine name builds trust and spark real connection',
             ),
             const SizedBox(height: AppSpacing.x4),
 
-            // Footer Link
-            Center(
-              child: TextButton(
-                onPressed: widget.onBack,
-                child: const Text(
-                  'Go back',
-                  style: TextStyle(
-                    color: AppColors.interactive400,
-                    fontSize: 14,
-                    decoration: TextDecoration.underline,
+            // Footer row with link and NextButton
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    // TODO: Show help dialog about name change
+                  },
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                    ),
+                    child: const Text(
+                      'Can I change my name later?',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                NextButton(
+                  onPressed: _isLoading ? null : _handleContinue,
+                  isDisabled: _isLoading,
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.x6),
           ],
@@ -891,7 +920,7 @@ class _EmailInputContentState extends ConsumerState<EmailInputContent> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "What's your email?",
+              "Your Email keeps you connected",
               style: Theme.of(context).textTheme.displayLarge,
             ),
             const SizedBox(height: AppSpacing.x4),
@@ -900,15 +929,25 @@ class _EmailInputContentState extends ConsumerState<EmailInputContent> {
             FormBuilderTextField(
               name: 'email',
               decoration: const InputDecoration(
-                labelText: 'Email address',
-                hintText: 'Enter your email',
+                hintText: 'Email Address',
               ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.done,
+              autocorrect: false,
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
                 FormBuilderValidators.email(),
               ]),
+            ),
+            const SizedBox(height: AppSpacing.x2),
+
+            // Helper text
+            Text(
+              "We'll send you a verification code to confirm your email address.",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 12,
+                color: AppColors.interactive300,
+              ),
             ),
             const SizedBox(height: AppSpacing.x4),
 
@@ -916,41 +955,66 @@ class _EmailInputContentState extends ConsumerState<EmailInputContent> {
             FormBuilderCheckbox(
               name: 'enableNotifications',
               initialValue: false,
-              title: Text(
-                'I want to receive notifications about matches and messages',
-                style: Theme.of(context).textTheme.bodyMedium,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Stay updated',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.x1),
+                  Text(
+                    'Receive important notifications and updates about your account',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 12,
+                      color: AppColors.interactive300,
+                    ),
+                  ),
+                ],
               ),
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
+              activeColor: AppColors.success,
+              checkColor: Colors.white,
             ),
 
             const Spacer(),
 
-            // Next Button
-            Align(
-              alignment: Alignment.centerRight,
-              child: NextButton(
-                onPressed: _isLoading ? null : _handleContinue,
-                isDisabled: _isLoading,
-              ),
+            // Information Banner
+            const InfoBanner(
+              message: 'Secure, private and used for verification and account recovery',
             ),
             const SizedBox(height: AppSpacing.x4),
 
-            // Back button
-            Center(
-              child: TextButton(
-                onPressed: widget.onBack,
-                child: const Text(
-                  'Go back',
-                  style: TextStyle(
-                    color: AppColors.interactive400,
-                    fontSize: 14,
-                    decoration: TextDecoration.underline,
+            // Footer row with skip link and NextButton
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: widget.onNext,
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                    ),
+                    child: const Text(
+                      'Skip for now',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                NextButton(
+                  onPressed: _isLoading ? null : _handleContinue,
+                  isDisabled: _isLoading,
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.x6),
           ],
@@ -1077,11 +1141,18 @@ class EmailOTPContent extends HookConsumerWidget {
             onChanged: (code) {
               otpCode.value = code;
               error.value = null;
-              if (code.length == 6) {
-                verifyOTP(code);
-              }
             },
             hasError: error.value != null,
+          ),
+          const SizedBox(height: AppSpacing.x2),
+
+          // Security message
+          Text(
+            'For your security, don\'t share this code',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: 12,
+              color: AppColors.interactive300,
+            ),
           ),
           const SizedBox(height: AppSpacing.x2),
 
@@ -1122,27 +1193,33 @@ class EmailOTPContent extends HookConsumerWidget {
 
           const Spacer(),
 
-          // Loading indicator
-          if (isLoading.value)
-            const Center(
-              child: CircularProgressIndicator(),
-            ),
-
-          const SizedBox(height: AppSpacing.x6),
-
-          // Back button
-          Center(
-            child: TextButton(
-              onPressed: onBack,
-              child: const Text(
-                'Change email',
-                style: TextStyle(
-                  color: AppColors.interactive400,
-                  fontSize: 14,
-                  decoration: TextDecoration.underline,
+          // Bottom navigation row with back link and next button
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: onBack,
+                child: ShaderMask(
+                  shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  ),
+                  child: const Text(
+                    'Change email',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              NextButton(
+                onPressed: (isLoading.value || otpCode.value.length != 6)
+                    ? null
+                    : () => verifyOTP(otpCode.value),
+                isDisabled: isLoading.value || otpCode.value.length != 6,
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.x6),
         ],

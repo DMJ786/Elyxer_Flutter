@@ -11,6 +11,7 @@ import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
+import '../widgets/info_banner.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -85,7 +86,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
 
                 // Title
                 Text(
-                  "What's your name?",
+                  "Your name is your first charm",
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
                 const SizedBox(height: AppSpacing.x4),
@@ -94,8 +95,7 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                 FormBuilderTextField(
                   name: 'firstName',
                   decoration: const InputDecoration(
-                    labelText: 'First name',
-                    hintText: 'Enter your first name',
+                    hintText: 'First name (Minimum 2 characters)',
                   ),
                   textCapitalization: TextCapitalization.words,
                   textInputAction: TextInputAction.next,
@@ -111,21 +111,13 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                     ),
                   ]),
                 ),
-                const SizedBox(height: AppSpacing.x2),
-
-                // Helper Text for First Name
-                Text(
-                  'Must be at least 2 characters',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
                 const SizedBox(height: AppSpacing.x4),
 
                 // Last Name Input (Optional)
                 FormBuilderTextField(
                   name: 'lastName',
                   decoration: const InputDecoration(
-                    labelText: 'Last name (optional)',
-                    hintText: 'Enter your last name',
+                    hintText: 'Last name (Optional)',
                   ),
                   textCapitalization: TextCapitalization.words,
                   textInputAction: TextInputAction.done,
@@ -136,31 +128,47 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                     ),
                   ]),
                 ),
+                const SizedBox(height: AppSpacing.x2),
+
+                // Helper text
+                Text(
+                  'This name will be visible on your Elyxer profile.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 12,
+                    color: AppColors.interactive300,
+                  ),
+                ),
 
                 const Spacer(),
 
-                // Footer Link
-                Center(
-                  child: TextButton(
-                    onPressed: () {
-                      // TODO: Navigate to support
-                    },
-                    child: const Text(
-                      'Contact Support',
-                      style: TextStyle(
-                        color: AppColors.interactive400,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
+                // Information Banner
+                const InfoBanner(
+                  message: 'Genuine name builds trust and spark real connection',
+                ),
+                const SizedBox(height: AppSpacing.x4),
+
+                // Footer row with link and NextButton
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // TODO: Show help dialog about name change
+                      },
+                      child: ShaderMask(
+                        shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                        ),
+                        child: const Text(
+                          'Can I change my name later?',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.x6),
-
-                // Next Button - Positioned at bottom right
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
                     NextButton(
                       onPressed: _isLoading ? null : _handleContinue,
                       isDisabled: _isLoading,
