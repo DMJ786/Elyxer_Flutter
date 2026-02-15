@@ -7,7 +7,7 @@ import '../models/onboarding_models.dart';
 
 part 'onboarding_provider.g.dart';
 
-/// Current onboarding step provider
+/// Current onboarding step provider (Module 1: Age, Gender, Pronoun)
 @Riverpod(keepAlive: true)
 class CurrentOnboardingStep extends _$CurrentOnboardingStep {
   @override
@@ -26,6 +26,29 @@ class CurrentOnboardingStep extends _$CurrentOnboardingStep {
   }
 
   void goTo(OnboardingStep step) {
+    state = step;
+  }
+}
+
+/// Current orientation step provider (Module 2: Sexual Orientation, Dating Preference, Dating Goals)
+@Riverpod(keepAlive: true)
+class CurrentOrientationStep extends _$CurrentOrientationStep {
+  @override
+  OrientationStep build() => OrientationStep.sexualOrientation;
+
+  void next() {
+    if (!state.isLast) {
+      state = OrientationStep.values[state.index + 1];
+    }
+  }
+
+  void previous() {
+    if (state.index > 0) {
+      state = OrientationStep.values[state.index - 1];
+    }
+  }
+
+  void goTo(OrientationStep step) {
     state = step;
   }
 }
@@ -106,7 +129,7 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     state = state.copyWith(datingGoalIds: goals);
   }
 
-  /// Validate if current step can proceed
+  /// Validate if current step can proceed (Onboarding Module)
   bool canProceed(OnboardingStep step) {
     switch (step) {
       case OnboardingStep.age:
@@ -115,14 +138,21 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
         return state.gender != null;
       case OnboardingStep.pronoun:
         return state.pronouns.isNotEmpty || state.customPronoun != null;
-      case OnboardingStep.sexualOrientation:
-        return state.sexualOrientation != null;
-      case OnboardingStep.datingPreference:
-        return state.datingPreferences.isNotEmpty;
-      case OnboardingStep.datingGoals:
-        return state.datingGoalIds.isNotEmpty && state.datingGoalIds.length <= 2;
       case OnboardingStep.complete:
-        // Complete step can always proceed (it's the final step)
+        return true;
+    }
+  }
+
+  /// Validate if current orientation step can proceed (Orientation Module)
+  bool canProceedOrientation(OrientationStep step) {
+    switch (step) {
+      case OrientationStep.sexualOrientation:
+        return state.sexualOrientation != null;
+      case OrientationStep.datingPreference:
+        return state.datingPreferences.isNotEmpty;
+      case OrientationStep.datingGoals:
+        return state.datingGoalIds.isNotEmpty && state.datingGoalIds.length <= 2;
+      case OrientationStep.complete:
         return true;
     }
   }

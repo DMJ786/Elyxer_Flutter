@@ -49,7 +49,8 @@ class ProgressIndicatorWidget extends StatelessWidget {
   }
 
   Widget _buildStepIcon(ProgressStep step, int index, BuildContext context) {
-    final isActive = index == currentStep;
+    // Make icon larger if it's the current active step (inProgress status)
+    final isActive = step.status == StepStatus.inProgress;
 
     // Responsive sizing based on screen width
     final screenWidth = MediaQuery.of(context).size.width;

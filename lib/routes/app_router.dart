@@ -12,6 +12,7 @@ import '../screens/email_input_screen.dart';
 import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
+import '../screens/orientation/orientation_screen.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -47,28 +48,35 @@ final appRouter = GoRouter(
       },
     ),
 
-    // Route 3: Onboarding Flow (Age, Gender, Pronoun)
+    // Route 3: Onboarding Flow (Module 1: Age, Gender, Pronoun)
     GoRoute(
       path: '/onboarding',
       name: 'onboarding',
       builder: (context, state) => const OnboardingScreen(),
     ),
 
-    // Route 4: Username Input
+    // Route 4: Orientation Flow (Module 2: Sexual Orientation, Dating Preference, Dating Goals)
+    GoRoute(
+      path: '/orientation',
+      name: 'orientation',
+      builder: (context, state) => const OrientationScreen(),
+    ),
+
+    // Route 5: Username Input
     GoRoute(
       path: '/username',
       name: 'username',
       builder: (context, state) => const UsernameScreen(),
     ),
 
-    // Route 5: Email Input
+    // Route 6: Email Input
     GoRoute(
       path: '/email-input',
       name: 'email-input',
       builder: (context, state) => const EmailInputScreen(),
     ),
 
-    // Route 6: Email OTP Verification
+    // Route 7: Email OTP Verification
     GoRoute(
       path: '/email-otp',
       name: 'email-otp',
@@ -80,7 +88,7 @@ final appRouter = GoRouter(
       },
     ),
 
-    // Route 7: Completion Screen
+    // Route 8: Completion Screen
     GoRoute(
       path: '/complete',
       name: 'complete',
