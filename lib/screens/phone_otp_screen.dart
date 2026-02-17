@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
+import '../widgets/gradient_text_link.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -218,17 +219,12 @@ class PhoneOTPScreen extends HookConsumerWidget {
                     onPressed: () {
                       context.pop();
                     },
-                    child: ShaderMask(
-                      shaderCallback: (bounds) => AppColors.brandGradient.createShader(
-                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                      ),
-                      child: const Text(
-                        'Change phone number',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          decoration: TextDecoration.underline,
-                        ),
+                    child: GradientTextLink(
+                      text: 'Change phone number',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
                       ),
                     ),
                   ),

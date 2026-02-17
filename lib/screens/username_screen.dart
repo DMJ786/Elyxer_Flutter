@@ -12,6 +12,7 @@ import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
 import '../widgets/info_banner.dart';
+import '../widgets/gradient_text_link.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -155,17 +156,12 @@ class _UsernameScreenState extends ConsumerState<UsernameScreen> {
                       onPressed: () {
                         // TODO: Show help dialog about name change
                       },
-                      child: ShaderMask(
-                        shaderCallback: (bounds) => AppColors.brandGradient.createShader(
-                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                        ),
-                        child: const Text(
-                          'Can I change my name later?',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                          ),
+                      child: GradientTextLink(
+                        text: 'Can I change my name later?',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),

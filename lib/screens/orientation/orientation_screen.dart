@@ -54,12 +54,7 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
 
   void _nextPage() {
     final currentStep = ref.read(currentOrientationStepProvider);
-    final canProceed = ref
-        .read(onboardingDataProvider.notifier)
-        .canProceedOrientation(currentStep);
-
-    print('DEBUG Orientation _nextPage: currentStep=$currentStep');
-    print('DEBUG Orientation _nextPage: canProceed=$canProceed');
+    final canProceed = ref.read(canProceedOrientationProvider);
 
     if (!canProceed) {
       _showErrorSnackBar();
@@ -82,22 +77,6 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
       );
       _fadeController.forward();
     });
-  }
-
-  void _previousPage() {
-    if (_pageController.page! > 0) {
-      _fadeController.reverse().then((_) {
-        ref.read(currentOrientationStepProvider.notifier).previous();
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
-        _fadeController.forward();
-      });
-    } else {
-      // Go back to onboarding module
-      context.go('/onboarding');
-    }
   }
 
   void _showErrorSnackBar() {
@@ -132,7 +111,7 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
       await ref.read(onboardingDataProvider.notifier).submit();
       if (mounted) {
         // Navigate to username screen
-        context.push('/username');
+        context.go('/username');
       }
     } catch (e) {
       if (mounted) {
@@ -149,10 +128,7 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
   @override
   Widget build(BuildContext context) {
     final currentStep = ref.watch(currentOrientationStepProvider);
-    final onboardingData = ref.watch(onboardingDataProvider);
-    final canProceed = ref
-        .read(onboardingDataProvider.notifier)
-        .canProceedOrientation(currentStep);
+    final canProceed = ref.watch(canProceedOrientationProvider);
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -202,28 +178,8 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
                 AppSpacing.x5,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Back Button
-                  GestureDetector(
-                    onTap: _previousPage,
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: AppColors.interactive200,
-                          width: 2,
-                        ),
-                        borderRadius: BorderRadius.circular(AppRadius.round),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        color: AppColors.interactive300,
-                      ),
-                    ),
-                  ),
-
                   // Next Button
                   NextButton(
                     onPressed: canProceed ? _nextPage : null,

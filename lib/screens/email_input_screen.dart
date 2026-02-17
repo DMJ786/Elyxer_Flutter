@@ -13,6 +13,7 @@ import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
 import '../widgets/info_banner.dart';
+import '../widgets/gradient_text_link.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -79,7 +80,10 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
   }
 
   Future<void> _handleSkip() async {
-    // Skip email verification and go to completion
+    // Mark email as skipped and go to completion
+    // This distinguishes between "user skipped" vs "user provided email"
+    ref.read(emailSkippedProvider.notifier).markAsSkipped();
+    
     if (mounted) {
       context.push('/complete');
     }
@@ -186,17 +190,12 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                   children: [
                     TextButton(
                       onPressed: () => _handleSkip(),
-                      child: ShaderMask(
-                        shaderCallback: (bounds) => AppColors.brandGradient.createShader(
-                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                        ),
-                        child: const Text(
-                          'Skip for now',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            decoration: TextDecoration.underline,
-                          ),
+                      child: GradientTextLink(
+                        text: 'Skip for now',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),

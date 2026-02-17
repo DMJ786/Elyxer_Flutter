@@ -53,15 +53,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   void _nextPage() {
     final currentStep = ref.read(currentOnboardingStepProvider);
-    final onboardingData = ref.read(onboardingDataProvider);
-    final canProceed = ref
-        .read(onboardingDataProvider.notifier)
-        .canProceed(currentStep);
-
-    // Debug logging
-    print('DEBUG _nextPage: currentStep=$currentStep');
-    print('DEBUG _nextPage: birthdate=${onboardingData.birthdate}');
-    print('DEBUG _nextPage: canProceed=$canProceed');
+    final canProceed = ref.read(canProceedOnboardingProvider);
 
     if (!canProceed) {
       _showErrorSnackBar();
@@ -71,7 +63,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     // Check if we're on the last screen (pronoun)
     if (currentStep == OnboardingStep.pronoun) {
       // Navigate to orientation module (Module 2)
-      context.push('/orientation');
+      context.go('/orientation');
       return;
     }
 
@@ -84,19 +76,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       );
       _fadeController.forward();
     });
-  }
-
-  void _previousPage() {
-    if (_pageController.page! > 0) {
-      _fadeController.reverse().then((_) {
-        ref.read(currentOnboardingStepProvider.notifier).previous();
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
-        _fadeController.forward();
-      });
-    }
   }
 
   void _showErrorSnackBar() {
@@ -129,10 +108,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   @override
   Widget build(BuildContext context) {
     final currentStep = ref.watch(currentOnboardingStepProvider);
-    final onboardingData = ref.watch(onboardingDataProvider);
-    final canProceed = ref
-        .read(onboardingDataProvider.notifier)
-        .canProceed(currentStep);
+    final canProceed = ref.watch(canProceedOnboardingProvider);
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -182,31 +158,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 AppSpacing.x5,
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Back Button
-                  if (currentStep.index > 0)
-                    GestureDetector(
-                      onTap: _previousPage,
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColors.interactive200,
-                            width: 2,
-                          ),
-                          borderRadius: BorderRadius.circular(AppRadius.round),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: AppColors.interactive300,
-                        ),
-                      ),
-                    )
-                  else
-                    const SizedBox(width: 56, height: 56),
-
                   // Next Button
                   NextButton(
                     onPressed: canProceed ? _nextPage : null,

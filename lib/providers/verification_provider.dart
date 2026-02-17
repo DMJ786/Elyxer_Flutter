@@ -59,6 +59,21 @@ class EmailInputNotifier extends _$EmailInputNotifier {
   }
 }
 
+/// Email Skipped Provider - tracks if user skipped email entry
+@Riverpod(keepAlive: true)
+class EmailSkippedNotifier extends _$EmailSkippedNotifier {
+  @override
+  bool build() => false;
+
+  void markAsSkipped() {
+    state = true;
+  }
+
+  void reset() {
+    state = false;
+  }
+}
+
 /// OTP Timer Provider (for phone verification)
 @riverpod
 class PhoneOTPTimer extends _$PhoneOTPTimer {

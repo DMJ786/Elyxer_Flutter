@@ -8,6 +8,7 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
+import '../../widgets/gradient_text_link.dart';
 
 class GenderSelectionScreen extends ConsumerWidget {
   const GenderSelectionScreen({super.key});
@@ -125,20 +126,11 @@ class GenderSelectionScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.x3),
 
           // Footer Link
-          GestureDetector(
+          GradientTextLink(
+            text: 'Learn more',
             onTap: () {
               // TODO: Show learn more dialog
             },
-            child: ShaderMask(
-              shaderCallback: (bounds) => AppColors.brandGradient.createShader(bounds),
-              child: Text(
-                'Learn more',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  decoration: TextDecoration.underline,
-                  color: Colors.white,
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: AppSpacing.x4),
         ],

@@ -64,6 +64,7 @@ abstract class VerificationData with _$VerificationData {
     required UsernameData username,
     EmailInputData? email,
     @Default(false) bool emailVerified,
+    @Default(false) bool emailSkipped,
   }) = _VerificationData;
 
   factory VerificationData.fromJson(Map<String, dynamic> json) =>

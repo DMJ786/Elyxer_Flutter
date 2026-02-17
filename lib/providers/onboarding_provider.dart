@@ -60,10 +60,7 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
   OnboardingData build() => const OnboardingData();
 
   void updateBirthdate(DateTime date) {
-    print('DEBUG updateBirthdate BEFORE: state.birthdate=${state.birthdate}');
     state = state.copyWith(birthdate: date);
-    print('DEBUG updateBirthdate AFTER: state.birthdate=${state.birthdate}');
-    print('DEBUG updateBirthdate: date passed=$date');
   }
 
   void updateGender(Gender gender) {
@@ -159,7 +156,6 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
 
   bool _isAgeValid() {
     if (state.birthdate == null) {
-      print('DEBUG _isAgeValid: birthdate is null');
       return false;
     }
 
@@ -175,7 +171,6 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
       age--;
     }
 
-    print('DEBUG _isAgeValid: birthdate=$birthdate, age=$age, valid=${age >= 18 && age <= 100}');
     return age >= 18 && age <= 100; // Minimum age 18
   }
 
@@ -184,4 +179,43 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     // TODO: Implement API call to submit onboarding data
     // await ref.read(verificationServiceProvider).submitOnboarding(state);
   }
+}
+
+
+/// Computed provider: Can proceed with current onboarding step
+@riverpod
+bool canProceedOnboarding(Ref ref) {
+  final currentStep = ref.watch(currentOnboardingStepProvider);
+  final data = ref.watch(onboardingDataProvider);
+
+  return switch (currentStep) {
+    OnboardingStep.age => () {
+      if (data.birthdate == null) return false;
+      final now = DateTime.now();
+      final birthdate = data.birthdate!;
+      var age = now.year - birthdate.year;
+      if (now.month < birthdate.month ||
+          (now.month == birthdate.month && now.day < birthdate.day)) {
+        age--;
+      }
+      return age >= 18 && age <= 100;
+    }(),
+    OnboardingStep.gender => data.gender != null,
+    OnboardingStep.pronoun => data.pronouns.isNotEmpty || data.customPronoun != null,
+    OnboardingStep.complete => true,
+  };
+}
+
+/// Computed provider: Can proceed with current orientation step
+@riverpod
+bool canProceedOrientation(Ref ref) {
+  final currentStep = ref.watch(currentOrientationStepProvider);
+  final data = ref.watch(onboardingDataProvider);
+
+  return switch (currentStep) {
+    OrientationStep.sexualOrientation => data.sexualOrientation != null,
+    OrientationStep.datingPreference => data.datingPreferences.isNotEmpty,
+    OrientationStep.datingGoals => data.datingGoalIds.isNotEmpty && data.datingGoalIds.length <= 2,
+    OrientationStep.complete => true,
+  };
 }

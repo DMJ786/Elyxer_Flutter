@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
+import '../../widgets/gradient_text_link.dart' show GradientTextLink;
 
 class AgeInputScreen extends ConsumerStatefulWidget {
   const AgeInputScreen({super.key});
@@ -209,20 +210,11 @@ class _AgeInputScreenState extends ConsumerState<AgeInputScreen> {
           const SizedBox(height: AppSpacing.x3),
 
           // Footer Link
-          GestureDetector(
+          GradientTextLink(
+            text: 'Can I change this later?',
             onTap: () {
               // TODO: Show info dialog
             },
-            child: ShaderMask(
-              shaderCallback: (bounds) => AppColors.brandGradient.createShader(bounds),
-              child: Text(
-                'Can I change this later?',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  decoration: TextDecoration.underline,
-                  color: Colors.white,
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: AppSpacing.x5),
         ],
