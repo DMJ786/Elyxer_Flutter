@@ -199,15 +199,22 @@ class DatingGoal {
   ];
 }
 
-/// Onboarding step enum
+/// Onboarding Module step enum (Module 1: Age, Gender, Pronoun)
 enum OnboardingStep {
   age,
   gender,
   pronoun,
+  complete;
+
+  bool get isLast => this == OnboardingStep.complete;
+}
+
+/// Orientation Module step enum (Module 2: Sexual Orientation, Dating Preference, Dating Goals)
+enum OrientationStep {
   sexualOrientation,
   datingPreference,
   datingGoals,
   complete;
 
-  bool get isLast => this == OnboardingStep.complete;
+  bool get isLast => this == OrientationStep.complete;
 }

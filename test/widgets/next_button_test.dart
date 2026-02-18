@@ -273,12 +273,44 @@ void main() {
     });
 
     group('Widget Properties', () {
-      testWidgets('has correct dimensions (54x54)', (WidgetTester tester) async {
+      testWidgets('has responsive dimensions (14% of screen width, 44-64px)',
+          (WidgetTester tester) async {
+        // Set a known screen size for testing
+        tester.view.physicalSize = const Size(800, 600);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
         await tester.pumpWidget(createTestWidget(onPressed: () {}));
 
         final svgWidget = tester.widget<SvgPicture>(find.byType(SvgPicture));
-        expect(svgWidget.width, 54);
-        expect(svgWidget.height, 54);
+        
+        // Size should be 14% of 800 = 112, clamped to max 64
+        expect(svgWidget.width, 64.0);
+        expect(svgWidget.height, 64.0);
+        
+        // Verify dimensions are equal (square button)
+        expect(svgWidget.width, equals(svgWidget.height));
+      });
+
+      testWidgets('respects minimum size of 44px', (WidgetTester tester) async {
+        // Set a very small screen size
+        tester.view.physicalSize = const Size(300, 400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+
+        await tester.pumpWidget(createTestWidget(onPressed: () {}));
+
+        final svgWidget = tester.widget<SvgPicture>(find.byType(SvgPicture));
+        
+        // 14% of 300 = 42, should be clamped to min 44
+        expect(svgWidget.width, 44.0);
+        expect(svgWidget.height, 44.0);
       });
 
       testWidgets('uses BoxFit.contain', (WidgetTester tester) async {

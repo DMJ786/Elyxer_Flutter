@@ -1,16 +1,16 @@
-/// Onboarding Progress Indicator
-/// Animated progress bar showing onboarding steps
+/// Orientation Progress Indicator
+/// Animated progress bar showing orientation module steps
 library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/onboarding_models.dart';
 
-class OnboardingProgressIndicator extends StatelessWidget {
-  final OnboardingStep currentStep;
+class OrientationProgressIndicator extends StatelessWidget {
+  final OrientationStep currentStep;
   final Duration animationDuration;
 
-  const OnboardingProgressIndicator({
+  const OrientationProgressIndicator({
     super.key,
     required this.currentStep,
     this.animationDuration = const Duration(milliseconds: 300),
@@ -20,9 +20,9 @@ class OnboardingProgressIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Age Icon (index 0)
+        // Sexual Orientation Icon (index 0)
         _StepIcon(
-          icon: Icons.cake_outlined,
+          icon: Icons.favorite_outline,
           isActive: currentStep.index >= 0,
           isCompleted: currentStep.index > 0,
           animationDuration: animationDuration,
@@ -34,9 +34,9 @@ class OnboardingProgressIndicator extends StatelessWidget {
             animationDuration: animationDuration,
           ),
         ),
-        // Gender Icon (index 1)
+        // Dating Preference Icon (index 1)
         _StepIcon(
-          icon: Icons.wc_outlined,
+          icon: Icons.people_outline,
           isActive: currentStep.index >= 1,
           isCompleted: currentStep.index > 1,
           animationDuration: animationDuration,
@@ -48,9 +48,9 @@ class OnboardingProgressIndicator extends StatelessWidget {
             animationDuration: animationDuration,
           ),
         ),
-        // Pronoun Icon (index 2)
+        // Dating Goals Icon (index 2)
         _StepIcon(
-          icon: Icons.person_outline,
+          icon: Icons.flag_outlined,
           isActive: currentStep.index >= 2,
           isCompleted: currentStep.index > 2,
           animationDuration: animationDuration,
@@ -89,7 +89,6 @@ class _StepIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Smaller sizes to fit 7 steps
     final size = isActive ? 40.0 : 28.0;
 
     return SizedBox(

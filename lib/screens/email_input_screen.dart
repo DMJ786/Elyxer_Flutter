@@ -10,9 +10,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/custom_button.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
+import '../widgets/info_banner.dart';
+import '../widgets/gradient_text_link.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
@@ -79,7 +80,10 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
   }
 
   Future<void> _handleSkip() async {
-    // Skip email verification and go to completion
+    // Mark email as skipped and go to completion
+    // This distinguishes between "user skipped" vs "user provided email"
+    ref.read(emailSkippedProvider.notifier).markAsSkipped();
+    
     if (mounted) {
       context.push('/complete');
     }
@@ -108,7 +112,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
                 // Title
                 Text(
-                  "What's your email?",
+                  "Your Email keeps you connected",
                   style: Theme.of(context).textTheme.displayLarge,
                 ),
                 const SizedBox(height: AppSpacing.x4),
@@ -117,8 +121,7 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                 FormBuilderTextField(
                   name: 'email',
                   decoration: const InputDecoration(
-                    labelText: 'Email address',
-                    hintText: 'Enter your email',
+                    hintText: 'Email Address',
                   ),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.done,
@@ -130,15 +133,40 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
                     ),
                   ]),
                 ),
-                const SizedBox(height: AppSpacing.x6),
+                const SizedBox(height: AppSpacing.x2),
+
+                // Helper text
+                Text(
+                  "We'll send you a verification code to confirm your email address.",
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontSize: 12,
+                    color: AppColors.interactive300,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.x4),
 
                 // Notifications Checkbox
                 FormBuilderCheckbox(
                   name: 'enableNotifications',
                   initialValue: false,
-                  title: Text(
-                    'Stay updated with notifications',
-                    style: Theme.of(context).textTheme.bodyMedium,
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Stay updated',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.x1),
+                      Text(
+                        'Receive important notifications and updates about your account',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontSize: 12,
+                          color: AppColors.interactive300,
+                        ),
+                      ),
+                    ],
                   ),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -150,18 +178,27 @@ class _EmailInputScreenState extends ConsumerState<EmailInputScreen> {
 
                 const Spacer(),
 
-                // Skip Button
-                CustomButton(
-                  title: 'Skip for now',
-                  onPressed: () => _handleSkip(),
-                  variant: ButtonVariant.text,
+                // Information Banner
+                const InfoBanner(
+                  message: 'Secure, private and used for verification and account recovery',
                 ),
-                const SizedBox(height: AppSpacing.x6),
+                const SizedBox(height: AppSpacing.x4),
 
-                // Next Button - Positioned at bottom right
+                // Footer row with skip link and NextButton
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    TextButton(
+                      onPressed: () => _handleSkip(),
+                      child: GradientTextLink(
+                        text: 'Skip for now',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
                     NextButton(
                       onPressed: _isLoading ? null : () => _handleContinue(),
                       isDisabled: _isLoading,

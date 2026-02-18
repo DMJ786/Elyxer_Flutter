@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/onboarding_provider.dart';
+import '../../widgets/info_banner.dart';
+import '../../widgets/gradient_text_link.dart' show GradientTextLink;
 
 class AgeInputScreen extends ConsumerStatefulWidget {
   const AgeInputScreen({super.key});
@@ -202,54 +204,17 @@ class _AgeInputScreenState extends ConsumerState<AgeInputScreen> {
           const Spacer(),
 
           // Info Banner
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.x4),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.brandDark),
-              borderRadius: BorderRadius.circular(AppRadius.medium),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.x2),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.brandGradient,
-                    shape: BoxShape.circle,
-                    boxShadow: AppShadows.pressedShadow,
-                  ),
-                  child: const Icon(
-                    Icons.info_outline,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.x4),
-                Expanded(
-                  child: Text(
-                    'Used to confirm and display your age on your profile.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              ],
-            ),
+          const InfoBanner(
+            message: 'Used to confirm and display your age on your profile.',
           ),
           const SizedBox(height: AppSpacing.x3),
 
           // Footer Link
-          GestureDetector(
+          GradientTextLink(
+            text: 'Can I change this later?',
             onTap: () {
               // TODO: Show info dialog
             },
-            child: ShaderMask(
-              shaderCallback: (bounds) => AppColors.brandGradient.createShader(bounds),
-              child: Text(
-                'Can I change this later?',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  decoration: TextDecoration.underline,
-                  color: Colors.white,
-                ),
-              ),
-            ),
           ),
           const SizedBox(height: AppSpacing.x5),
         ],

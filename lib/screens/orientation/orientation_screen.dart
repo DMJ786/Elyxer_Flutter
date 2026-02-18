@@ -1,5 +1,6 @@
-/// Main Onboarding Screen
-/// Container for onboarding flow with animated page transitions
+/// Orientation Screen (Module 2)
+/// Container for orientation flow with animated page transitions
+/// Includes: Sexual Orientation, Dating Preference, Dating Goals
 library;
 
 import 'package:flutter/material.dart';
@@ -8,20 +9,20 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
-import '../../widgets/onboarding_progress_indicator.dart';
+import '../../widgets/orientation_progress_indicator.dart';
 import '../../widgets/next_button.dart';
-import 'age_input_screen.dart';
-import 'gender_selection_screen.dart';
-import 'pronoun_selection_screen.dart';
+import 'sexual_orientation_screen.dart';
+import 'dating_preference_screen.dart';
+import 'dating_goals_screen.dart';
 
-class OnboardingScreen extends ConsumerStatefulWidget {
-  const OnboardingScreen({super.key});
+class OrientationScreen extends ConsumerStatefulWidget {
+  const OrientationScreen({super.key});
 
   @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
+  ConsumerState<OrientationScreen> createState() => _OrientationScreenState();
 }
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
+class _OrientationScreenState extends ConsumerState<OrientationScreen>
     with SingleTickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _fadeController;
@@ -52,24 +53,24 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   void _nextPage() {
-    final currentStep = ref.read(currentOnboardingStepProvider);
-    final canProceed = ref.read(canProceedOnboardingProvider);
+    final currentStep = ref.read(currentOrientationStepProvider);
+    final canProceed = ref.read(canProceedOrientationProvider);
 
     if (!canProceed) {
       _showErrorSnackBar();
       return;
     }
 
-    // Check if we're on the last screen (pronoun)
-    if (currentStep == OnboardingStep.pronoun) {
-      // Navigate to orientation module (Module 2)
-      context.go('/orientation');
+    // Check if we're on the last screen (dating goals)
+    if (currentStep == OrientationStep.datingGoals) {
+      // Final step - submit and navigate to next flow
+      _submitOrientation();
       return;
     }
 
     // Animate fade out then slide to next page
     _fadeController.reverse().then((_) {
-      ref.read(currentOnboardingStepProvider.notifier).next();
+      ref.read(currentOrientationStepProvider.notifier).next();
       _pageController.nextPage(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeInOut,
@@ -79,18 +80,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   }
 
   void _showErrorSnackBar() {
-    final currentStep = ref.read(currentOnboardingStepProvider);
+    final currentStep = ref.read(currentOrientationStepProvider);
     String message;
 
     switch (currentStep) {
-      case OnboardingStep.age:
-        message = 'Please enter a valid birthdate';
+      case OrientationStep.sexualOrientation:
+        message = 'Please select your sexual orientation';
         break;
-      case OnboardingStep.gender:
-        message = 'Please select your gender';
+      case OrientationStep.datingPreference:
+        message = 'Please select at least one preference';
         break;
-      case OnboardingStep.pronoun:
-        message = 'Please select at least one pronoun';
+      case OrientationStep.datingGoals:
+        message = 'Please select 1-2 dating goals';
         break;
       default:
         message = 'Please complete this step';
@@ -105,10 +106,29 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     );
   }
 
+  Future<void> _submitOrientation() async {
+    try {
+      await ref.read(onboardingDataProvider.notifier).submit();
+      if (mounted) {
+        // Navigate to username screen
+        context.go('/username');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentStep = ref.watch(currentOnboardingStepProvider);
-    final canProceed = ref.watch(canProceedOnboardingProvider);
+    final currentStep = ref.watch(currentOrientationStepProvider);
+    final canProceed = ref.watch(canProceedOrientationProvider);
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -123,7 +143,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                 AppSpacing.x5,
                 AppSpacing.x4,
               ),
-              child: OnboardingProgressIndicator(
+              child: OrientationProgressIndicator(
                 currentStep: currentStep,
               ),
             ),
@@ -137,13 +157,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
                   physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (index) {
                     // Sync page index with step provider
-                    ref.read(currentOnboardingStepProvider.notifier)
-                        .goTo(OnboardingStep.values[index]);
+                    ref.read(currentOrientationStepProvider.notifier)
+                        .goTo(OrientationStep.values[index]);
                   },
                   children: const [
-                    AgeInputScreen(),
-                    GenderSelectionScreen(),
-                    PronounSelectionScreen(),
+                    SexualOrientationScreen(),
+                    DatingPreferenceScreen(),
+                    DatingGoalsScreen(),
                   ],
                 ),
               ),
