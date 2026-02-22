@@ -1,0 +1,61 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 91.0.0 (94.0.0 available)
+  analyzer 8.4.0 (10.0.2 available)
+  analyzer_buffer 0.1.11 (0.3.1 available)
+  analyzer_plugin 0.13.10 (0.14.2 available)
+  build 4.0.3 (4.0.4 available)
+  build_runner 2.10.4 (2.11.0 available)
+  built_value 8.12.1 (8.12.3 available)
+  characters 1.4.0 (1.4.1 available)
+  code_builder 4.11.0 (4.11.1 available)
+  custom_lint_core 0.8.1 (0.8.2 available)
+  custom_lint_visitor 1.0.0+8.4.0 (1.0.0+9.0.0 available)
+  dart_style 3.1.3 (3.1.5 available)
+  ffi 2.1.4 (2.1.5 available)
+  flutter_form_builder 10.2.0 (10.3.0+1 available)
+  flutter_riverpod 3.0.3 (3.2.1 available)
+  form_builder_validators 11.2.0 (11.3.0 available)
+  freezed 3.2.3 (3.2.5 available)
+  go_router 17.0.1 (17.1.0 available)
+  google_fonts 6.3.3 (8.0.1 available)
+  hooks_riverpod 3.0.3 (3.2.1 available)
+  json_annotation 4.9.0 (4.10.0 available)
+  json_serializable 6.11.2 (6.12.0 available)
+  lints 6.0.0 (6.1.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.17.0 (1.18.1 available)
+  mockito 5.6.1 (5.6.3 available)
+  path_provider_foundation 2.5.1 (2.6.0 available)
+  riverpod 3.0.3 (3.2.1 available)
+  riverpod_analyzer_utils 1.0.0-dev.7 (1.0.0-dev.9 available)
+  riverpod_annotation 3.0.3 (4.0.2 available)
+  riverpod_generator 3.0.3 (4.0.3 available)
+  source_gen 4.1.1 (4.2.0 available)
+  source_helper 1.3.8 (1.3.10 available)
+  source_span 1.10.1 (1.10.2 available)
+  test 1.26.3 (1.29.0 available)
+  test_api 0.7.7 (0.7.9 available)
+  test_core 0.6.12 (0.6.15 available)
+  vector_graphics_compiler 1.1.19 (1.1.20 available)
+  watcher 1.2.0 (1.2.1 available)
+Got dependencies!
+40 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+00:00 +0: loading C:/Users/Dhili/dating-app-verification-flutter/test/widgets/next_button_test.dart
+00:00 +0: NextButton Widget Tests SVG Asset Selection displays Default.svg when enabled and not pressed
+unhandled element <filter/>; Picture key: Svg loader
+00:00 +1: NextButton Widget Tests SVG Asset Selection displays Disabled.svg when isDisabled is true
+00:00 +2: NextButton Widget Tests SVG Asset Selection displays Disabled.svg when onPressed is null
+00:00 +3: NextButton Widget Tests SVG Asset Selection displays Pressed.svg during tap down
+00:00 +4: NextButton Widget Tests State Transitions (ValueKey Fix Verification) SVG updates correctly when transitioning from disabled to enabled
+00:00 +5: NextButton Widget Tests State Transitions (ValueKey Fix Verification) SVG updates correctly when transitioning from enabled to disabled
+00:00 +6: NextButton Widget Tests State Transitions (ValueKey Fix Verification) returns to Default.svg after tap is released
+00:00 +7: NextButton Widget Tests State Transitions (ValueKey Fix Verification) returns to Default.svg after tap is cancelled
+00:00 +8: NextButton Widget Tests Callback Behavior invokes onPressed callback when tapped and enabled
+00:00 +9: NextButton Widget Tests Callback Behavior does not invoke callback when disabled
+00:00 +10: NextButton Widget Tests Callback Behavior does not invoke callback when onPressed is null
+00:00 +11: NextButton Widget Tests Widget Properties has correct dimensions (54x54)
+00:00 +12: NextButton Widget Tests Widget Properties uses BoxFit.contain
+00:00 +13: All tests passed!

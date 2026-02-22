@@ -1,10 +1,11 @@
 /// Onboarding Progress Indicator
-/// Animated progress bar showing onboarding steps
+/// Animated progress bar showing onboarding steps (Module 1 only: Age, Gender, Pronoun)
 library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/onboarding_models.dart';
+import 'progress_bar.dart';
 
 class OnboardingProgressIndicator extends StatelessWidget {
   final OnboardingStep currentStep;
@@ -29,7 +30,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
         ),
         // Progress Bar 1
         Expanded(
-          child: _ProgressBar(
+          child: ProgressBar(
             isActive: currentStep.index >= 1,
             animationDuration: animationDuration,
           ),
@@ -43,7 +44,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
         ),
         // Progress Bar 2
         Expanded(
-          child: _ProgressBar(
+          child: ProgressBar(
             isActive: currentStep.index >= 2,
             animationDuration: animationDuration,
           ),
@@ -57,7 +58,7 @@ class OnboardingProgressIndicator extends StatelessWidget {
         ),
         // Progress Bar 3
         Expanded(
-          child: _ProgressBar(
+          child: ProgressBar(
             isActive: currentStep.index >= 3,
             animationDuration: animationDuration,
           ),
@@ -89,7 +90,6 @@ class _StepIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Smaller sizes to fit 7 steps
     final size = isActive ? 40.0 : 28.0;
 
     return SizedBox(
@@ -123,30 +123,6 @@ class _StepIcon extends StatelessWidget {
             size: isActive ? 18 : 14,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ProgressBar extends StatelessWidget {
-  final bool isActive;
-  final Duration animationDuration;
-
-  const _ProgressBar({
-    required this.isActive,
-    required this.animationDuration,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: animationDuration,
-      curve: Curves.easeInOut,
-      height: 2,
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.x1),
-      decoration: BoxDecoration(
-        gradient: isActive ? AppColors.brandGradient : null,
-        color: !isActive ? AppColors.interactive100 : null,
       ),
     );
   }

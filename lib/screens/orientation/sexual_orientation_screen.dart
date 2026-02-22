@@ -7,6 +7,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
+import '../../widgets/info_banner.dart';
+import '../../widgets/profile_visibility_checkbox.dart';
 
 class SexualOrientationScreen extends ConsumerWidget {
   const SexualOrientationScreen({super.key});
@@ -51,59 +53,19 @@ class SexualOrientationScreen extends ConsumerWidget {
           const SizedBox(height: AppSpacing.x4),
 
           // Show on profile checkbox
-          Row(
-            children: [
-              SizedBox(
-                width: 44,
-                height: 44,
-                child: Checkbox(
-                  value: onboardingData.showSexualOrientationOnProfile,
-                  onChanged: (value) {
-                    ref.read(onboardingDataProvider.notifier)
-                        .toggleShowSexualOrientationOnProfile();
-                  },
-                ),
-              ),
-              const SizedBox(width: AppSpacing.x2),
-              Text(
-                'Show on your profile',
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
+          ProfileVisibilityCheckbox(
+            value: onboardingData.showSexualOrientationOnProfile,
+            onToggle: () {
+              ref.read(onboardingDataProvider.notifier)
+                  .toggleShowSexualOrientationOnProfile();
+            },
           ),
           const SizedBox(height: AppSpacing.x4),
 
           // Info Banner
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.x4),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.brandDark),
-              borderRadius: BorderRadius.circular(AppRadius.medium),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.x2),
-                  decoration: BoxDecoration(
-                    gradient: AppColors.brandGradient,
-                    shape: BoxShape.circle,
-                    boxShadow: AppShadows.pressedShadow,
-                  ),
-                  child: const Icon(
-                    Icons.info_outline,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.x4),
-                Expanded(
-                  child: Text(
-                    'This helps us find better matches for you. You can change this anytime.',
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ),
-              ],
-            ),
+          const InfoBanner(
+            message: 'This helps us find better matches for you. You can change this anytime.',
+            iconStyle: InfoBannerIcon.gradientCircle,
           ),
           const SizedBox(height: AppSpacing.x4),
         ],

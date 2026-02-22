@@ -2,21 +2,17 @@
 /// User enters 6-digit OTP code with 2-minute timer
 library;
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../theme/app_theme.dart';
-import '../widgets/otp_input.dart';
 import '../widgets/progress_indicator.dart';
-import '../widgets/next_button.dart';
-import '../widgets/gradient_text_link.dart';
+import '../widgets/otp_verification_content.dart';
 import '../providers/verification_provider.dart';
 import '../models/verification_models.dart';
 
-class PhoneOTPScreen extends HookConsumerWidget {
+class PhoneOTPScreen extends ConsumerWidget {
   final String phoneNumber;
   final String countryCode;
 
@@ -26,7 +22,6 @@ class PhoneOTPScreen extends HookConsumerWidget {
     required this.countryCode,
   });
 
-  // Define progress steps
   static const List<ProgressStep> _steps = [
     ProgressStep(id: '1', icon: StepIcon.phone, status: StepStatus.inProgress),
     ProgressStep(id: '2', icon: StepIcon.account, status: StepStatus.incomplete),
@@ -36,92 +31,6 @@ class PhoneOTPScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final otpCode = useState('');
-    final isLoading = useState(false);
-    final error = useState<String?>(null);
-
-    // Timer state
-    final timeLeft = useState(120); // 2 minutes in seconds
-    final canResend = useState(false);
-
-    // Timer effect
-    useEffect(() {
-      final timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        if (timeLeft.value > 0) {
-          timeLeft.value--;
-        } else {
-          canResend.value = true;
-          timer.cancel();
-        }
-      });
-
-      return timer.cancel;
-    }, []);
-
-    // Format timer as MM:SS
-    String formatTime(int seconds) {
-      final mins = seconds ~/ 60;
-      final secs = seconds % 60;
-      return '${mins.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-    }
-
-    // Auto-verify when OTP is complete
-    Future<void> verifyOTP(String code) async {
-      if (code.length == 6) {
-        isLoading.value = true;
-        error.value = null;
-
-        try {
-          final service = ref.read(verificationServiceProvider);
-          final phoneData = PhoneInputData(
-            countryCode: countryCode,
-            phoneNumber: phoneNumber,
-          );
-          await service.verifyPhoneOTP(phoneData, code);
-
-          if (context.mounted) {
-            context.push('/username');
-          }
-        } catch (e) {
-          error.value = 'Invalid code. Please try again.';
-          otpCode.value = ''; // Clear the input
-        } finally {
-          isLoading.value = false;
-        }
-      }
-    }
-
-    // Resend OTP
-    Future<void> handleResend() async {
-      if (!canResend.value) return;
-
-      isLoading.value = true;
-      error.value = null;
-
-      try {
-        final service = ref.read(verificationServiceProvider);
-        final phoneData = PhoneInputData(
-          countryCode: countryCode,
-          phoneNumber: phoneNumber,
-        );
-        await service.sendPhoneOTP(phoneData);
-
-        // Reset timer
-        timeLeft.value = 60;
-        canResend.value = false;
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Code sent successfully')),
-          );
-        }
-      } catch (e) {
-        error.value = 'Failed to resend code';
-      } finally {
-        isLoading.value = false;
-      }
-    }
-
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: SafeArea(
@@ -139,104 +48,33 @@ class PhoneOTPScreen extends HookConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.x8),
 
-              // Title
-              Text(
-                'Enter verification code',
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
-              const SizedBox(height: AppSpacing.x2),
-
-              // Subtitle
-              Text(
-                'We sent a code to $countryCode $phoneNumber',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: AppSpacing.x6),
-
-              // OTP Input
-              OTPInput(
-                value: otpCode.value,
-                onChanged: (code) {
-                  otpCode.value = code;
-                  error.value = null; // Clear error on change
-                },
-                hasError: error.value != null,
-              ),
-              const SizedBox(height: AppSpacing.x2),
-
-              // Security message
-              Text(
-                'For your security, don\'t share this code',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontSize: 12,
-                  color: AppColors.interactive300,
+              // OTP Verification Content
+              Expanded(
+                child: OTPVerificationContent(
+                  subtitle: 'We sent a code to $countryCode $phoneNumber',
+                  onVerify: (code) async {
+                    final service = ref.read(verificationServiceProvider);
+                    final phoneData = PhoneInputData(
+                      countryCode: countryCode,
+                      phoneNumber: phoneNumber,
+                    );
+                    await service.verifyPhoneOTP(phoneData, code);
+                    if (context.mounted) {
+                      context.push('/username');
+                    }
+                  },
+                  onResend: () async {
+                    final service = ref.read(verificationServiceProvider);
+                    final phoneData = PhoneInputData(
+                      countryCode: countryCode,
+                      phoneNumber: phoneNumber,
+                    );
+                    await service.sendPhoneOTP(phoneData);
+                  },
+                  onBack: () => context.pop(),
+                  backLabel: 'Change phone number',
                 ),
               ),
-              const SizedBox(height: AppSpacing.x2),
-
-              // Error message
-              if (error.value != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppSpacing.x2),
-                  child: Text(
-                    error.value!,
-                    style: const TextStyle(
-                      color: AppColors.error,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-
-              const SizedBox(height: AppSpacing.x4),
-
-              // Timer or Resend option
-              Center(
-                child: canResend.value
-                    ? TextButton(
-                        onPressed: isLoading.value ? null : handleResend,
-                        child: const Text(
-                          'Resend code',
-                          style: TextStyle(
-                            color: AppColors.brandDark,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : Text(
-                        'Code expires in ${formatTime(timeLeft.value)}',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-              ),
-
-              const Spacer(),
-
-              // Bottom navigation row with back link and next button
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                    child: GradientTextLink(
-                      text: 'Change phone number',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                  NextButton(
-                    onPressed: (isLoading.value || otpCode.value.length != 6)
-                        ? null
-                        : () => verifyOTP(otpCode.value),
-                    isDisabled: isLoading.value || otpCode.value.length != 6,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.x6),
             ],
           ),
         ),
