@@ -53,6 +53,29 @@ class CurrentOrientationStep extends _$CurrentOrientationStep {
   }
 }
 
+/// Current Module 4 step provider
+@Riverpod(keepAlive: true)
+class CurrentModule4Step extends _$CurrentModule4Step {
+  @override
+  Module4Step build() => Module4Step.education;
+
+  void next() {
+    if (!state.isLast) {
+      state = Module4Step.values[state.index + 1];
+    }
+  }
+
+  void previous() {
+    if (state.index > 0) {
+      state = Module4Step.values[state.index - 1];
+    }
+  }
+
+  void goTo(Module4Step step) {
+    state = step;
+  }
+}
+
 /// Onboarding data provider
 @Riverpod(keepAlive: true)
 class OnboardingDataNotifier extends _$OnboardingDataNotifier {
@@ -172,6 +195,50 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     }
 
     return age >= 18 && age <= 100; // Minimum age 18
+  }
+
+  // Module 4 methods
+  void updateIndustry(String industry) {
+    state = state.copyWith(industry: industry);
+  }
+
+  void updateRole(String role) {
+    state = state.copyWith(role: role);
+  }
+
+  void updateEducationLevel(EducationLevel level) {
+    state = state.copyWith(educationLevel: level);
+  }
+
+  void updateLocationQuery(String query) {
+    state = state.copyWith(locationQuery: query);
+  }
+
+  void updateLocation({
+    required double latitude,
+    required double longitude,
+    required String query,
+  }) {
+    state = state.copyWith(
+      latitude: latitude,
+      longitude: longitude,
+      locationQuery: query,
+    );
+  }
+
+  /// Validate if Module 4 step can proceed
+  bool canProceedModule4(Module4Step step) {
+    switch (step) {
+      case Module4Step.education:
+        return (state.industry != null && state.industry!.isNotEmpty) ||
+            (state.role != null && state.role!.isNotEmpty);
+      case Module4Step.profession:
+        return state.educationLevel != null;
+      case Module4Step.location:
+        return state.locationQuery != null && state.locationQuery!.isNotEmpty;
+      case Module4Step.complete:
+        return true;
+    }
   }
 
   /// Submit onboarding data
