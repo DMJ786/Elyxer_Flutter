@@ -17,7 +17,13 @@
       "Bash(git log*)",
       "Bash(git branch*)",
       "Bash(git add CLAUDE.md AGENTS.md .claude/settings.local.json)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push origin main)",
+      "Bash(git checkout -b feature/add-claude-agents-config)",
+      "Bash(git push -u origin feature/add-claude-agents-config)",
+      "Bash(gh pr:*)",
+      "Bash(git checkout -b feature/add-claude-skills)",
+      "Bash(git add .claude/skills/ .claude/settings.local.json)"
     ]
   }
 }
