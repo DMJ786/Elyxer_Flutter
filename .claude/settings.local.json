@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.figma.com)",
+      "Bash(git fetch origin)",
+      "Bash(git stash)",
+      "Bash(git checkout main)",
+      "Bash(git pull origin main)",
+      "Bash(flutter test*)",
+      "Bash(flutter analyze*)",
+      "Bash(flutter pub run build_runner*)",
+      "Bash(flutter pub get*)",
+      "Bash(flutter pub outdated*)",
+      "Bash(flutter build*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add CLAUDE.md AGENTS.md .claude/settings.local.json)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
