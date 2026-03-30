@@ -67,7 +67,6 @@ class SexualOrientationScreen extends ConsumerWidget {
             message: 'This helps us find better matches for you. You can change this anytime.',
             iconStyle: InfoBannerIcon.gradientCircle,
           ),
-          const SizedBox(height: AppSpacing.x4),
         ],
       ),
     );

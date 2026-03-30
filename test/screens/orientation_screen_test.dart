@@ -5,6 +5,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:dating_app_verification/models/onboarding_models.dart';
 import 'package:dating_app_verification/providers/onboarding_provider.dart';
@@ -345,11 +346,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Should have progress indicator with correct icons
-      expect(find.byIcon(Icons.favorite_outline), findsOneWidget);
-      expect(find.byIcon(Icons.people_outline), findsOneWidget);
-      expect(find.byIcon(Icons.flag_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.check), findsOneWidget);
+      // Should have progress indicator with SVG icons
+      expect(find.byType(SvgPicture), findsWidgets);
     });
 
     testWidgets('should render Next button aligned to the right', (tester) async {

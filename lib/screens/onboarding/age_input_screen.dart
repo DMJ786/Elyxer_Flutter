@@ -82,18 +82,10 @@ class _AgeInputScreenState extends ConsumerState<AgeInputScreen> {
 
       setState(() => _errorMessage = null);
 
-      // Debug: Check ref and notifier
-      print('DEBUG: About to update birthdate');
       final notifier = ref.read(onboardingDataProvider.notifier);
-      print('DEBUG: Got notifier: $notifier');
       notifier.updateBirthdate(birthdate);
-      print('DEBUG: Called updateBirthdate');
-
-      // Debug: Check if birthdate was saved
-      print('DEBUG: Birthdate saved: $birthdate, Age: $age');
     } catch (e) {
       setState(() => _errorMessage = 'Invalid date');
-      print('DEBUG: Date parsing failed: $e');
     }
   }
 

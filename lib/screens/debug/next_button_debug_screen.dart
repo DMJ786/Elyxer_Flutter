@@ -67,7 +67,7 @@ class _NextButtonDebugScreenState extends State<NextButtonDebugScreen> {
                             _lastAction = value ? 'Switched to DISABLED' : 'Switched to ENABLED';
                           });
                         },
-                        activeColor: Colors.red,
+                        activeTrackColor: Colors.red,
                         inactiveThumbColor: Colors.green,
                       ),
                       Text(
@@ -262,7 +262,7 @@ class _NextButtonDebugScreenState extends State<NextButtonDebugScreen> {
             borderRadius: BorderRadius.circular(8),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 4,
                 offset: const Offset(0, 2),
               ),
