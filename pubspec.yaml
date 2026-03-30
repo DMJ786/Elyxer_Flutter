@@ -35,6 +35,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  integration_test:
+    sdk: flutter
   flutter_lints: ^6.0.0
 
   # Code Generation
@@ -54,6 +56,13 @@ flutter:
     - assets/images/CompleteIconContainer/
     - assets/images/NextButton/
     - assets/images/InformationIconContainer/
+    - assets/images/onboarding/AgeIcon/
+    - assets/images/onboarding/GenderIcon/
+    - assets/images/onboarding/PronounIcon/
+    - assets/images/orientation/SexualOrientationIcon/
+    - assets/images/orientation/DatingPreferenceIcon/
+    - assets/images/orientation/DatingGoalIcon/
+    - assets/images/orientation/
 
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API
