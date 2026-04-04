@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dating_app_verification/models/onboarding_models.dart';
+import 'package:dating_app_verification/models/gender_identity_models.dart';
 
 void main() {
   group('OnboardingStep enum', () {
@@ -89,6 +90,29 @@ void main() {
       expect(Gender.nonBinary.displayName, equals('Non-Binary'));
       expect(Gender.other.displayName, equals('Other'));
     });
+
+    test('identityOptions should return man options for Gender.man', () {
+      final options = Gender.man.identityOptions;
+      expect(options, equals(GenderIdentityOptions.man));
+      expect(options.length, equals(6));
+    });
+
+    test('identityOptions should return woman options for Gender.woman', () {
+      final options = Gender.woman.identityOptions;
+      expect(options, equals(GenderIdentityOptions.woman));
+      expect(options.length, equals(6));
+    });
+
+    test('identityOptions should return nonBinary options for Gender.nonBinary', () {
+      final options = Gender.nonBinary.identityOptions;
+      expect(options, equals(GenderIdentityOptions.nonBinary));
+      expect(options.length, equals(14));
+    });
+
+    test('identityOptions should return empty list for Gender.other', () {
+      final options = Gender.other.identityOptions;
+      expect(options, isEmpty);
+    });
   });
 
   group('SexualOrientation enum', () {
@@ -135,7 +159,7 @@ void main() {
 
   group('Pronouns', () {
     test('should have all predefined pronouns', () {
-      expect(Pronouns.all.length, equals(9));
+      expect(Pronouns.all.length, equals(14));
       expect(Pronouns.all, contains('She/Her'));
       expect(Pronouns.all, contains('He/Him'));
       expect(Pronouns.all, contains('They/Them'));
@@ -145,6 +169,11 @@ void main() {
       expect(Pronouns.all, contains('Ey/Em'));
       expect(Pronouns.all, contains('Ve/Ver'));
       expect(Pronouns.all, contains('Per/Per'));
+      expect(Pronouns.all, contains('She/They'));
+      expect(Pronouns.all, contains('He/They'));
+      expect(Pronouns.all, contains('Any/All'));
+      expect(Pronouns.all, contains('Fae/Faer'));
+      expect(Pronouns.all, contains('It/Its'));
     });
   });
 
@@ -155,6 +184,7 @@ void main() {
       expect(data.birthdate, isNull);
       expect(data.gender, isNull);
       expect(data.customGenderIdentity, isNull);
+      expect(data.genderIdentityOptionIds, isEmpty);
       expect(data.pronouns, isEmpty);
       expect(data.customPronoun, isNull);
       expect(data.showGenderOnProfile, isFalse);
@@ -215,6 +245,46 @@ void main() {
       final updated = data.copyWith(datingGoalIds: ['long_term', 'casual']);
       
       expect(updated.datingGoalIds, equals(['long_term', 'casual']));
+    });
+
+    test('should initialize genderIdentityOptionIds as empty list', () {
+      const data = OnboardingData();
+      expect(data.genderIdentityOptionIds, isA<List<String>>());
+      expect(data.genderIdentityOptionIds, isEmpty);
+    });
+
+    test('should support copyWith for genderIdentityOptionIds', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(
+        genderIdentityOptionIds: ['man', 'transgender_man'],
+      );
+
+      expect(updated.genderIdentityOptionIds.length, equals(2));
+      expect(updated.genderIdentityOptionIds, contains('man'));
+      expect(updated.genderIdentityOptionIds, contains('transgender_man'));
+    });
+
+    test('copyWith genderIdentityOptionIds should not affect other fields', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(
+        gender: Gender.man,
+        genderIdentityOptionIds: ['cisgender_man'],
+      );
+
+      expect(updated.gender, equals(Gender.man));
+      expect(updated.genderIdentityOptionIds, equals(['cisgender_man']));
+      expect(updated.birthdate, isNull);
+      expect(updated.pronouns, isEmpty);
+    });
+
+    test('copyWith should allow clearing genderIdentityOptionIds', () {
+      final data = const OnboardingData().copyWith(
+        genderIdentityOptionIds: ['man', 'cisgender_man'],
+      );
+      expect(data.genderIdentityOptionIds.length, equals(2));
+
+      final cleared = data.copyWith(genderIdentityOptionIds: []);
+      expect(cleared.genderIdentityOptionIds, isEmpty);
     });
   });
 }

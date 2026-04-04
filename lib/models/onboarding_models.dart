@@ -2,11 +2,14 @@
 /// Data models for onboarding flow
 library;
 
+import 'gender_identity_models.dart';
+
 /// Onboarding state that holds user selections
 class OnboardingData {
   final DateTime? birthdate;
   final Gender? gender;
   final String? customGenderIdentity;
+  final List<String> genderIdentityOptionIds;
   final List<String> pronouns;
   final String? customPronoun;
   final bool showGenderOnProfile;
@@ -28,6 +31,7 @@ class OnboardingData {
     this.birthdate,
     this.gender,
     this.customGenderIdentity,
+    this.genderIdentityOptionIds = const [],
     this.pronouns = const [],
     this.customPronoun,
     this.showGenderOnProfile = false,
@@ -48,6 +52,7 @@ class OnboardingData {
     DateTime? birthdate,
     Gender? gender,
     String? customGenderIdentity,
+    List<String>? genderIdentityOptionIds,
     List<String>? pronouns,
     String? customPronoun,
     bool? showGenderOnProfile,
@@ -67,6 +72,7 @@ class OnboardingData {
       birthdate: birthdate ?? this.birthdate,
       gender: gender ?? this.gender,
       customGenderIdentity: customGenderIdentity ?? this.customGenderIdentity,
+      genderIdentityOptionIds: genderIdentityOptionIds ?? this.genderIdentityOptionIds,
       pronouns: pronouns ?? this.pronouns,
       customPronoun: customPronoun ?? this.customPronoun,
       showGenderOnProfile: showGenderOnProfile ?? this.showGenderOnProfile,
@@ -106,6 +112,20 @@ enum Gender {
         return 'Other';
     }
   }
+
+  /// Sub-options for each gender identity
+  List<GenderIdentityOption> get identityOptions {
+    switch (this) {
+      case Gender.man:
+        return GenderIdentityOptions.man;
+      case Gender.woman:
+        return GenderIdentityOptions.woman;
+      case Gender.nonBinary:
+        return GenderIdentityOptions.nonBinary;
+      case Gender.other:
+        return const [];
+    }
+  }
 }
 
 /// Predefined pronouns
@@ -119,6 +139,11 @@ class Pronouns {
   static const eyEm = 'Ey/Em';
   static const veVer = 'Ve/Ver';
   static const perPer = 'Per/Per';
+  static const sheThey = 'She/They';
+  static const heThey = 'He/They';
+  static const anyAll = 'Any/All';
+  static const faeFaer = 'Fae/Faer';
+  static const itIts = 'It/Its';
 
   static const List<String> all = [
     sheHer,
@@ -130,6 +155,11 @@ class Pronouns {
     eyEm,
     veVer,
     perPer,
+    sheThey,
+    heThey,
+    anyAll,
+    faeFaer,
+    itIts,
   ];
 }
 

@@ -19,6 +19,24 @@
 			"command": "flutter run -d chrome",
 			"isBackground": true,
 			"problemMatcher": []
+		},
+		{
+			"label": "Hot Restart Flutter",
+			"type": "shell",
+			"command": "flutter run -d chrome",
+			"isBackground": true
+		},
+		{
+			"label": "Flutter Run Chrome",
+			"type": "shell",
+			"command": "flutter run -d chrome",
+			"isBackground": true
+		},
+		{
+			"label": "Flutter Restart",
+			"type": "shell",
+			"command": "flutter run -d chrome",
+			"isBackground": true
 		}
 	]
 }

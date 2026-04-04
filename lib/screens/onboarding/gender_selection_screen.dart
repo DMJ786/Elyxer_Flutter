@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
+import '../../models/gender_identity_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
 import '../../widgets/gradient_text_link.dart';
 import '../../widgets/profile_visibility_checkbox.dart';
+import 'gender_identity_sheet.dart';
 
 class GenderSelectionScreen extends ConsumerWidget {
   const GenderSelectionScreen({super.key});
@@ -71,29 +73,50 @@ class GenderSelectionScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.x4),
 
-          // Add more about gender identity
-          GestureDetector(
-            onTap: () {
-              // TODO: Show gender identity input
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Add more about your gender identity',
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.interactive200,
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: AppColors.interactive200,
-                  size: 20,
-                ),
-              ],
+          // Gender identity section — show link or selected chips
+          if (onboardingData.genderIdentityOptionIds.isNotEmpty) ...[
+            // Show curated text + chips
+            Text(
+              'Profile recommendations are curated based on your selection.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.interactive400,
+              ),
             ),
-          ),
+            const SizedBox(height: AppSpacing.x3),
+            _SelectedIdentitiesChips(
+              gender: onboardingData.gender,
+              selectedIds: onboardingData.genderIdentityOptionIds,
+              onEdit: () => showGenderIdentitySheet(context),
+            ),
+          ] else ...[
+            // Add more about gender identity link
+            GestureDetector(
+              onTap: onboardingData.gender != null
+                  ? () => showGenderIdentitySheet(context)
+                  : null,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Add more about your gender identity',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: onboardingData.gender != null
+                          ? AppColors.brandDark
+                          : AppColors.interactive200,
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: onboardingData.gender != null
+                        ? AppColors.brandDark
+                        : AppColors.interactive200,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.x4),
 
           // Show on profile checkbox
@@ -110,7 +133,6 @@ class GenderSelectionScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Helps represent you as you identify. You can change this anytime.',
-            iconStyle: InfoBannerIcon.gradientCircle,
           ),
           const SizedBox(height: AppSpacing.x3),
 
@@ -184,7 +206,7 @@ class _GenderButton extends StatelessWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: AppSpacing.x4),
+            const SizedBox(height: AppSpacing.x2),
             // Radio button
             Container(
               width: 16,
@@ -209,6 +231,96 @@ class _GenderButton extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Displays selected gender identity chips with an edit button
+class _SelectedIdentitiesChips extends StatelessWidget {
+  final Gender? gender;
+  final List<String> selectedIds;
+  final VoidCallback onEdit;
+
+  const _SelectedIdentitiesChips({
+    required this.gender,
+    required this.selectedIds,
+    required this.onEdit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    // Always include the base gender as the first chip
+    final allLabels = <String>[];
+    if (gender != null) {
+      allLabels.add(gender!.displayName);
+    }
+
+    // Resolve IDs to labels (skip if same as base gender name)
+    final options = gender?.identityOptions ?? [];
+    for (final id in selectedIds) {
+      final match = options.where((o) => o.id == id);
+      if (match.isNotEmpty && match.first.label != gender?.displayName) {
+        allLabels.add(match.first.label);
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.x4,
+        vertical: AppSpacing.x3,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
+        border: Border.all(
+          color: AppColors.interactive100,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Wrap(
+              spacing: AppSpacing.x2,
+              runSpacing: AppSpacing.x2,
+              children: allLabels.map((label) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.x3,
+                    vertical: AppSpacing.x1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.interactive50,
+                    borderRadius: BorderRadius.circular(AppRadius.round),
+                    border: Border.all(
+                      color: AppColors.interactive200,
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: AppColors.interactive500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.x2),
+          GestureDetector(
+            onTap: onEdit,
+            child: const Icon(
+              Icons.edit_outlined,
+              size: 20,
+              color: AppColors.interactive400,
+            ),
+          ),
+        ],
       ),
     );
   }

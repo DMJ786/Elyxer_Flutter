@@ -87,11 +87,30 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
   }
 
   void updateGender(Gender gender) {
-    state = state.copyWith(gender: gender);
+    // Clear identity selections when gender changes
+    state = state.copyWith(gender: gender, genderIdentityOptionIds: []);
   }
 
   void updateCustomGenderIdentity(String? identity) {
     state = state.copyWith(customGenderIdentity: identity);
+  }
+
+  void updateGenderIdentityOption(String? optionId) {
+    state = state.copyWith(genderIdentityOptionIds: [if (optionId != null) optionId]);
+  }
+
+  void updateGenderIdentityOptions(List<String> optionIds) {
+    state = state.copyWith(genderIdentityOptionIds: optionIds);
+  }
+
+  void toggleGenderIdentityOption(String optionId) {
+    final ids = List<String>.from(state.genderIdentityOptionIds);
+    if (ids.contains(optionId)) {
+      ids.remove(optionId);
+    } else {
+      ids.add(optionId);
+    }
+    state = state.copyWith(genderIdentityOptionIds: ids);
   }
 
   void togglePronoun(String pronoun) {

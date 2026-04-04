@@ -666,4 +666,167 @@ void main() {
       expect(container.read(onboardingDataProvider).showGenderOnProfile, isFalse);
     });
   });
+
+  group('OnboardingDataNotifier - Gender Identity Options', () {
+    test('updateGender should clear genderIdentityOptionIds', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      // Set gender and add identity options
+      notifier.updateGender(Gender.man);
+      notifier.updateGenderIdentityOptions(['man', 'cisgender_man']);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds.length,
+        equals(2),
+      );
+
+      // Change gender — identity options should be cleared
+      notifier.updateGender(Gender.woman);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        isEmpty,
+      );
+      expect(
+        container.read(onboardingDataProvider).gender,
+        equals(Gender.woman),
+      );
+    });
+
+    test('updateGenderIdentityOptions should replace entire list', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.updateGenderIdentityOptions(['man', 'transgender_man']);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        equals(['man', 'transgender_man']),
+      );
+
+      // Replace with different list
+      notifier.updateGenderIdentityOptions(['cisgender_man']);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        equals(['cisgender_man']),
+      );
+    });
+
+    test('updateGenderIdentityOptions with empty list should clear selections', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.updateGenderIdentityOptions(['man', 'cisgender_man']);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds.length,
+        equals(2),
+      );
+
+      notifier.updateGenderIdentityOptions([]);
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        isEmpty,
+      );
+    });
+
+    test('toggleGenderIdentityOption should add when not present', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.toggleGenderIdentityOption('transgender_man');
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        contains('transgender_man'),
+      );
+    });
+
+    test('toggleGenderIdentityOption should remove when already present', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      // Add then remove
+      notifier.toggleGenderIdentityOption('transgender_man');
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        contains('transgender_man'),
+      );
+
+      notifier.toggleGenderIdentityOption('transgender_man');
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        isNot(contains('transgender_man')),
+      );
+    });
+
+    test('toggleGenderIdentityOption should support multiple selections', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.toggleGenderIdentityOption('man');
+      notifier.toggleGenderIdentityOption('cisgender_man');
+      notifier.toggleGenderIdentityOption('transmasculine');
+
+      final ids = container.read(onboardingDataProvider).genderIdentityOptionIds;
+      expect(ids.length, equals(3));
+      expect(ids, contains('man'));
+      expect(ids, contains('cisgender_man'));
+      expect(ids, contains('transmasculine'));
+    });
+
+    test('toggleGenderIdentityOption should only remove the toggled item', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.toggleGenderIdentityOption('man');
+      notifier.toggleGenderIdentityOption('cisgender_man');
+
+      // Remove one
+      notifier.toggleGenderIdentityOption('man');
+
+      final ids = container.read(onboardingDataProvider).genderIdentityOptionIds;
+      expect(ids.length, equals(1));
+      expect(ids, contains('cisgender_man'));
+      expect(ids, isNot(contains('man')));
+    });
+
+    test('updateGenderIdentityOption should wrap single id in list', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.updateGenderIdentityOption('transgender_man');
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        equals(['transgender_man']),
+      );
+    });
+
+    test('updateGenderIdentityOption with null should clear list', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+
+      notifier.updateGenderIdentityOptions(['man', 'cisgender_man']);
+      notifier.updateGenderIdentityOption(null);
+
+      expect(
+        container.read(onboardingDataProvider).genderIdentityOptionIds,
+        isEmpty,
+      );
+    });
+  });
 }

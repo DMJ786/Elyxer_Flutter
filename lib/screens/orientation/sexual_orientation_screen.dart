@@ -65,7 +65,7 @@ class SexualOrientationScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'This helps us find better matches for you. You can change this anytime.',
-            iconStyle: InfoBannerIcon.gradientCircle,
+
           ),
         ],
       ),
