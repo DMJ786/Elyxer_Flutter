@@ -135,6 +135,10 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
+      // Set up education data so validation passes
+      container.read(onboardingDataProvider.notifier)
+          .updateEducationLevel(EducationLevel.undergraduate);
+
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -246,6 +250,12 @@ void main() {
       _setUpViewport(tester);
       final container = ProviderContainer();
       addTearDown(container.dispose);
+
+      // Set up data for all steps so validation passes
+      final notifier = container.read(onboardingDataProvider.notifier);
+      notifier.updateEducationLevel(EducationLevel.undergraduate);
+      notifier.updateIndustry('Technology');
+      notifier.updateLocationQuery('New York, NY');
 
       await tester.pumpWidget(
         UncontrolledProviderScope(

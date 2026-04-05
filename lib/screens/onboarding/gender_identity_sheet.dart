@@ -8,32 +8,32 @@ import '../../theme/app_theme.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/feedback_dialog.dart';
 
-/// Shows the gender identity selection panel sliding in from the right
+/// Shows the gender identity selection panel sliding in from the right.
+/// Uses [showGeneralDialog] so the overlay is visible to GoRouter's
+/// back-button and deep-link handling (no raw Navigator.push).
 Future<void> showGenderIdentitySheet(BuildContext context) {
-  return Navigator.of(context).push(
-    PageRouteBuilder(
-      opaque: false,
-      barrierDismissible: true,
-      barrierColor: Colors.black54,
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return const _GenderIdentityPanel();
-      },
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final offsetAnimation = Tween<Offset>(
-          begin: const Offset(1.0, 0.0), // Slide from right
-          end: Offset.zero,
-        ).animate(CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeInOut,
-        ));
-        return SlideTransition(
-          position: offsetAnimation,
-          child: child,
-        );
-      },
-      transitionDuration: const Duration(milliseconds: 300),
-      reverseTransitionDuration: const Duration(milliseconds: 250),
-    ),
+  return showGeneralDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: 'Gender Identity',
+    barrierColor: Colors.black54,
+    transitionDuration: const Duration(milliseconds: 300),
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return const _GenderIdentityPanel();
+    },
+    transitionBuilder: (context, animation, secondaryAnimation, child) {
+      final offsetAnimation = Tween<Offset>(
+        begin: const Offset(1.0, 0.0), // Slide from right
+        end: Offset.zero,
+      ).animate(CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      ));
+      return SlideTransition(
+        position: offsetAnimation,
+        child: child,
+      );
+    },
   );
 }
 

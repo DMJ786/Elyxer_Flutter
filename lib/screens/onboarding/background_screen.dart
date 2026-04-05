@@ -59,6 +59,14 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
       return;
     }
 
+    // Validate current step before proceeding
+    final canProceed = ref.read(onboardingDataProvider.notifier)
+        .canProceedBackground(currentStep);
+    if (!canProceed) {
+      _showValidationError(currentStep);
+      return;
+    }
+
     // Animate fade out then slide to next page
     _fadeController.reverse().then((_) {
       ref.read(currentBackgroundStepProvider.notifier).next();
@@ -92,6 +100,22 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
 
       _fadeController.forward();
     });
+  }
+
+  void _showValidationError(BackgroundStep step) {
+    final message = switch (step) {
+      BackgroundStep.education => 'Please select your education level',
+      BackgroundStep.profession => 'Please enter your industry or role',
+      BackgroundStep.location => 'Please enter your location',
+      BackgroundStep.complete => 'Please complete all steps',
+    };
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.error,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _previousPage() {

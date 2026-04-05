@@ -2,12 +2,17 @@
 /// Sub-options for each gender category
 library;
 
-/// A specific gender identity option within a gender category
-class GenderIdentityOption {
-  final String id;
-  final String label;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const GenderIdentityOption({required this.id, required this.label});
+part 'gender_identity_models.freezed.dart';
+
+/// A specific gender identity option within a gender category
+@freezed
+abstract class GenderIdentityOption with _$GenderIdentityOption {
+  const factory GenderIdentityOption({
+    required String id,
+    required String label,
+  }) = _GenderIdentityOption;
 }
 
 /// Centralized gender identity options per gender

@@ -249,10 +249,10 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
   bool canProceedBackground(BackgroundStep step) {
     switch (step) {
       case BackgroundStep.education:
+        return state.educationLevel != null;
+      case BackgroundStep.profession:
         return (state.industry != null && state.industry!.isNotEmpty) ||
             (state.role != null && state.role!.isNotEmpty);
-      case BackgroundStep.profession:
-        return state.educationLevel != null;
       case BackgroundStep.location:
         return state.locationQuery != null && state.locationQuery!.isNotEmpty;
       case BackgroundStep.complete:

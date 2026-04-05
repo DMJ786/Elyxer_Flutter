@@ -2,6 +2,8 @@
 /// Modal dialogs for collecting user feedback and confirming submission.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 
@@ -23,11 +25,22 @@ class FeedbackDialog extends StatefulWidget {
 
   /// Show the feedback dialog and return the submitted feedback text
   /// (or null if cancelled).
-  static Future<String?> show(BuildContext context) {
+  ///
+  /// Optional [title], [hintText], and [maxLines] override the defaults.
+  static Future<String?> show(
+    BuildContext context, {
+    String? title,
+    String? hintText,
+    int maxLines = 4,
+  }) {
     return showDialog<String>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => const FeedbackDialog(),
+      builder: (context) => FeedbackDialog(
+        title: title ?? 'Share your feedback',
+        hintText: hintText ?? 'Add your Thoughts...',
+        maxLines: maxLines,
+      ),
     );
   }
 
@@ -203,7 +216,7 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
 // Auto-dismisses after 2 seconds. Tap to dismiss earlier.
 // ---------------------------------------------------------------------------
 
-class ThankYouDialog extends StatelessWidget {
+class ThankYouDialog extends StatefulWidget {
   const ThankYouDialog({super.key});
 
   /// Convenience method to display the dialog.
@@ -211,16 +224,31 @@ class ThankYouDialog extends StatelessWidget {
     return showDialog<void>(
       context: context,
       barrierDismissible: true,
-      builder: (dialogContext) {
-        // Auto-close after 2 seconds
-        Future.delayed(const Duration(seconds: 2), () {
-          if (dialogContext.mounted) {
-            Navigator.of(dialogContext).pop();
-          }
-        });
-        return const ThankYouDialog();
-      },
+      builder: (dialogContext) => const ThankYouDialog(),
     );
+  }
+
+  @override
+  State<ThankYouDialog> createState() => _ThankYouDialogState();
+}
+
+class _ThankYouDialogState extends State<ThankYouDialog> {
+  Timer? _autoCloseTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _autoCloseTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _autoCloseTimer?.cancel();
+    super.dispose();
   }
 
   @override

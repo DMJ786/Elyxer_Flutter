@@ -934,49 +934,12 @@ void main() {
   });
 
   group('canProceedBackground - education step', () {
-    test('should return false when no industry or role is set', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final notifier = container.read(onboardingDataProvider.notifier);
-      expect(notifier.canProceedBackground(BackgroundStep.education), isFalse);
-    });
-
-    test('should return true when industry is set', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final notifier = container.read(onboardingDataProvider.notifier);
-      notifier.updateIndustry('Technology');
-      expect(notifier.canProceedBackground(BackgroundStep.education), isTrue);
-    });
-
-    test('should return true when role is set', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final notifier = container.read(onboardingDataProvider.notifier);
-      notifier.updateRole('Software Engineer');
-      expect(notifier.canProceedBackground(BackgroundStep.education), isTrue);
-    });
-
-    test('should return false when industry is empty string', () {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      final notifier = container.read(onboardingDataProvider.notifier);
-      notifier.updateIndustry('');
-      expect(notifier.canProceedBackground(BackgroundStep.education), isFalse);
-    });
-  });
-
-  group('canProceedBackground - profession step', () {
     test('should return false when no education level is set', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       final notifier = container.read(onboardingDataProvider.notifier);
-      expect(notifier.canProceedBackground(BackgroundStep.profession), isFalse);
+      expect(notifier.canProceedBackground(BackgroundStep.education), isFalse);
     });
 
     test('should return true when education level is set', () {
@@ -985,7 +948,7 @@ void main() {
 
       final notifier = container.read(onboardingDataProvider.notifier);
       notifier.updateEducationLevel(EducationLevel.postgraduate);
-      expect(notifier.canProceedBackground(BackgroundStep.profession), isTrue);
+      expect(notifier.canProceedBackground(BackgroundStep.education), isTrue);
     });
 
     test('should return true for all education levels', () {
@@ -995,8 +958,45 @@ void main() {
       final notifier = container.read(onboardingDataProvider.notifier);
       for (final level in EducationLevel.values) {
         notifier.updateEducationLevel(level);
-        expect(notifier.canProceedBackground(BackgroundStep.profession), isTrue);
+        expect(notifier.canProceedBackground(BackgroundStep.education), isTrue);
       }
+    });
+  });
+
+  group('canProceedBackground - profession step', () {
+    test('should return false when no industry or role is set', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+      expect(notifier.canProceedBackground(BackgroundStep.profession), isFalse);
+    });
+
+    test('should return true when industry is set', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+      notifier.updateIndustry('Technology');
+      expect(notifier.canProceedBackground(BackgroundStep.profession), isTrue);
+    });
+
+    test('should return true when role is set', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+      notifier.updateRole('Software Engineer');
+      expect(notifier.canProceedBackground(BackgroundStep.profession), isTrue);
+    });
+
+    test('should return false when industry is empty string', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      final notifier = container.read(onboardingDataProvider.notifier);
+      notifier.updateIndustry('');
+      expect(notifier.canProceedBackground(BackgroundStep.profession), isFalse);
     });
   });
 

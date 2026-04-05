@@ -225,7 +225,7 @@ final class OnboardingDataNotifierProvider
 }
 
 String _$onboardingDataNotifierHash() =>
-    r'c0c1828f55d85c98d7a58f14f7b6d8d5ab1076d1';
+    r'0c9315a1a15165e1d167908b5fb7b5a36c9595a3';
 
 /// Onboarding data provider
 
