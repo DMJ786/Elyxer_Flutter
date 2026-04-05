@@ -43,13 +43,16 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Generated files
-*.freezed.dart
-*.g.dart
-*.gr.dart
-
 # Coverage
 coverage/
+
+# Generated files (Freezed, json_serializable, Riverpod)
+# Note: *.g.dart and *.freezed.dart are tracked intentionally
+# Do NOT add *.g.dart or *.freezed.dart here
+
+# Analysis & test output
+analyze_results.txt
+test_evidence.txt
 
 # Exceptions to above rules
 !**/ios/**/default.mode1v3
