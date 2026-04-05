@@ -615,7 +615,7 @@ class _EmailInputContentState extends ConsumerState<EmailInputContent> {
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
-              activeColor: AppColors.success,
+              activeColor: AppColors.brandDark,
               checkColor: Colors.white,
             ),
 

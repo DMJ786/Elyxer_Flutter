@@ -1,9 +1,13 @@
-/// Feedback Dialog
-/// Modal dialog for collecting user feedback
+/// Feedback Dialog & Thank You Dialog
+/// Modal dialogs for collecting user feedback and confirming submission.
 library;
 
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+
+// ---------------------------------------------------------------------------
+// Feedback Dialog
+// ---------------------------------------------------------------------------
 
 class FeedbackDialog extends StatefulWidget {
   final String? title;
@@ -13,25 +17,17 @@ class FeedbackDialog extends StatefulWidget {
   const FeedbackDialog({
     super.key,
     this.title = 'Share your feedback',
-    this.hintText = 'Tell us what you think...',
+    this.hintText = 'Add your Thoughts...',
     this.maxLines = 4,
   });
 
-  /// Show the feedback dialog and return the submitted feedback (or null if cancelled)
-  static Future<String?> show(
-    BuildContext context, {
-    String? title,
-    String? hintText,
-    int maxLines = 4,
-  }) {
+  /// Show the feedback dialog and return the submitted feedback text
+  /// (or null if cancelled).
+  static Future<String?> show(BuildContext context) {
     return showDialog<String>(
       context: context,
       barrierDismissible: true,
-      builder: (context) => FeedbackDialog(
-        title: title,
-        hintText: hintText,
-        maxLines: maxLines,
-      ),
+      builder: (context) => const FeedbackDialog(),
     );
   }
 
@@ -41,7 +37,6 @@ class FeedbackDialog extends StatefulWidget {
 
 class _FeedbackDialogState extends State<FeedbackDialog> {
   late final TextEditingController _controller;
-  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -58,7 +53,6 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
   void _handleSubmit() {
     final feedback = _controller.text.trim();
     if (feedback.isNotEmpty) {
-      setState(() => _isSubmitting = true);
       Navigator.of(context).pop(feedback);
     }
   }
@@ -70,180 +64,221 @@ class _FeedbackDialogState extends State<FeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = MediaQuery.of(context).size;
 
     return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.x5,
-        vertical: AppSpacing.x6,
+      backgroundColor: AppColors.cream,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.large),
       ),
-      child: Container(
-        width: size.width * 0.9,
-        constraints: const BoxConstraints(maxWidth: 400),
-        decoration: BoxDecoration(
-          color: AppColors.cream,
-          borderRadius: BorderRadius.circular(AppRadius.large),
-          boxShadow: AppShadows.defaultShadow,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.x6,
+          AppSpacing.x6,
+          AppSpacing.x6,
+          AppSpacing.x5,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.x5,
-                AppSpacing.x5,
-                AppSpacing.x4,
-                AppSpacing.x4,
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.title ?? 'Share your feedback',
-                      style: theme.textTheme.displayLarge?.copyWith(
-                        fontSize: 20,
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _handleCancel,
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.x2),
-                      decoration: BoxDecoration(
-                        color: AppColors.interactive50,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.close,
-                        size: 20,
-                        color: AppColors.interactive400,
-                      ),
-                    ),
-                  ),
-                ],
+            // Title
+            Text(
+              widget.title ?? 'Share your feedback',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColors.interactive500,
               ),
             ),
-
-            // Divider
-            Container(
-              height: 1,
-              color: AppColors.interactive100,
-            ),
+            const SizedBox(height: AppSpacing.x5),
 
             // Text Input
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.x5),
-              child: TextField(
-                controller: _controller,
-                maxLines: widget.maxLines,
-                style: theme.textTheme.bodyLarge,
-                decoration: InputDecoration(
-                  hintText: widget.hintText,
-                  hintStyle: theme.textTheme.bodyLarge?.copyWith(
-                    color: AppColors.interactive200,
+            TextField(
+              controller: _controller,
+              maxLines: widget.maxLines,
+              style: theme.textTheme.bodyLarge,
+              decoration: InputDecoration(
+                hintText: widget.hintText,
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: AppColors.interactive200,
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.all(AppSpacing.x4),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  borderSide: const BorderSide(
+                    color: AppColors.interactive100,
                   ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.all(AppSpacing.x4),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                    borderSide: const BorderSide(
-                      color: AppColors.interactive200,
-                      width: 1,
-                    ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  borderSide: const BorderSide(
+                    color: AppColors.interactive100,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                    borderSide: const BorderSide(
-                      color: AppColors.interactive200,
-                      width: 1,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                    borderSide: const BorderSide(
-                      color: AppColors.brandDark,
-                      width: 2,
-                    ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                  borderSide: const BorderSide(
+                    color: AppColors.brandDark,
+                    width: 2,
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: AppSpacing.x5),
 
-            // Action Buttons
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.x5,
-                0,
-                AppSpacing.x5,
-                AppSpacing.x5,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  // Cancel Button
-                  TextButton(
+            // Buttons row — Cancel | Submit
+            Row(
+              children: [
+                // Cancel button (outlined)
+                Expanded(
+                  child: OutlinedButton(
                     onPressed: _handleCancel,
-                    style: TextButton.styleFrom(
+                    style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.x5,
                         vertical: AppSpacing.x3,
+                      ),
+                      side: const BorderSide(
+                        color: AppColors.interactive200,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(AppRadius.medium),
                       ),
                     ),
                     child: Text(
                       'Cancel',
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: AppColors.interactive400,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.interactive500,
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.x3),
+                ),
+                const SizedBox(width: AppSpacing.x3),
 
-                  // Submit Button with gradient
-                  GestureDetector(
-                    onTap: _isSubmitting ? null : _handleSubmit,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.x5,
-                        vertical: AppSpacing.x3,
+                // Submit button (gradient)
+                Expanded(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: AppColors.brandGradient,
+                      borderRadius:
+                          BorderRadius.circular(AppRadius.medium),
+                      boxShadow: AppShadows.defaultShadow,
+                    ),
+                    child: ElevatedButton(
+                      onPressed: _handleSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpacing.x3,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.medium),
+                        ),
                       ),
-                      decoration: BoxDecoration(
-                        gradient: _isSubmitting
-                            ? null
-                            : AppColors.brandGradient,
-                        color: _isSubmitting
-                            ? AppColors.interactive200
-                            : null,
-                        borderRadius: BorderRadius.circular(AppRadius.medium),
-                        boxShadow: _isSubmitting
-                            ? null
-                            : AppShadows.pressedShadow,
+                      child: Text(
+                        'Submit',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              'Submit',
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Thank-You Dialog — shown after feedback is submitted.
+// Auto-dismisses after 2 seconds. Tap to dismiss earlier.
+// ---------------------------------------------------------------------------
+
+class ThankYouDialog extends StatelessWidget {
+  const ThankYouDialog({super.key});
+
+  /// Convenience method to display the dialog.
+  static Future<void> show(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        // Auto-close after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          if (dialogContext.mounted) {
+            Navigator.of(dialogContext).pop();
+          }
+        });
+        return const ThankYouDialog();
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Dialog(
+      backgroundColor: AppColors.cream,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.large),
+      ),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 48),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.x8,
+          vertical: AppSpacing.x8,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Gold-bordered checkmark circle
+            Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.brandDark,
+                  width: 2,
+                ),
               ),
+              child: const Center(
+                child: Icon(
+                  Icons.check,
+                  color: AppColors.brandDark,
+                  size: 32,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.x5),
+
+            // Heading
+            Text(
+              'Thank you',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: AppColors.brandDark,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.x3),
+
+            // Subtitle
+            Text(
+              'Your feedback helps us improve Elyxer.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.interactive300,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

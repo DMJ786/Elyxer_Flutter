@@ -61,10 +61,18 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
       return;
     }
 
-    // Check if we're on the last screen (dating goals)
+    // Check if we're on the last content screen (dating goals)
     if (currentStep == OrientationStep.datingGoals) {
-      // Final step - submit and navigate to next flow
-      _submitOrientation();
+      // Advance progress to "complete" step (fills the 4th icon),
+      // then navigate to the next module after a short delay.
+      _fadeController.reverse().then((_) {
+        ref.read(currentOrientationStepProvider.notifier).next();
+        _fadeController.forward();
+        // Brief pause so user sees fully-completed progress bar
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) _submitOrientation();
+        });
+      });
       return;
     }
 
@@ -110,8 +118,8 @@ class _OrientationScreenState extends ConsumerState<OrientationScreen>
     try {
       await ref.read(onboardingDataProvider.notifier).submit();
       if (mounted) {
-        // Navigate to username screen
-        context.go('/username');
+        // Navigate to Module 4 (Education, Profession, Location)
+        context.go('/background');
       }
     } catch (e) {
       if (mounted) {

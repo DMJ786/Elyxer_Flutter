@@ -1,4 +1,4 @@
-/// Module 4 Screen - Education, Profession, Location
+/// Background Screen - Education, Profession, Location
 /// Container screen with PageView and 4-step progress indicator
 library;
 
@@ -8,19 +8,19 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
-import '../../widgets/module4_progress_indicator.dart';
+import '../../widgets/background_progress_indicator.dart';
 import 'education_entry_screen.dart';
 import 'profession_entry_screen.dart';
 import 'location_entry_screen.dart';
 
-class Module4Screen extends ConsumerStatefulWidget {
-  const Module4Screen({super.key});
+class BackgroundScreen extends ConsumerStatefulWidget {
+  const BackgroundScreen({super.key});
 
   @override
-  ConsumerState<Module4Screen> createState() => _Module4ScreenState();
+  ConsumerState<BackgroundScreen> createState() => _BackgroundScreenState();
 }
 
-class _Module4ScreenState extends ConsumerState<Module4Screen>
+class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
     with SingleTickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _fadeController;
@@ -51,9 +51,9 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
   }
 
   void _nextPage() {
-    final currentStep = ref.read(currentModule4StepProvider);
+    final currentStep = ref.read(currentBackgroundStepProvider);
 
-    if (currentStep == Module4Step.complete) {
+    if (currentStep == BackgroundStep.complete) {
       // All steps completed - navigate to next flow
       context.push('/complete');
       return;
@@ -61,7 +61,7 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
 
     // Animate fade out then slide to next page
     _fadeController.reverse().then((_) {
-      ref.read(currentModule4StepProvider.notifier).next();
+      ref.read(currentBackgroundStepProvider.notifier).next();
 
       if (currentStep.index < 2) {
         // Navigate to next page (education, profession, location)
@@ -69,7 +69,7 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
-      } else if (currentStep == Module4Step.location) {
+      } else if (currentStep == BackgroundStep.location) {
         // After location, show complete state (no extra page needed)
         // The progress indicator will show the complete step
       }
@@ -80,10 +80,10 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
 
   void _skipStep() {
     _fadeController.reverse().then((_) {
-      ref.read(currentModule4StepProvider.notifier).next();
+      ref.read(currentBackgroundStepProvider.notifier).next();
 
-      final newStep = ref.read(currentModule4StepProvider);
-      if (newStep != Module4Step.complete && newStep.index <= 2) {
+      final newStep = ref.read(currentBackgroundStepProvider);
+      if (newStep != BackgroundStep.complete && newStep.index <= 2) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
@@ -95,12 +95,12 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
   }
 
   void _previousPage() {
-    final currentStep = ref.read(currentModule4StepProvider);
+    final currentStep = ref.read(currentBackgroundStepProvider);
 
-    if (currentStep == Module4Step.complete) {
+    if (currentStep == BackgroundStep.complete) {
       // Go back to location from complete
       _fadeController.reverse().then((_) {
-        ref.read(currentModule4StepProvider.notifier).previous();
+        ref.read(currentBackgroundStepProvider.notifier).previous();
         _fadeController.forward();
       });
       return;
@@ -108,7 +108,7 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
 
     if (_pageController.page! > 0) {
       _fadeController.reverse().then((_) {
-        ref.read(currentModule4StepProvider.notifier).previous();
+        ref.read(currentBackgroundStepProvider.notifier).previous();
         _pageController.previousPage(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
@@ -120,8 +120,8 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
 
   @override
   Widget build(BuildContext context) {
-    final currentStep = ref.watch(currentModule4StepProvider);
-    final isComplete = currentStep == Module4Step.complete;
+    final currentStep = ref.watch(currentBackgroundStepProvider);
+    final isComplete = currentStep == BackgroundStep.complete;
 
     return Scaffold(
       backgroundColor: AppColors.cream,
@@ -136,7 +136,7 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
                 AppSpacing.x5,
                 AppSpacing.x4,
               ),
-              child: Module4ProgressIndicator(
+              child: BackgroundProgressIndicator(
                 currentStep: currentStep,
               ),
             ),
@@ -167,7 +167,7 @@ class _Module4ScreenState extends ConsumerState<Module4Screen>
                 children: [
                   // Skip for now (not shown on location screen or complete)
                   if (!isComplete &&
-                      currentStep != Module4Step.location)
+                      currentStep != BackgroundStep.location)
                     _SkipForNowLink(onTap: _skipStep)
                   else
                     const SizedBox.shrink(),

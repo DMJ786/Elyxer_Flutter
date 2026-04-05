@@ -10,6 +10,7 @@ import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/onboarding_progress_indicator.dart';
 import '../../widgets/next_button.dart';
+import '../../widgets/age_confirmation_dialog.dart';
 import 'age_input_screen.dart';
 import 'gender_selection_screen.dart';
 import 'pronoun_selection_screen.dart';
@@ -51,7 +52,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.dispose();
   }
 
-  void _nextPage() {
+  void _nextPage() async {
     final currentStep = ref.read(currentOnboardingStepProvider);
     final canProceed = ref.read(canProceedOnboardingProvider);
 
@@ -60,10 +61,30 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       return;
     }
 
-    // Check if we're on the last screen (pronoun)
+    // Show age confirmation dialog on the age step
+    if (currentStep == OnboardingStep.age) {
+      final birthdate = ref.read(onboardingDataProvider).birthdate;
+      if (birthdate != null) {
+        final age = calculateAge(birthdate);
+        final confirmed = await showAgeConfirmationDialog(
+          context,
+          age: age,
+        );
+        if (confirmed != true || !mounted) return;
+      }
+    }
+
+    // Check if we're on the last content screen (pronoun)
     if (currentStep == OnboardingStep.pronoun) {
-      // Navigate to orientation module (Module 2)
-      context.go('/orientation');
+      // Advance progress to "complete" step (fills the 4th icon),
+      // then navigate to Module 2 after a short delay.
+      _fadeController.reverse().then((_) {
+        ref.read(currentOnboardingStepProvider.notifier).next();
+        _fadeController.forward();
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) context.go('/orientation');
+        });
+      });
       return;
     }
 

@@ -5,9 +5,8 @@ library;
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
-import '../../models/onboarding_models.dart';
-import '../../models/gender_identity_models.dart';
 import '../../providers/onboarding_provider.dart';
+import '../../widgets/feedback_dialog.dart';
 
 /// Shows the gender identity selection panel sliding in from the right
 Future<void> showGenderIdentitySheet(BuildContext context) {
@@ -138,8 +137,12 @@ class _GenderIdentityPanelState extends ConsumerState<_GenderIdentityPanel> {
                       } else {
                         // "Are we missing something?" row
                         return _AreMissingSomethingTile(
-                          onTap: () {
-                            // TODO: Handle custom identity input
+                          onTap: () async {
+                            final feedback =
+                                await FeedbackDialog.show(context);
+                            if (feedback != null && context.mounted) {
+                              await ThankYouDialog.show(context);
+                            }
                           },
                         );
                       }

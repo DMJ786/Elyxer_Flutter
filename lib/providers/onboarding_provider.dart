@@ -53,25 +53,25 @@ class CurrentOrientationStep extends _$CurrentOrientationStep {
   }
 }
 
-/// Current Module 4 step provider
+/// Current Background step provider
 @Riverpod(keepAlive: true)
-class CurrentModule4Step extends _$CurrentModule4Step {
+class CurrentBackgroundStep extends _$CurrentBackgroundStep {
   @override
-  Module4Step build() => Module4Step.education;
+  BackgroundStep build() => BackgroundStep.education;
 
   void next() {
     if (!state.isLast) {
-      state = Module4Step.values[state.index + 1];
+      state = BackgroundStep.values[state.index + 1];
     }
   }
 
   void previous() {
     if (state.index > 0) {
-      state = Module4Step.values[state.index - 1];
+      state = BackgroundStep.values[state.index - 1];
     }
   }
 
-  void goTo(Module4Step step) {
+  void goTo(BackgroundStep step) {
     state = step;
   }
 }
@@ -245,17 +245,17 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     );
   }
 
-  /// Validate if Module 4 step can proceed
-  bool canProceedModule4(Module4Step step) {
+  /// Validate if Background step can proceed
+  bool canProceedBackground(BackgroundStep step) {
     switch (step) {
-      case Module4Step.education:
+      case BackgroundStep.education:
         return (state.industry != null && state.industry!.isNotEmpty) ||
             (state.role != null && state.role!.isNotEmpty);
-      case Module4Step.profession:
+      case BackgroundStep.profession:
         return state.educationLevel != null;
-      case Module4Step.location:
+      case BackgroundStep.location:
         return state.locationQuery != null && state.locationQuery!.isNotEmpty;
-      case Module4Step.complete:
+      case BackgroundStep.complete:
         return true;
     }
   }

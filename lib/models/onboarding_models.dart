@@ -282,14 +282,14 @@ enum EducationLevel {
   }
 }
 
-/// Module 4 step enum
-enum Module4Step {
+/// Background Module step enum (Education, Profession, Location)
+enum BackgroundStep {
   education,
   profession,
   location,
   complete;
 
-  bool get isLast => this == Module4Step.complete;
+  bool get isLast => this == BackgroundStep.complete;
 }
 
 /// Onboarding Module step enum (Module 1: Age, Gender, Pronoun)

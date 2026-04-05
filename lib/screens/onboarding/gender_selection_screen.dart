@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
-import '../../models/gender_identity_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
 import '../../widgets/gradient_text_link.dart';
@@ -127,6 +126,23 @@ class GenderSelectionScreen extends ConsumerWidget {
                   .toggleShowGenderOnProfile();
             },
           ),
+
+          // Profile preview when "Show on your profile" is checked
+          if (onboardingData.showGenderOnProfile &&
+              onboardingData.gender != null) ...[
+            const SizedBox(height: AppSpacing.x3),
+            Text(
+              'Only selected options will be displayed on your profile.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: AppColors.interactive400,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.x3),
+            _ProfilePreviewChips(
+              gender: onboardingData.gender,
+              selectedIds: onboardingData.genderIdentityOptionIds,
+            ),
+          ],
 
           const Spacer(),
 
@@ -321,6 +337,78 @@ class _SelectedIdentitiesChips extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Profile preview chips shown when "Show on your profile" is toggled on
+class _ProfilePreviewChips extends StatelessWidget {
+  final Gender? gender;
+  final List<String> selectedIds;
+
+  const _ProfilePreviewChips({
+    required this.gender,
+    required this.selectedIds,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final allLabels = <String>[];
+    if (gender != null) {
+      allLabels.add(gender!.displayName);
+    }
+
+    final options = gender?.identityOptions ?? [];
+    for (final id in selectedIds) {
+      final match = options.where((o) => o.id == id);
+      if (match.isNotEmpty && match.first.label != gender?.displayName) {
+        allLabels.add(match.first.label);
+      }
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.x4,
+        vertical: AppSpacing.x4,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.medium),
+        border: Border.all(
+          color: AppColors.interactive100,
+          width: 1.5,
+        ),
+      ),
+      child: Wrap(
+        spacing: AppSpacing.x2,
+        runSpacing: AppSpacing.x2,
+        children: allLabels.map((label) {
+          return Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.x3,
+              vertical: AppSpacing.x1,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(AppRadius.round),
+              border: Border.all(
+                color: AppColors.brandDark,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: AppColors.brandDark,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }
