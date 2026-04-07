@@ -1,4 +1,4 @@
-/// Module 4 Progress Indicator
+/// Background Progress Indicator
 /// 4-step progress bar: Education, Profession, Location, Complete
 library;
 
@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../models/onboarding_models.dart';
 
-class Module4ProgressIndicator extends StatelessWidget {
-  final Module4Step currentStep;
+class BackgroundProgressIndicator extends StatelessWidget {
+  final BackgroundStep currentStep;
   final Duration animationDuration;
 
-  const Module4ProgressIndicator({
+  const BackgroundProgressIndicator({
     super.key,
     required this.currentStep,
     this.animationDuration = const Duration(milliseconds: 300),

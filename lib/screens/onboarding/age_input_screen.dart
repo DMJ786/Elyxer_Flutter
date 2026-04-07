@@ -198,7 +198,7 @@ class _AgeInputScreenState extends ConsumerState<AgeInputScreen> {
           // Info Banner
           const InfoBanner(
             message: 'Used to confirm and display your age on your profile.',
-            iconStyle: InfoBannerIcon.gradientCircle,
+
           ),
           const SizedBox(height: AppSpacing.x3),
 

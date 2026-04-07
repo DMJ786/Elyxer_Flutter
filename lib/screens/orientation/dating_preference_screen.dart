@@ -61,7 +61,7 @@ class DatingPreferenceScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: "We'll use this to show you relevant matches. You can update this later.",
-            iconStyle: InfoBannerIcon.gradientCircle,
+
           ),
           const SizedBox(height: AppSpacing.x4),
         ],

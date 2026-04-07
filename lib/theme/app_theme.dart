@@ -181,10 +181,11 @@ class AppTheme {
         ),
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppColors.success;
+            return AppColors.brandDark;
           }
           return Colors.white;
         }),
+        checkColor: WidgetStateProperty.all(Colors.white),
       ),
     );
   }

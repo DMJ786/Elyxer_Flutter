@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:dating_app_verification/models/onboarding_models.dart';
+import 'package:dating_app_verification/models/gender_identity_models.dart';
 
 void main() {
   group('OnboardingStep enum', () {
@@ -89,6 +90,29 @@ void main() {
       expect(Gender.nonBinary.displayName, equals('Non-Binary'));
       expect(Gender.other.displayName, equals('Other'));
     });
+
+    test('identityOptions should return man options for Gender.man', () {
+      final options = Gender.man.identityOptions;
+      expect(options, equals(GenderIdentityOptions.man));
+      expect(options.length, equals(6));
+    });
+
+    test('identityOptions should return woman options for Gender.woman', () {
+      final options = Gender.woman.identityOptions;
+      expect(options, equals(GenderIdentityOptions.woman));
+      expect(options.length, equals(6));
+    });
+
+    test('identityOptions should return nonBinary options for Gender.nonBinary', () {
+      final options = Gender.nonBinary.identityOptions;
+      expect(options, equals(GenderIdentityOptions.nonBinary));
+      expect(options.length, equals(14));
+    });
+
+    test('identityOptions should return empty list for Gender.other', () {
+      final options = Gender.other.identityOptions;
+      expect(options, isEmpty);
+    });
   });
 
   group('SexualOrientation enum', () {
@@ -135,7 +159,7 @@ void main() {
 
   group('Pronouns', () {
     test('should have all predefined pronouns', () {
-      expect(Pronouns.all.length, equals(9));
+      expect(Pronouns.all.length, equals(14));
       expect(Pronouns.all, contains('She/Her'));
       expect(Pronouns.all, contains('He/Him'));
       expect(Pronouns.all, contains('They/Them'));
@@ -145,6 +169,11 @@ void main() {
       expect(Pronouns.all, contains('Ey/Em'));
       expect(Pronouns.all, contains('Ve/Ver'));
       expect(Pronouns.all, contains('Per/Per'));
+      expect(Pronouns.all, contains('She/They'));
+      expect(Pronouns.all, contains('He/They'));
+      expect(Pronouns.all, contains('Any/All'));
+      expect(Pronouns.all, contains('Fae/Faer'));
+      expect(Pronouns.all, contains('It/Its'));
     });
   });
 
@@ -155,6 +184,7 @@ void main() {
       expect(data.birthdate, isNull);
       expect(data.gender, isNull);
       expect(data.customGenderIdentity, isNull);
+      expect(data.genderIdentityOptionIds, isEmpty);
       expect(data.pronouns, isEmpty);
       expect(data.customPronoun, isNull);
       expect(data.showGenderOnProfile, isFalse);
@@ -215,6 +245,148 @@ void main() {
       final updated = data.copyWith(datingGoalIds: ['long_term', 'casual']);
       
       expect(updated.datingGoalIds, equals(['long_term', 'casual']));
+    });
+
+    test('should initialize genderIdentityOptionIds as empty list', () {
+      const data = OnboardingData();
+      expect(data.genderIdentityOptionIds, isA<List<String>>());
+      expect(data.genderIdentityOptionIds, isEmpty);
+    });
+
+    test('should support copyWith for genderIdentityOptionIds', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(
+        genderIdentityOptionIds: ['man', 'transgender_man'],
+      );
+
+      expect(updated.genderIdentityOptionIds.length, equals(2));
+      expect(updated.genderIdentityOptionIds, contains('man'));
+      expect(updated.genderIdentityOptionIds, contains('transgender_man'));
+    });
+
+    test('copyWith genderIdentityOptionIds should not affect other fields', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(
+        gender: Gender.man,
+        genderIdentityOptionIds: ['cisgender_man'],
+      );
+
+      expect(updated.gender, equals(Gender.man));
+      expect(updated.genderIdentityOptionIds, equals(['cisgender_man']));
+      expect(updated.birthdate, isNull);
+      expect(updated.pronouns, isEmpty);
+    });
+
+    test('copyWith should allow clearing genderIdentityOptionIds', () {
+      final data = const OnboardingData().copyWith(
+        genderIdentityOptionIds: ['man', 'cisgender_man'],
+      );
+      expect(data.genderIdentityOptionIds.length, equals(2));
+
+      final cleared = data.copyWith(genderIdentityOptionIds: []);
+      expect(cleared.genderIdentityOptionIds, isEmpty);
+    });
+  });
+
+  group('BackgroundStep enum', () {
+    test('should have correct enum values in order', () {
+      expect(BackgroundStep.values.length, equals(4));
+      expect(BackgroundStep.values[0], equals(BackgroundStep.education));
+      expect(BackgroundStep.values[1], equals(BackgroundStep.profession));
+      expect(BackgroundStep.values[2], equals(BackgroundStep.location));
+      expect(BackgroundStep.values[3], equals(BackgroundStep.complete));
+    });
+
+    test('should have correct index values', () {
+      expect(BackgroundStep.education.index, equals(0));
+      expect(BackgroundStep.profession.index, equals(1));
+      expect(BackgroundStep.location.index, equals(2));
+      expect(BackgroundStep.complete.index, equals(3));
+    });
+
+    test('isLast should return true only for complete step', () {
+      expect(BackgroundStep.education.isLast, isFalse);
+      expect(BackgroundStep.profession.isLast, isFalse);
+      expect(BackgroundStep.location.isLast, isFalse);
+      expect(BackgroundStep.complete.isLast, isTrue);
+    });
+
+    test('should have a complete step', () {
+      expect(BackgroundStep.values, contains(BackgroundStep.complete));
+    });
+
+    test('complete should be the last value in enum', () {
+      expect(
+        BackgroundStep.values.last,
+        equals(BackgroundStep.complete),
+      );
+    });
+  });
+
+  group('EducationLevel enum', () {
+    test('should have correct number of values', () {
+      expect(EducationLevel.values.length, equals(6));
+    });
+
+    test('should have correct display names', () {
+      expect(EducationLevel.highSchool.displayName, equals('High School'));
+      expect(EducationLevel.undergraduate.displayName, equals('Undergraduate'));
+      expect(EducationLevel.postgraduate.displayName, equals('Postgraduate'));
+      expect(EducationLevel.doctorate.displayName, equals('Doctorate/PhD'));
+      expect(EducationLevel.studying.displayName, equals('Studying'));
+      expect(EducationLevel.preferNotToSay.displayName, equals('Prefer not to say'));
+    });
+
+    test('should have correct enum values in order', () {
+      expect(EducationLevel.values[0], equals(EducationLevel.highSchool));
+      expect(EducationLevel.values[1], equals(EducationLevel.undergraduate));
+      expect(EducationLevel.values[2], equals(EducationLevel.postgraduate));
+      expect(EducationLevel.values[3], equals(EducationLevel.doctorate));
+      expect(EducationLevel.values[4], equals(EducationLevel.studying));
+      expect(EducationLevel.values[5], equals(EducationLevel.preferNotToSay));
+    });
+  });
+
+  group('OnboardingData - Background fields', () {
+    test('should initialize background fields with default values', () {
+      const data = OnboardingData();
+      expect(data.industry, isNull);
+      expect(data.role, isNull);
+      expect(data.educationLevel, isNull);
+      expect(data.locationQuery, isNull);
+      expect(data.latitude, isNull);
+      expect(data.longitude, isNull);
+    });
+
+    test('should support copyWith for industry', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(industry: 'Technology');
+      expect(updated.industry, equals('Technology'));
+      expect(updated.role, isNull);
+    });
+
+    test('should support copyWith for role', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(role: 'Software Engineer');
+      expect(updated.role, equals('Software Engineer'));
+    });
+
+    test('should support copyWith for educationLevel', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(educationLevel: EducationLevel.postgraduate);
+      expect(updated.educationLevel, equals(EducationLevel.postgraduate));
+    });
+
+    test('should support copyWith for location fields', () {
+      const data = OnboardingData();
+      final updated = data.copyWith(
+        locationQuery: 'New York, NY',
+        latitude: 40.7128,
+        longitude: -74.0060,
+      );
+      expect(updated.locationQuery, equals('New York, NY'));
+      expect(updated.latitude, equals(40.7128));
+      expect(updated.longitude, equals(-74.0060));
     });
   });
 }

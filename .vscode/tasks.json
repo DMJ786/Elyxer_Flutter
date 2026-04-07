@@ -8,17 +8,24 @@
 			"isBackground": true,
 			"problemMatcher": []
 		},
+
 		{
-			"label": "Delete verification_flow_screen.dart",
-			"type": "shell",
-			"command": "Remove-Item -Path 'lib\\screens\\verification_flow_screen.dart' -Force; Write-Output 'File deleted successfully'"
-		},
-		{
-			"label": "Test App After Deletion",
+			"label": "Hot Restart Flutter",
 			"type": "shell",
 			"command": "flutter run -d chrome",
-			"isBackground": true,
-			"problemMatcher": []
+			"isBackground": true
+		},
+		{
+			"label": "Flutter Run Chrome",
+			"type": "shell",
+			"command": "flutter run -d chrome",
+			"isBackground": true
+		},
+		{
+			"label": "Flutter Restart",
+			"type": "shell",
+			"command": "flutter run -d chrome",
+			"isBackground": true
 		}
 	]
 }

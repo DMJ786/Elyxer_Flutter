@@ -89,7 +89,7 @@ class DatingGoalsScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Your goals help us match you with people who want the same things.',
-            iconStyle: InfoBannerIcon.gradientCircle,
+
           ),
           const SizedBox(height: AppSpacing.x4),
         ],

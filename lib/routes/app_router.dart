@@ -13,7 +13,7 @@ import '../screens/email_otp_screen.dart';
 import '../screens/complete_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/orientation/orientation_screen.dart';
-import '../screens/onboarding/module4_screen.dart';
+import '../screens/onboarding/background_screen.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -63,11 +63,11 @@ final appRouter = GoRouter(
       builder: (context, state) => const OrientationScreen(),
     ),
 
-    // Route 5: Module 4 - Education, Profession, Location
+    // Route 5: Background - Education, Profession, Location
     GoRoute(
-      path: '/module4',
-      name: 'module4',
-      builder: (context, state) => const Module4Screen(),
+      path: '/background',
+      name: 'background',
+      builder: (context, state) => const BackgroundScreen(),
     ),
 
     // Route 6: Username Input

@@ -2,89 +2,36 @@
 /// Data models for onboarding flow
 library;
 
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import 'gender_identity_models.dart';
+
+part 'onboarding_models.freezed.dart';
+
 /// Onboarding state that holds user selections
-class OnboardingData {
-  final DateTime? birthdate;
-  final Gender? gender;
-  final String? customGenderIdentity;
-  final List<String> pronouns;
-  final String? customPronoun;
-  final bool showGenderOnProfile;
-  final bool showPronounsOnProfile;
-  final SexualOrientation? sexualOrientation;
-  final bool showSexualOrientationOnProfile;
-  final List<DatingPreference> datingPreferences;
-  final List<String> datingGoalIds;
-
-  // Module 4 fields
-  final String? industry;
-  final String? role;
-  final EducationLevel? educationLevel;
-  final String? locationQuery;
-  final double? latitude;
-  final double? longitude;
-
-  const OnboardingData({
-    this.birthdate,
-    this.gender,
-    this.customGenderIdentity,
-    this.pronouns = const [],
-    this.customPronoun,
-    this.showGenderOnProfile = false,
-    this.showPronounsOnProfile = false,
-    this.sexualOrientation,
-    this.showSexualOrientationOnProfile = false,
-    this.datingPreferences = const [],
-    this.datingGoalIds = const [],
-    this.industry,
-    this.role,
-    this.educationLevel,
-    this.locationQuery,
-    this.latitude,
-    this.longitude,
-  });
-
-  OnboardingData copyWith({
+@freezed
+abstract class OnboardingData with _$OnboardingData {
+  const factory OnboardingData({
     DateTime? birthdate,
     Gender? gender,
     String? customGenderIdentity,
-    List<String>? pronouns,
+    @Default([]) List<String> genderIdentityOptionIds,
+    @Default([]) List<String> pronouns,
     String? customPronoun,
-    bool? showGenderOnProfile,
-    bool? showPronounsOnProfile,
+    @Default(false) bool showGenderOnProfile,
+    @Default(false) bool showPronounsOnProfile,
     SexualOrientation? sexualOrientation,
-    bool? showSexualOrientationOnProfile,
-    List<DatingPreference>? datingPreferences,
-    List<String>? datingGoalIds,
+    @Default(false) bool showSexualOrientationOnProfile,
+    @Default([]) List<DatingPreference> datingPreferences,
+    @Default([]) List<String> datingGoalIds,
+    // Module 4 fields
     String? industry,
     String? role,
     EducationLevel? educationLevel,
     String? locationQuery,
     double? latitude,
     double? longitude,
-  }) {
-    return OnboardingData(
-      birthdate: birthdate ?? this.birthdate,
-      gender: gender ?? this.gender,
-      customGenderIdentity: customGenderIdentity ?? this.customGenderIdentity,
-      pronouns: pronouns ?? this.pronouns,
-      customPronoun: customPronoun ?? this.customPronoun,
-      showGenderOnProfile: showGenderOnProfile ?? this.showGenderOnProfile,
-      showPronounsOnProfile:
-          showPronounsOnProfile ?? this.showPronounsOnProfile,
-      sexualOrientation: sexualOrientation ?? this.sexualOrientation,
-      showSexualOrientationOnProfile:
-          showSexualOrientationOnProfile ?? this.showSexualOrientationOnProfile,
-      datingPreferences: datingPreferences ?? this.datingPreferences,
-      datingGoalIds: datingGoalIds ?? this.datingGoalIds,
-      industry: industry ?? this.industry,
-      role: role ?? this.role,
-      educationLevel: educationLevel ?? this.educationLevel,
-      locationQuery: locationQuery ?? this.locationQuery,
-      latitude: latitude ?? this.latitude,
-      longitude: longitude ?? this.longitude,
-    );
-  }
+  }) = _OnboardingData;
 }
 
 /// Gender enum
@@ -106,6 +53,20 @@ enum Gender {
         return 'Other';
     }
   }
+
+  /// Sub-options for each gender identity
+  List<GenderIdentityOption> get identityOptions {
+    switch (this) {
+      case Gender.man:
+        return GenderIdentityOptions.man;
+      case Gender.woman:
+        return GenderIdentityOptions.woman;
+      case Gender.nonBinary:
+        return GenderIdentityOptions.nonBinary;
+      case Gender.other:
+        return const [];
+    }
+  }
 }
 
 /// Predefined pronouns
@@ -119,6 +80,11 @@ class Pronouns {
   static const eyEm = 'Ey/Em';
   static const veVer = 'Ve/Ver';
   static const perPer = 'Per/Per';
+  static const sheThey = 'She/They';
+  static const heThey = 'He/They';
+  static const anyAll = 'Any/All';
+  static const faeFaer = 'Fae/Faer';
+  static const itIts = 'It/Its';
 
   static const List<String> all = [
     sheHer,
@@ -130,6 +96,11 @@ class Pronouns {
     eyEm,
     veVer,
     perPer,
+    sheThey,
+    heThey,
+    anyAll,
+    faeFaer,
+    itIts,
   ];
 }
 
@@ -185,16 +156,14 @@ enum DatingPreference {
 }
 
 /// Dating Goal model
-class DatingGoal {
-  final String id;
-  final String title;
-  final String subtitle;
-
-  const DatingGoal({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-  });
+@freezed
+abstract class DatingGoal with _$DatingGoal {
+  const DatingGoal._();
+  const factory DatingGoal({
+    required String id,
+    required String title,
+    required String subtitle,
+  }) = _DatingGoal;
 
   static const List<DatingGoal> all = [
     DatingGoal(
@@ -252,14 +221,14 @@ enum EducationLevel {
   }
 }
 
-/// Module 4 step enum
-enum Module4Step {
+/// Background Module step enum (Education, Profession, Location)
+enum BackgroundStep {
   education,
   profession,
   location,
   complete;
 
-  bool get isLast => this == Module4Step.complete;
+  bool get isLast => this == BackgroundStep.complete;
 }
 
 /// Onboarding Module step enum (Module 1: Age, Gender, Pronoun)

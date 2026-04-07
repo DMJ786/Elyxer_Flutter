@@ -81,7 +81,7 @@ class PronounSelectionScreen extends ConsumerWidget {
           // Info Banner
           const InfoBanner(
             message: 'Helps others refer to you correctly. You can change this anytime.',
-            iconStyle: InfoBannerIcon.gradientCircle,
+
           ),
           const SizedBox(height: AppSpacing.x3),
 
