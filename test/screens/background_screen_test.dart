@@ -10,6 +10,7 @@ import 'package:dating_app_verification/models/onboarding_models.dart';
 import 'package:dating_app_verification/providers/onboarding_provider.dart';
 import 'package:dating_app_verification/screens/onboarding/background_screen.dart';
 import 'package:dating_app_verification/widgets/background_progress_indicator.dart';
+import 'package:dating_app_verification/widgets/next_button.dart';
 
 /// Set a large viewport to prevent overflow in the EducationEntryScreen Column.
 void _setUpViewport(WidgetTester tester) {
@@ -68,7 +69,7 @@ void main() {
       expect(find.byType(FadeTransition), findsWidgets);
     });
 
-    testWidgets('should show forward arrow button', (tester) async {
+    testWidgets('should show NextButton widget', (tester) async {
       _setUpViewport(tester);
       await tester.pumpWidget(
         const ProviderScope(
@@ -79,7 +80,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+      expect(find.byType(NextButton), findsOneWidget);
     });
 
     testWidgets('should show "Skip for now" link on education step',
@@ -97,7 +98,7 @@ void main() {
       expect(find.text('Skip for now'), findsOneWidget);
     });
 
-    testWidgets('should not show back button on first step', (tester) async {
+    testWidgets('should not show back button on any step', (tester) async {
       _setUpViewport(tester);
       await tester.pumpWidget(
         const ProviderScope(
@@ -108,7 +109,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Initially on education (index 0), no back button
+      // No back button in background module
       expect(find.byIcon(Icons.arrow_back), findsNothing);
     });
 
@@ -155,8 +156,8 @@ void main() {
         equals(BackgroundStep.education),
       );
 
-      // Tap the forward arrow button
-      await tester.tap(find.byIcon(Icons.arrow_forward));
+      // Tap the NextButton
+      await tester.tap(find.byType(NextButton));
       await tester.pumpAndSettle(const Duration(milliseconds: 700));
 
       // Should advance to profession
@@ -164,29 +165,6 @@ void main() {
         container.read(currentBackgroundStepProvider),
         equals(BackgroundStep.profession),
       );
-    });
-
-    testWidgets('should show back button after first step', (tester) async {
-      _setUpViewport(tester);
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const MaterialApp(
-            home: BackgroundScreen(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Advance to profession
-      container.read(currentBackgroundStepProvider.notifier).next();
-      await tester.pumpAndSettle();
-
-      // Back button should appear
-      expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
 
     testWidgets('skip for now should advance to next step', (tester) async {
@@ -274,7 +252,7 @@ void main() {
       );
 
       // Advance to Step 2: Profession
-      await tester.tap(find.byIcon(Icons.arrow_forward));
+      await tester.tap(find.byType(NextButton));
       await tester.pumpAndSettle(const Duration(milliseconds: 700));
       expect(
         container.read(currentBackgroundStepProvider),
@@ -282,7 +260,7 @@ void main() {
       );
 
       // Advance to Step 3: Location
-      await tester.tap(find.byIcon(Icons.arrow_forward));
+      await tester.tap(find.byType(NextButton));
       await tester.pumpAndSettle(const Duration(milliseconds: 700));
       expect(
         container.read(currentBackgroundStepProvider),
@@ -290,7 +268,7 @@ void main() {
       );
 
       // Advance to Step 4: Complete
-      await tester.tap(find.byIcon(Icons.arrow_forward));
+      await tester.tap(find.byType(NextButton));
       await tester.pumpAndSettle(const Duration(milliseconds: 700));
       expect(
         container.read(currentBackgroundStepProvider),
@@ -300,7 +278,7 @@ void main() {
   });
 
   group('BackgroundScreen complete state', () {
-    testWidgets('should show success content on complete step',
+    testWidgets('should stay on current page when complete',
         (tester) async {
       _setUpViewport(tester);
       final container = ProviderContainer();
@@ -322,44 +300,14 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Should show "All Set!" text
-      expect(find.text('All Set!'), findsOneWidget);
+      // Should still show page content (not a separate complete screen)
+      expect(find.byType(PageView), findsOneWidget);
 
-      // Should show subtitle
-      expect(
-        find.text(
-          'Your education, profession, and location have been saved.',
-        ),
-        findsOneWidget,
-      );
+      // Should NOT show "All Set!" text
+      expect(find.text('All Set!'), findsNothing);
     });
 
-    testWidgets('should show check icon on complete step', (tester) async {
-      _setUpViewport(tester);
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: const MaterialApp(
-            home: BackgroundScreen(),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      // Go to complete step
-      container.read(currentBackgroundStepProvider.notifier).goTo(
-        BackgroundStep.complete,
-      );
-      await tester.pumpAndSettle();
-
-      // The next button icon should be check (not arrow)
-      expect(find.byIcon(Icons.check), findsWidgets);
-    });
-
-    testWidgets('should hide skip link and back button on complete step',
+    testWidgets('should hide skip link on complete step',
         (tester) async {
       _setUpViewport(tester);
       final container = ProviderContainer();
@@ -381,8 +329,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Skip and back should be hidden
+      // Skip should be hidden
       expect(find.text('Skip for now'), findsNothing);
+      // No back button at all
       expect(find.byIcon(Icons.arrow_back), findsNothing);
     });
   });

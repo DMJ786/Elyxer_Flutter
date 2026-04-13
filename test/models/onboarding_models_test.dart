@@ -332,7 +332,7 @@ void main() {
       expect(EducationLevel.highSchool.displayName, equals('High School'));
       expect(EducationLevel.undergraduate.displayName, equals('Undergraduate'));
       expect(EducationLevel.postgraduate.displayName, equals('Postgraduate'));
-      expect(EducationLevel.doctorate.displayName, equals('Doctorate/PhD'));
+      expect(EducationLevel.doctorate.displayName, equals('Doctorate / PhD'));
       expect(EducationLevel.studying.displayName, equals('Studying'));
       expect(EducationLevel.preferNotToSay.displayName, equals('Prefer not to say'));
     });

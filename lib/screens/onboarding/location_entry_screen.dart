@@ -1,8 +1,9 @@
 /// Location Entry Screen (Module 4 - Step 3)
-/// Map placeholder + search field
+/// Location search field with pin icon
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/onboarding_provider.dart';
@@ -18,35 +19,18 @@ class LocationEntryScreen extends ConsumerStatefulWidget {
 
 class _LocationEntryScreenState extends ConsumerState<LocationEntryScreen> {
   late TextEditingController _searchController;
-  bool _hasLocation = false;
 
   @override
   void initState() {
     super.initState();
     final data = ref.read(onboardingDataProvider);
     _searchController = TextEditingController(text: data.locationQuery ?? '');
-    _hasLocation =
-        data.locationQuery != null && data.locationQuery!.isNotEmpty;
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
-  }
-
-  void _simulateLocationSelect() {
-    // Simulate selecting a location (placeholder for real map integration)
-    const simulatedQuery = 'London, UK';
-    _searchController.text = simulatedQuery;
-    ref.read(onboardingDataProvider.notifier).updateLocation(
-          latitude: 51.5074,
-          longitude: -0.1278,
-          query: simulatedQuery,
-        );
-    setState(() {
-      _hasLocation = true;
-    });
   }
 
   @override
@@ -74,108 +58,7 @@ class _LocationEntryScreenState extends ConsumerState<LocationEntryScreen> {
           ),
           const SizedBox(height: AppSpacing.x5),
 
-          // Map placeholder
-          Expanded(
-            flex: 3,
-            child: Stack(
-              children: [
-                // Map container
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.interactive50,
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                    border: Border.all(
-                      color: AppColors.interactive100,
-                      width: 1,
-                    ),
-                  ),
-                  child: _hasLocation
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                size: 48,
-                                color: AppColors.brandDark,
-                              ),
-                              const SizedBox(height: AppSpacing.x2),
-                              Text(
-                                _searchController.text,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.interactive400,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.map_outlined,
-                                size: 64,
-                                color: AppColors.interactive200,
-                              ),
-                              const SizedBox(height: AppSpacing.x2),
-                              Text(
-                                'Map preview',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: AppColors.interactive200,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                ),
-
-                // "My Location" button (bottom-right)
-                Positioned(
-                  bottom: AppSpacing.x3,
-                  right: AppSpacing.x3,
-                  child: GestureDetector(
-                    onTap: _simulateLocationSelect,
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColors.brandDark,
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.15),
-                            offset: const Offset(0, 2),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                      child: ShaderMask(
-                        shaderCallback: (bounds) =>
-                            AppColors.brandGradient.createShader(
-                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                        ),
-                        child: const Icon(
-                          Icons.my_location,
-                          size: 22,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.x4),
-
-          // Search field
+          // Location search field with pin icon
           SizedBox(
             height: 48,
             child: TextField(
@@ -187,27 +70,28 @@ class _LocationEntryScreenState extends ConsumerState<LocationEntryScreen> {
               },
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  // Simulate location search result
                   ref.read(onboardingDataProvider.notifier).updateLocation(
                         latitude: 51.5074,
                         longitude: -0.1278,
                         query: value,
                       );
-                  setState(() {
-                    _hasLocation = true;
-                  });
                 }
               },
-              decoration: const InputDecoration(
-                hintText: 'Search your area or postcode',
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: AppColors.interactive200,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: SvgPicture.asset(
+                    'assets/images/background/LocationSearchicon.svg',
+                    width: 20,
+                    height: 20,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
           ),
-          const SizedBox(height: AppSpacing.x4),
+
+          const Spacer(),
 
           // Info Banner
           const InfoBanner(

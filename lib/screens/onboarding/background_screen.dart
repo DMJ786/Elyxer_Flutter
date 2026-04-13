@@ -9,6 +9,7 @@ import '../../theme/app_theme.dart';
 import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/background_progress_indicator.dart';
+import '../../widgets/next_button.dart';
 import 'education_entry_screen.dart';
 import 'profession_entry_screen.dart';
 import 'location_entry_screen.dart';
@@ -169,23 +170,23 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
             Expanded(
               child: FadeTransition(
                 opacity: _fadeAnimation,
-                child: isComplete
-                    ? _buildCompleteContent()
-                    : PageView(
-                        controller: _pageController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: const [
-                          EducationEntryScreen(),
-                          ProfessionEntryScreen(),
-                          LocationEntryScreen(),
-                        ],
-                      ),
+                child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: const [
+                      EducationEntryScreen(),
+                      ProfessionEntryScreen(),
+                      LocationEntryScreen(),
+                    ],
+                  ),
               ),
             ),
 
-            // Bottom row: Skip for now + Next button
+            // Bottom Navigation
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.x5),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.x5, AppSpacing.x4, AppSpacing.x5, AppSpacing.x5,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -196,57 +197,8 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
                   else
                     const SizedBox.shrink(),
 
-                  Row(
-                    children: [
-                      // Back button
-                      if (currentStep.index > 0 && !isComplete)
-                        Container(
-                          margin:
-                              const EdgeInsets.only(right: AppSpacing.x4),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.brandGradient,
-                            shape: BoxShape.circle,
-                            boxShadow: AppShadows.defaultShadow,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                            ),
-                            onPressed: _previousPage,
-                          ),
-                        ),
-
-                      // Next/Complete button
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: AppColors.brandGradient,
-                          borderRadius:
-                              BorderRadius.circular(AppRadius.large),
-                          boxShadow: AppShadows.defaultShadow,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _nextPage,
-                            borderRadius:
-                                BorderRadius.circular(AppRadius.large),
-                            child: Container(
-                              width: 54,
-                              height: 54,
-                              alignment: Alignment.center,
-                              child: Icon(
-                                isComplete
-                                    ? Icons.check
-                                    : Icons.arrow_forward,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  NextButton(
+                    onPressed: _nextPage,
                   ),
                 ],
               ),
@@ -257,52 +209,6 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
     );
   }
 
-  Widget _buildCompleteContent() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Spacer(),
-
-          // Success Icon
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              gradient: AppColors.brandGradient,
-              shape: BoxShape.circle,
-              boxShadow: AppShadows.defaultShadow,
-            ),
-            child: const Icon(
-              Icons.check,
-              color: Colors.white,
-              size: 64,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.x6),
-
-          // Title
-          Text(
-            'All Set!',
-            style: Theme.of(context).textTheme.displayLarge,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.x4),
-
-          // Subtitle
-          Text(
-            'Your education, profession, and location have been saved.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-
-          const Spacer(flex: 2),
-        ],
-      ),
-    );
-  }
 }
 
 /// Skip for now link with gold gradient text
