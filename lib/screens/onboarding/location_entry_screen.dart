@@ -70,18 +70,18 @@ class _LocationEntryScreenState extends ConsumerState<LocationEntryScreen> {
               },
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
-                  ref.read(onboardingDataProvider.notifier).updateLocation(
-                        latitude: 51.5074,
-                        longitude: -0.1278,
-                        query: value,
-                      );
+                  // TODO: integrate geocoding API to resolve actual coordinates
+                  ref
+                      .read(onboardingDataProvider.notifier)
+                      .updateLocationQuery(value);
                 }
               },
               decoration: InputDecoration(
+                hintText: 'Search your area or postcode',
                 prefixIcon: Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: SvgPicture.asset(
-                    'assets/images/background/LocationSearchicon.svg',
+                    'assets/images/background/LocationSearchIcon.svg',
                     width: 20,
                     height: 20,
                     fit: BoxFit.contain,

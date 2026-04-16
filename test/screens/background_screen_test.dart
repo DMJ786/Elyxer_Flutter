@@ -129,6 +129,88 @@ void main() {
     });
   });
 
+  group('EducationEntryScreen radio selection', () {
+    testWidgets('tapping a radio option should update the provider',
+        (tester) async {
+      _setUpViewport(tester);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: BackgroundScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Initially no education level selected
+      expect(
+        container.read(onboardingDataProvider).educationLevel,
+        isNull,
+      );
+
+      // Tap "Undergraduate" radio option
+      await tester.tap(find.text('Undergraduate'));
+      await tester.pumpAndSettle();
+
+      // Provider should reflect the selection
+      expect(
+        container.read(onboardingDataProvider).educationLevel,
+        equals(EducationLevel.undergraduate),
+      );
+    });
+
+    testWidgets('tapping a different option should change selection',
+        (tester) async {
+      _setUpViewport(tester);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+
+      // Pre-select undergraduate
+      container
+          .read(onboardingDataProvider.notifier)
+          .updateEducationLevel(EducationLevel.undergraduate);
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: BackgroundScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap "Postgraduate" to change selection
+      await tester.tap(find.text('Postgraduate'));
+      await tester.pumpAndSettle();
+
+      expect(
+        container.read(onboardingDataProvider).educationLevel,
+        equals(EducationLevel.postgraduate),
+      );
+    });
+
+    testWidgets('all education levels should be displayed', (tester) async {
+      _setUpViewport(tester);
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: BackgroundScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      for (final level in EducationLevel.values) {
+        expect(find.text(level.displayName), findsOneWidget);
+      }
+    });
+  });
+
   group('BackgroundScreen navigation', () {
     testWidgets('tapping next should advance to profession step',
         (tester) async {

@@ -86,7 +86,11 @@ class _RadioOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      selected: isSelected,
+      inMutuallyExclusiveGroup: true,
+      label: label,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
@@ -138,6 +142,7 @@ class _RadioOption extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
