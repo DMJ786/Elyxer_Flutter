@@ -70,6 +70,10 @@ flutter:
     - assets/images/orientation/DatingPreferenceIcon/
     - assets/images/orientation/DatingGoalIcon/
     - assets/images/orientation/
+    - assets/images/background/EducationIcon/
+    - assets/images/background/ProfessionIcon/
+    - assets/images/background/LocationIcon/
+    - assets/images/background/
 
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API

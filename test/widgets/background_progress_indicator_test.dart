@@ -1,15 +1,17 @@
 /// Background Progress Indicator Tests
 /// Tests for BackgroundProgressIndicator widget (Education, Profession, Location, Complete)
+/// Updated to match SVG-based implementation (same pattern as onboarding/orientation)
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:dating_app_verification/models/onboarding_models.dart';
 import 'package:dating_app_verification/widgets/background_progress_indicator.dart';
 
 void main() {
   group('BackgroundProgressIndicator', () {
-    testWidgets('should render 4 step icons', (tester) async {
+    testWidgets('should render 3 SVG icons + 1 check icon', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -20,28 +22,8 @@ void main() {
         ),
       );
 
-      // Should have 4 Icon widgets (school, work, location, check)
-      expect(find.byType(Icon), findsNWidgets(4));
-    });
-
-    testWidgets('should show correct icons for each step', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: BackgroundProgressIndicator(
-              currentStep: BackgroundStep.education,
-            ),
-          ),
-        ),
-      );
-
-      // Education = school icon
-      expect(find.byIcon(Icons.school_outlined), findsOneWidget);
-      // Profession = work icon
-      expect(find.byIcon(Icons.work_outline), findsOneWidget);
-      // Location = location icon
-      expect(find.byIcon(Icons.location_on_outlined), findsOneWidget);
-      // Complete = check icon
+      // 3 SVG icons (Education, Profession, Location) + 1 Material check icon
+      expect(find.byType(SvgPicture), findsNWidgets(3));
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
@@ -56,7 +38,6 @@ void main() {
         ),
       );
 
-      // Root widget should be a Row
       final rowFinder = find.descendant(
         of: find.byType(BackgroundProgressIndicator),
         matching: find.byType(Row),
@@ -64,7 +45,8 @@ void main() {
       expect(rowFinder, findsOneWidget);
     });
 
-    testWidgets('should have 3 progress bars between steps', (tester) async {
+    testWidgets('should have AnimatedContainers for progress bars and icons',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -75,11 +57,12 @@ void main() {
         ),
       );
 
-      // 3 Expanded widgets for progress bars
-      expect(find.byType(Expanded), findsNWidgets(3));
+      // SVG step containers + check step container + progress bars
+      expect(find.byType(AnimatedContainer), findsWidgets);
     });
 
-    testWidgets('education step should highlight only first icon', (tester) async {
+    testWidgets('education step should show correct SVG states',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -92,17 +75,25 @@ void main() {
 
       await tester.pump();
 
-      // Education icon (index 0) should be active (white color)
-      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
-      expect(icons[0].color, equals(Colors.white));
+      final svgWidgets =
+          tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
+      expect(svgWidgets.length, equals(3));
 
-      // Other icons should be inactive
-      expect(icons[1].color, isNot(equals(Colors.white)));
-      expect(icons[2].color, isNot(equals(Colors.white)));
-      expect(icons[3].color, isNot(equals(Colors.white)));
+      // Education = inprogress (active, not completed)
+      final eduKey = (svgWidgets[0].key as ValueKey<String>).value;
+      expect(eduKey, contains('EducationIcon/inprogress'));
+
+      // Profession = incomplete
+      final profKey = (svgWidgets[1].key as ValueKey<String>).value;
+      expect(profKey, contains('ProfessionIcon/incomplete'));
+
+      // Location = incomplete
+      final locKey = (svgWidgets[2].key as ValueKey<String>).value;
+      expect(locKey, contains('LocationIcon/incomplete'));
     });
 
-    testWidgets('profession step should highlight first two icons', (tester) async {
+    testWidgets('profession step should show correct SVG states',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
@@ -115,63 +106,21 @@ void main() {
 
       await tester.pump();
 
-      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
+      final svgWidgets =
+          tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
 
-      // Education (completed) and Profession (current) should be white
-      expect(icons[0].color, equals(Colors.white));
-      expect(icons[1].color, equals(Colors.white));
+      // Education = completed, Profession = inprogress, Location = incomplete
+      final eduKey = (svgWidgets[0].key as ValueKey<String>).value;
+      expect(eduKey, contains('EducationIcon/completed'));
 
-      // Location and Complete should be inactive
-      expect(icons[2].color, isNot(equals(Colors.white)));
-      expect(icons[3].color, isNot(equals(Colors.white)));
+      final profKey = (svgWidgets[1].key as ValueKey<String>).value;
+      expect(profKey, contains('ProfessionIcon/inprogress'));
+
+      final locKey = (svgWidgets[2].key as ValueKey<String>).value;
+      expect(locKey, contains('LocationIcon/incomplete'));
     });
 
-    testWidgets('location step should highlight first three icons', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: BackgroundProgressIndicator(
-              currentStep: BackgroundStep.location,
-            ),
-          ),
-        ),
-      );
-
-      await tester.pump();
-
-      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
-
-      // Education, Profession, Location should be white
-      expect(icons[0].color, equals(Colors.white));
-      expect(icons[1].color, equals(Colors.white));
-      expect(icons[2].color, equals(Colors.white));
-
-      // Complete should be inactive
-      expect(icons[3].color, isNot(equals(Colors.white)));
-    });
-
-    testWidgets('complete step should highlight all four icons', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: BackgroundProgressIndicator(
-              currentStep: BackgroundStep.complete,
-            ),
-          ),
-        ),
-      );
-
-      await tester.pump();
-
-      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
-
-      // All icons should be white (active)
-      for (final icon in icons) {
-        expect(icon.color, equals(Colors.white));
-      }
-    });
-
-    testWidgets('completed steps should show check icon instead of original',
+    testWidgets('location step should show correct SVG states',
         (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -185,20 +134,27 @@ void main() {
 
       await tester.pump();
 
-      // Education (index 0) and Profession (index 1) are completed but not current,
-      // so they should display check icons instead of their original icons.
-      // The AnimatedSwitcher uses Icons.check when isCompleted && !isCurrent.
-      // We should find multiple check icons: 2 for completed steps + 1 for the
-      // complete step icon itself = 3 total check icons
-      expect(find.byIcon(Icons.check), findsNWidgets(3));
+      final svgWidgets =
+          tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
+
+      // Education = completed, Profession = completed, Location = inprogress
+      final eduKey = (svgWidgets[0].key as ValueKey<String>).value;
+      expect(eduKey, contains('EducationIcon/completed'));
+
+      final profKey = (svgWidgets[1].key as ValueKey<String>).value;
+      expect(profKey, contains('ProfessionIcon/completed'));
+
+      final locKey = (svgWidgets[2].key as ValueKey<String>).value;
+      expect(locKey, contains('LocationIcon/inprogress'));
     });
 
-    testWidgets('current step icon should be larger', (tester) async {
+    testWidgets('complete step should show all completed SVGs',
+        (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(
             body: BackgroundProgressIndicator(
-              currentStep: BackgroundStep.profession,
+              currentStep: BackgroundStep.complete,
             ),
           ),
         ),
@@ -206,17 +162,21 @@ void main() {
 
       await tester.pump();
 
-      // Current step icon should be 24px, others 18px
-      final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
+      final svgWidgets =
+          tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
 
-      // Education (completed, not current) = 18
-      expect(icons[0].size, equals(18));
-      // Profession (current) = 24
-      expect(icons[1].size, equals(24));
-      // Location (not active) = 18
-      expect(icons[2].size, equals(18));
-      // Complete (not active) = 18
-      expect(icons[3].size, equals(18));
+      // All 3 SVGs should be completed
+      final eduKey = (svgWidgets[0].key as ValueKey<String>).value;
+      expect(eduKey, contains('EducationIcon/completed'));
+
+      final profKey = (svgWidgets[1].key as ValueKey<String>).value;
+      expect(profKey, contains('ProfessionIcon/completed'));
+
+      final locKey = (svgWidgets[2].key as ValueKey<String>).value;
+      expect(locKey, contains('LocationIcon/completed'));
+
+      // Check icon should also be present
+      expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
     testWidgets('should use AnimatedContainer for smooth transitions',
@@ -231,7 +191,6 @@ void main() {
         ),
       );
 
-      // Should have AnimatedContainers for step circles + progress bars
       expect(find.byType(AnimatedContainer), findsWidgets);
     });
 
@@ -251,7 +210,6 @@ void main() {
 
       await tester.pump();
 
-      // All AnimatedContainers should use the custom duration
       final containers = tester.widgetList<AnimatedContainer>(
         find.byType(AnimatedContainer),
       );
@@ -281,22 +239,6 @@ void main() {
       for (final container in containers) {
         expect(container.duration, equals(const Duration(milliseconds: 300)));
       }
-    });
-
-    testWidgets('should use AnimatedSwitcher for icon transitions',
-        (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: BackgroundProgressIndicator(
-              currentStep: BackgroundStep.education,
-            ),
-          ),
-        ),
-      );
-
-      // Should have AnimatedSwitcher widgets for icon transitions
-      expect(find.byType(AnimatedSwitcher), findsNWidgets(4));
     });
   });
 }

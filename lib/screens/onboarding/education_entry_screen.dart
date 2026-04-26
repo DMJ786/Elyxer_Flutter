@@ -1,43 +1,22 @@
 /// Education Entry Screen (Module 4 - Step 1)
-/// Industry text field + "What do you do?" text field
+/// Education level single-select radio list
 library;
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
+import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
 
-class EducationEntryScreen extends ConsumerStatefulWidget {
+class EducationEntryScreen extends ConsumerWidget {
   const EducationEntryScreen({super.key});
 
   @override
-  ConsumerState<EducationEntryScreen> createState() =>
-      _EducationEntryScreenState();
-}
-
-class _EducationEntryScreenState extends ConsumerState<EducationEntryScreen> {
-  late TextEditingController _industryController;
-  late TextEditingController _roleController;
-
-  @override
-  void initState() {
-    super.initState();
-    final data = ref.read(onboardingDataProvider);
-    _industryController = TextEditingController(text: data.industry ?? '');
-    _roleController = TextEditingController(text: data.role ?? '');
-  }
-
-  @override
-  void dispose() {
-    _industryController.dispose();
-    _roleController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final onboardingData = ref.watch(onboardingDataProvider);
+    final selectedLevel = onboardingData.educationLevel;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
@@ -49,52 +28,39 @@ class _EducationEntryScreenState extends ConsumerState<EducationEntryScreen> {
             'Your Education',
             style: theme.textTheme.displayLarge,
           ),
-          const SizedBox(height: AppSpacing.x6),
+          const SizedBox(height: AppSpacing.x4),
 
-          // Industry field
+          // Subtitle
           Text(
-            'Your industry',
+            'Highest level of education',
             style: theme.textTheme.labelLarge?.copyWith(
               color: AppColors.interactive400,
             ),
           ),
-          const SizedBox(height: AppSpacing.x2),
-          SizedBox(
-            height: 48,
-            child: TextField(
-              controller: _industryController,
-              onChanged: (value) {
-                ref.read(onboardingDataProvider.notifier).updateIndustry(value);
-              },
-              decoration: const InputDecoration(
-                hintText: 'e.g., Technology, Healthcare, Arts, Finance',
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.x5),
+          const SizedBox(height: AppSpacing.x4),
 
-          // Role field
-          Text(
-            'What do you do?',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: AppColors.interactive400,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.x2),
-          SizedBox(
-            height: 48,
-            child: TextField(
-              controller: _roleController,
-              onChanged: (value) {
-                ref.read(onboardingDataProvider.notifier).updateRole(value);
-              },
-              decoration: const InputDecoration(
-                hintText: 'e.g., Product Designer, Teacher, Entrepreneur',
-              ),
-            ),
-          ),
+          // Radio list
+          Expanded(
+            child: ListView.separated(
+              itemCount: EducationLevel.values.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: AppSpacing.x3),
+              itemBuilder: (context, index) {
+                final level = EducationLevel.values[index];
+                final isSelected = selectedLevel == level;
 
-          const Spacer(),
+                return _RadioOption(
+                  label: level.displayName,
+                  isSelected: isSelected,
+                  onTap: () {
+                    ref
+                        .read(onboardingDataProvider.notifier)
+                        .updateEducationLevel(level);
+                  },
+                );
+              },
+            ),
+          ),
 
           // Info Banner
           const InfoBanner(
@@ -103,6 +69,80 @@ class _EducationEntryScreenState extends ConsumerState<EducationEntryScreen> {
           const SizedBox(height: AppSpacing.x4),
         ],
       ),
+    );
+  }
+}
+
+class _RadioOption extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _RadioOption({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      selected: isSelected,
+      inMutuallyExclusiveGroup: true,
+      label: label,
+      child: GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(AppSpacing.x3),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isSelected ? AppColors.brandDark : AppColors.interactive300,
+            width: 0.5,
+          ),
+          borderRadius: BorderRadius.circular(AppRadius.small),
+        ),
+        child: Row(
+          children: [
+            // Radio circle
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isSelected
+                      ? AppColors.brandDark
+                      : AppColors.interactive300,
+                  width: isSelected ? 0 : 1.5,
+                ),
+                gradient: isSelected ? AppColors.brandGradient : null,
+              ),
+              child: isSelected
+                  ? const Center(
+                      child: Icon(
+                        Icons.circle,
+                        size: 8,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
+            ),
+            const SizedBox(width: AppSpacing.x3),
+            // Label
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.interactive400,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
     );
   }
 }
