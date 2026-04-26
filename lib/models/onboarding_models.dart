@@ -212,7 +212,7 @@ enum EducationLevel {
       case EducationLevel.postgraduate:
         return 'Postgraduate';
       case EducationLevel.doctorate:
-        return 'Doctorate/PhD';
+        return 'Doctorate / PhD';
       case EducationLevel.studying:
         return 'Studying';
       case EducationLevel.preferNotToSay:

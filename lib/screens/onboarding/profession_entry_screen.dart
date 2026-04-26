@@ -1,22 +1,43 @@
 /// Profession Entry Screen (Module 4 - Step 2)
-/// Education level single-select radio list
+/// Industry text field + "What do you do?" text field
 library;
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../theme/app_theme.dart';
-import '../../models/onboarding_models.dart';
 import '../../providers/onboarding_provider.dart';
 import '../../widgets/info_banner.dart';
 
-class ProfessionEntryScreen extends ConsumerWidget {
+class ProfessionEntryScreen extends ConsumerStatefulWidget {
   const ProfessionEntryScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfessionEntryScreen> createState() =>
+      _ProfessionEntryScreenState();
+}
+
+class _ProfessionEntryScreenState extends ConsumerState<ProfessionEntryScreen> {
+  late TextEditingController _industryController;
+  late TextEditingController _roleController;
+
+  @override
+  void initState() {
+    super.initState();
+    final data = ref.read(onboardingDataProvider);
+    _industryController = TextEditingController(text: data.industry ?? '');
+    _roleController = TextEditingController(text: data.role ?? '');
+  }
+
+  @override
+  void dispose() {
+    _industryController.dispose();
+    _roleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final onboardingData = ref.watch(onboardingDataProvider);
-    final selectedLevel = onboardingData.educationLevel;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
@@ -28,39 +49,52 @@ class ProfessionEntryScreen extends ConsumerWidget {
             'Your Profession',
             style: theme.textTheme.displayLarge,
           ),
-          const SizedBox(height: AppSpacing.x4),
+          const SizedBox(height: AppSpacing.x6),
 
-          // Subtitle
+          // Industry field
           Text(
-            'Highest level of education',
+            'Your industry',
             style: theme.textTheme.labelLarge?.copyWith(
               color: AppColors.interactive400,
             ),
           ),
-          const SizedBox(height: AppSpacing.x4),
-
-          // Radio list
-          Expanded(
-            child: ListView.separated(
-              itemCount: EducationLevel.values.length,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(height: AppSpacing.x3),
-              itemBuilder: (context, index) {
-                final level = EducationLevel.values[index];
-                final isSelected = selectedLevel == level;
-
-                return _RadioOption(
-                  label: level.displayName,
-                  isSelected: isSelected,
-                  onTap: () {
-                    ref
-                        .read(onboardingDataProvider.notifier)
-                        .updateEducationLevel(level);
-                  },
-                );
+          const SizedBox(height: AppSpacing.x2),
+          SizedBox(
+            height: 48,
+            child: TextField(
+              controller: _industryController,
+              onChanged: (value) {
+                ref.read(onboardingDataProvider.notifier).updateIndustry(value);
               },
+              decoration: const InputDecoration(
+                hintText: 'e.g., Technology, Healthcare, Arts, Finance',
+              ),
             ),
           ),
+          const SizedBox(height: AppSpacing.x5),
+
+          // Role field
+          Text(
+            'What do you do?',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppColors.interactive400,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.x2),
+          SizedBox(
+            height: 48,
+            child: TextField(
+              controller: _roleController,
+              onChanged: (value) {
+                ref.read(onboardingDataProvider.notifier).updateRole(value);
+              },
+              decoration: const InputDecoration(
+                hintText: 'e.g., Product Designer, Teacher, Entrepreneur',
+              ),
+            ),
+          ),
+
+          const Spacer(),
 
           // Info Banner
           const InfoBanner(
@@ -68,75 +102,6 @@ class ProfessionEntryScreen extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.x4),
         ],
-      ),
-    );
-  }
-}
-
-class _RadioOption extends StatelessWidget {
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _RadioOption({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(AppSpacing.x3),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? AppColors.brandDark : AppColors.interactive300,
-            width: 0.5,
-          ),
-          borderRadius: BorderRadius.circular(AppRadius.small),
-        ),
-        child: Row(
-          children: [
-            // Radio circle
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              width: 20,
-              height: 20,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.brandDark
-                      : AppColors.interactive300,
-                  width: isSelected ? 0 : 1.5,
-                ),
-                gradient: isSelected ? AppColors.brandGradient : null,
-              ),
-              child: isSelected
-                  ? const Center(
-                      child: Icon(
-                        Icons.circle,
-                        size: 8,
-                        color: Colors.white,
-                      ),
-                    )
-                  : null,
-            ),
-            const SizedBox(width: AppSpacing.x3),
-            // Label
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: AppColors.interactive400,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
