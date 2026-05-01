@@ -115,7 +115,7 @@ class _GenderIdentityPanelState extends ConsumerState<_GenderIdentityPanel> {
                         horizontal: AppSpacing.x5),
                     itemCount:
                         options.length + 1, // +1 for "Are we missing something?"
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         const SizedBox(height: AppSpacing.x3),
                     itemBuilder: (context, index) {
                       if (index < options.length) {

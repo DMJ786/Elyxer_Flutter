@@ -4,6 +4,7 @@
 /// It tests the button in a real Flutter environment with actual SVG rendering.
 ///
 /// Run with: flutter test integration_test/next_button_integration_test.dart
+// ignore_for_file: avoid_print
 library;
 
 import 'package:flutter/material.dart';
