@@ -14,6 +14,7 @@ import '../screens/complete_screen.dart';
 import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/orientation/orientation_screen.dart';
 import '../screens/onboarding/background_screen.dart';
+import '../screens/photos_verification/photos_verification_screen.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -68,6 +69,13 @@ final appRouter = GoRouter(
       path: '/background',
       name: 'background',
       builder: (context, state) => const BackgroundScreen(),
+    ),
+
+    // Route 5b: Photos & Selfie Verification (Module 5)
+    GoRoute(
+      path: '/photos-verification',
+      name: 'photos-verification',
+      builder: (context, state) => const PhotosVerificationScreen(),
     ),
 
     // Route 6: Username Input

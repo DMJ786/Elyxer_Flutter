@@ -55,8 +55,8 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
     final currentStep = ref.read(currentBackgroundStepProvider);
 
     if (currentStep == BackgroundStep.complete) {
-      // All steps completed - navigate to next flow
-      context.push('/complete');
+      // All Background steps completed - advance to Module 5 (photos & selfie)
+      context.push('/photos-verification');
       return;
     }
 
