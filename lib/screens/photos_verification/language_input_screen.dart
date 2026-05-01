@@ -1,6 +1,15 @@
 /// Language Input Screen (Module 5, Step 2 of 3)
-/// Search + filter from SupportedLanguages.all, gradient-bordered chips
-/// for selected entries, max-6 enforcement. Skippable — handled by parent.
+/// Search field, gradient chips for selections, max-6 enforcement.
+/// Skippable — handled by the parent container.
+///
+/// Reconciled against Figma node 3939:23441 (Onboarding-for-AI):
+/// - Plain search field (no prefix icon, no clear suffix), placeholder "Start Typing"
+/// - Selected chips: gradient bg + white text + white × at 12px Inter Regular
+/// - InfoBanner copy: "Helps curate recommendations, you can update this anytime."
+///
+/// Open with the designer (NOT yet reflected in this file):
+/// - Where do users see/pick languages? (always-visible list is a placeholder)
+/// - Helper text: static "You can add up to 6 languages." vs dynamic "n / 6 selected"
 library;
 
 import 'package:flutter/material.dart';
@@ -43,8 +52,7 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
     final selected = ref.watch(
       photosVerificationDataProvider.select((d) => d.languages),
     );
-    final notifier =
-        ref.read(photosVerificationDataProvider.notifier);
+    final notifier = ref.read(photosVerificationDataProvider.notifier);
     final atMax = selected.length >= kMaxLanguages;
     final suggestions = _filteredSuggestions(selected);
 
@@ -63,41 +71,35 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
             'Search and add languages',
             style: GoogleFonts.inter(
               fontSize: 14,
+              fontWeight: FontWeight.w500,
               color: AppColors.interactive300,
-              height: 1.43,
+              height: 16 / 14,
             ),
           ),
-          const SizedBox(height: AppSpacing.x5),
+          const SizedBox(height: AppSpacing.x6),
 
-          // Search field — disabled when max reached
+          // Plain search field — no prefix icon, no clear button (per Figma).
           TextField(
             controller: _searchController,
             enabled: !atMax,
             onChanged: (v) => setState(() => _query = v),
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              color: AppColors.interactive500,
+            ),
             decoration: InputDecoration(
-              hintText: atMax
-                  ? "You've reached the limit"
-                  : 'Search languages',
-              prefixIcon: const Icon(
-                Icons.search,
+              hintText: atMax ? "You've reached the limit" : 'Start Typing',
+              hintStyle: GoogleFonts.inter(
+                fontSize: 16,
                 color: AppColors.interactive300,
+                height: 16 / 16,
               ),
-              suffixIcon: _query.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.close,
-                          color: AppColors.interactive300),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _query = '');
-                      },
-                    )
-                  : null,
             ),
           ),
           const SizedBox(height: AppSpacing.x3),
 
           // Selected chips
-          if (selected.isNotEmpty)
+          if (selected.isNotEmpty) ...[
             Wrap(
               spacing: AppSpacing.x2,
               runSpacing: AppSpacing.x2,
@@ -109,24 +111,30 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
                   ),
               ],
             ),
-          if (selected.isNotEmpty)
             const SizedBox(height: AppSpacing.x3),
+          ],
 
-          // Helper text
+          // Helper text — DRIFT FLAGGED: dynamic counter vs Figma's static copy
+          // pending designer reply. Keeping dynamic for now since it's strictly
+          // more informative; will revert to static if designer prefers.
           Text(
             atMax
-                ? 'You can add up to $kMaxLanguages languages'
+                ? 'You can add up to $kMaxLanguages languages.'
                 : '${selected.length} / $kMaxLanguages selected',
             style: GoogleFonts.inter(
-              fontSize: 12,
-              color: atMax
-                  ? AppColors.brandDark
-                  : AppColors.interactive300,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color:
+                  atMax ? AppColors.brandDark : AppColors.interactive300,
+              height: 16 / 14,
             ),
           ),
           const SizedBox(height: AppSpacing.x3),
 
-          // Suggestions
+          // Suggestions — PLACEHOLDER UX pending designer reply.
+          // Figma's default state shows no list. Three open possibilities:
+          // (a) list appears below search after typing, (b) separate sheet,
+          // (c) not yet designed. Always-visible list is the safe placeholder.
           Expanded(
             child: suggestions.isEmpty
                 ? const _EmptySuggestionState()
@@ -180,7 +188,7 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
           const SizedBox(height: AppSpacing.x3),
           const InfoBanner(
             message:
-                'Languages help us suggest matches who speak your language.',
+                'Helps curate recommendations, you can update this anytime.',
             iconStyle: InfoBannerIcon.gradientCircle,
           ),
           const SizedBox(height: AppSpacing.x4),
@@ -191,7 +199,8 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// Selected language chip — gradient border + × delete
+// Selected language chip — matches Figma `LanguageSelection` (state=true):
+// brand gradient bg, white 12px Inter Regular text, white 12px × icon.
 // ---------------------------------------------------------------------------
 
 class _SelectedLanguageChip extends StatelessWidget {
@@ -208,56 +217,36 @@ class _SelectedLanguageChip extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         gradient: AppColors.brandGradient,
-        borderRadius: BorderRadius.circular(AppRadius.round),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.brandDark, width: 1),
       ),
-      padding: const EdgeInsets.all(1),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.cream,
-          borderRadius: BorderRadius.circular(AppRadius.round),
-        ),
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.x4,
-          AppSpacing.x2,
-          AppSpacing.x2,
-          AppSpacing.x2,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ShaderMask(
-              shaderCallback: (bounds) =>
-                  AppColors.brandGradient.createShader(
-                Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-              ),
-              child: Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.x4,
+        vertical: 6,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: Colors.white,
+              height: 16 / 12,
             ),
-            const SizedBox(width: AppSpacing.x2),
-            GestureDetector(
-              onTap: onRemove,
-              child: Container(
-                width: 20,
-                height: 20,
-                decoration: const BoxDecoration(
-                  gradient: AppColors.brandGradient,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.close,
-                  size: 14,
-                  color: Colors.white,
-                ),
-              ),
+          ),
+          const SizedBox(width: AppSpacing.x2),
+          GestureDetector(
+            onTap: onRemove,
+            behavior: HitTestBehavior.opaque,
+            child: const Icon(
+              Icons.close,
+              size: 12,
+              color: Colors.white,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

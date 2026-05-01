@@ -81,7 +81,7 @@ void main() {
     }
     await tester.pump();
 
-    expect(find.text('You can add up to 6 languages'), findsOneWidget);
+    expect(find.text('You can add up to 6 languages.'), findsOneWidget);
     final tf = tester.widget<TextField>(find.byType(TextField));
     expect(tf.enabled, isFalse);
   });

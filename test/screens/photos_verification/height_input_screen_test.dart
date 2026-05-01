@@ -50,11 +50,10 @@ void main() {
     expect(unit, HeightUnit.cm);
   });
 
-  testWidgets('initial picker controllers seed defaults when no data set',
+  testWidgets('initial picker seeds default 5\'7" in FT mode',
       (tester) async {
     await pumpScreen(tester);
-    // The default labels should appear: 5' and 7" for FT mode.
-    expect(find.text("5'"), findsOneWidget);
-    expect(find.text('7"'), findsOneWidget);
+    // Single wheel renders combined label per Figma.
+    expect(find.text("5'7\""), findsOneWidget);
   });
 }

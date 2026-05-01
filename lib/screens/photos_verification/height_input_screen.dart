@@ -1,5 +1,11 @@
 /// Height Input Screen (Module 5, Step 1 of 3)
-/// FT/CM toggle plus scroll-wheel picker. Skippable — handled by parent.
+/// FT/CM toggle plus a single scroll-wheel picker. Skippable — handled
+/// by the parent container.
+///
+/// Reconciled against Figma node 3939:21222 (Onboarding-for-AI):
+/// - Single wheel listing every value (4'0"–6'5" / 140–192 cm)
+/// - Cream-bordered selection band at center (per `Scalesection`)
+/// - FT/CM pill toggle: white background + gradient text on active
 library;
 
 import 'package:flutter/material.dart';
@@ -10,18 +16,33 @@ import '../../models/photos_verification_models.dart';
 import '../../providers/photos_verification_provider.dart';
 import '../../widgets/info_banner.dart';
 
-/// Picker bounds (matches Figma spec).
 const int _kFeetMin = 4;
 const int _kFeetMax = 6;
-const int _kInchesMin = 0;
-const int _kInchesMax = 11;
 const int _kCmMin = 140;
 const int _kCmMax = 192;
 
-/// Defaults shown before the user scrolls.
 const int _kDefaultFeet = 5;
 const int _kDefaultInches = 7;
 const int _kDefaultCm = 170;
+
+const double _kItemExtent = 48;
+const double _kPickerHeight = 197;
+
+/// FT picker items: 4'0", 4'1", … 6'5". 30 entries.
+int _ftIndexFor({required int feet, required int inches}) =>
+    (feet - _kFeetMin) * 12 + inches;
+
+(int feet, int inches) _ftFromIndex(int index) => (
+      _kFeetMin + (index ~/ 12),
+      index % 12,
+    );
+
+int get _ftItemCount => (_kFeetMax - _kFeetMin) * 12 + 6; // through 6'5"
+
+/// CM picker items: 140, 141, … 192. 53 entries.
+int _cmIndexFor(int cm) => cm - _kCmMin;
+int _cmFromIndex(int index) => _kCmMin + index;
+int get _cmItemCount => _kCmMax - _kCmMin + 1;
 
 class HeightInputScreen extends ConsumerStatefulWidget {
   const HeightInputScreen({super.key});
@@ -31,44 +52,42 @@ class HeightInputScreen extends ConsumerStatefulWidget {
 }
 
 class _HeightInputScreenState extends ConsumerState<HeightInputScreen> {
-  late FixedExtentScrollController _feetController;
-  late FixedExtentScrollController _inchesController;
+  late FixedExtentScrollController _ftController;
   late FixedExtentScrollController _cmController;
 
   @override
   void initState() {
     super.initState();
     final data = ref.read(photosVerificationDataProvider);
-    _feetController = FixedExtentScrollController(
-      initialItem: (data.heightFeet ?? _kDefaultFeet) - _kFeetMin,
-    );
-    _inchesController = FixedExtentScrollController(
-      initialItem: data.heightInches ?? _kDefaultInches,
+    _ftController = FixedExtentScrollController(
+      initialItem: _ftIndexFor(
+        feet: data.heightFeet ?? _kDefaultFeet,
+        inches: data.heightInches ?? _kDefaultInches,
+      ),
     );
     _cmController = FixedExtentScrollController(
-      initialItem: (data.heightCm ?? _kDefaultCm) - _kCmMin,
+      initialItem: _cmIndexFor(data.heightCm ?? _kDefaultCm),
     );
   }
 
   @override
   void dispose() {
-    _feetController.dispose();
-    _inchesController.dispose();
+    _ftController.dispose();
     _cmController.dispose();
     super.dispose();
   }
 
-  void _commitFeet() {
-    final feet = _kFeetMin + _feetController.selectedItem;
-    final inches = _inchesController.selectedItem;
+  void _commitFt(int index) {
+    final (feet, inches) = _ftFromIndex(index);
     ref
         .read(photosVerificationDataProvider.notifier)
         .setHeightFeet(feet: feet, inches: inches);
   }
 
-  void _commitCm() {
-    final cm = _kCmMin + _cmController.selectedItem;
-    ref.read(photosVerificationDataProvider.notifier).setHeightCm(cm);
+  void _commitCm(int index) {
+    ref
+        .read(photosVerificationDataProvider.notifier)
+        .setHeightCm(_cmFromIndex(index));
   }
 
   @override
@@ -93,30 +112,39 @@ class _HeightInputScreenState extends ConsumerState<HeightInputScreen> {
             style: GoogleFonts.inter(
               fontSize: 14,
               color: AppColors.interactive300,
-              height: 1.43,
+              height: 16 / 14,
+              fontWeight: FontWeight.w500,
             ),
           ),
           const SizedBox(height: AppSpacing.x6),
           Center(child: _UnitToggle(selected: unit)),
           const SizedBox(height: AppSpacing.x6),
-          Expanded(
-            child: Center(
+          Center(
+            child: _PickerWrap(
               child: unit == HeightUnit.feet
-                  ? _FeetPicker(
-                      feetController: _feetController,
-                      inchesController: _inchesController,
-                      onChanged: _commitFeet,
+                  ? _SingleWheel(
+                      key: const ValueKey('ft-wheel'),
+                      controller: _ftController,
+                      itemCount: _ftItemCount,
+                      labelBuilder: (i) {
+                        final (feet, inches) = _ftFromIndex(i);
+                        return '$feet\'$inches"';
+                      },
+                      onSelectedItemChanged: _commitFt,
                     )
-                  : _CmPicker(
+                  : _SingleWheel(
+                      key: const ValueKey('cm-wheel'),
                       controller: _cmController,
-                      onChanged: _commitCm,
+                      itemCount: _cmItemCount,
+                      labelBuilder: (i) => '${_cmFromIndex(i)}',
+                      onSelectedItemChanged: _commitCm,
                     ),
             ),
           ),
-          const SizedBox(height: AppSpacing.x4),
+          const Spacer(),
           const InfoBanner(
             message:
-                'Sharing your height helps people find a better match.',
+                'Helps curate recommendations, you can update this anytime.',
             iconStyle: InfoBannerIcon.gradientCircle,
           ),
           const SizedBox(height: AppSpacing.x4),
@@ -127,7 +155,8 @@ class _HeightInputScreenState extends ConsumerState<HeightInputScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// FT / CM toggle
+// FT / CM toggle — white background + gradient text on the active pill,
+// gray-50 background + interactive-300 text on the inactive pill.
 // ---------------------------------------------------------------------------
 
 class _UnitToggle extends ConsumerWidget {
@@ -139,8 +168,8 @@ class _UnitToggle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.brandDark, width: 1),
-        borderRadius: BorderRadius.circular(AppRadius.round),
+        color: AppColors.interactive50,
+        borderRadius: BorderRadius.circular(32),
       ),
       padding: const EdgeInsets.all(AppSpacing.x1),
       child: Row(
@@ -179,6 +208,28 @@ class _UnitTogglePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final inactive = Text(
+      label,
+      style: GoogleFonts.inter(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: AppColors.interactive300,
+      ),
+    );
+    final active = ShaderMask(
+      shaderCallback: (bounds) => AppColors.brandGradient.createShader(
+        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.inter(
+          fontSize: 14,
+          fontWeight: FontWeight.w600,
+          color: Colors.white, // shaded by ShaderMask
+        ),
+      ),
+    );
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -186,95 +237,83 @@ class _UnitTogglePill extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.x6,
-          vertical: AppSpacing.x2,
+          vertical: AppSpacing.x3,
         ),
         decoration: BoxDecoration(
-          gradient: isActive ? AppColors.brandGradient : null,
-          borderRadius: BorderRadius.circular(AppRadius.round),
+          color: isActive ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(32),
         ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: isActive ? Colors.white : AppColors.brandDark,
-          ),
-        ),
+        child: isActive ? active : inactive,
       ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// FT picker (two ListWheelScrollViews — feet + inches)
+// Picker wrap — outer rounded container that hosts the scrolling wheel,
+// with an overlaid cream-bordered selection band at center.
 // ---------------------------------------------------------------------------
 
-class _FeetPicker extends StatelessWidget {
-  final FixedExtentScrollController feetController;
-  final FixedExtentScrollController inchesController;
-  final VoidCallback onChanged;
+class _PickerWrap extends StatelessWidget {
+  final Widget child;
 
-  const _FeetPicker({
-    required this.feetController,
-    required this.inchesController,
-    required this.onChanged,
-  });
+  const _PickerWrap({required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _Wheel(
-          controller: feetController,
-          itemCount: _kFeetMax - _kFeetMin + 1,
-          labelBuilder: (i) => "${_kFeetMin + i}'",
-          onSelectedItemChanged: (_) => onChanged(),
+    return Container(
+      width: double.infinity,
+      height: _kPickerHeight,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.large),
+        border: Border.all(
+          color: AppColors.interactive100,
+          width: 2,
         ),
-        const SizedBox(width: AppSpacing.x6),
-        _Wheel(
-          controller: inchesController,
-          itemCount: _kInchesMax - _kInchesMin + 1,
-          labelBuilder: (i) => '$i"',
-          onSelectedItemChanged: (_) => onChanged(),
-        ),
-      ],
+      ),
+      clipBehavior: Clip.hardEdge,
+      // Order matters: band underneath, wheel on top so the centered item
+      // renders ON TOP of the cream band (matching Figma's `Scalesection`).
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Selection band — cream interior, brand-dark 2px border, 48px tall.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x1),
+            child: Container(
+              height: _kItemExtent,
+              decoration: BoxDecoration(
+                color: AppColors.cream,
+                borderRadius: BorderRadius.circular(AppRadius.large),
+                border: Border.all(
+                  color: AppColors.brandDark,
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+          // Wheel renders on top so item text overlays the band.
+          child,
+        ],
+      ),
     );
   }
 }
 
 // ---------------------------------------------------------------------------
-// CM picker (single ListWheelScrollView)
+// Single-axis wheel picker. ListWheelScrollView with a flattened cylinder
+// so it reads like a vertical list rather than an iOS roller.
 // ---------------------------------------------------------------------------
 
-class _CmPicker extends StatelessWidget {
-  final FixedExtentScrollController controller;
-  final VoidCallback onChanged;
-
-  const _CmPicker({required this.controller, required this.onChanged});
-
-  @override
-  Widget build(BuildContext context) {
-    return _Wheel(
-      controller: controller,
-      itemCount: _kCmMax - _kCmMin + 1,
-      labelBuilder: (i) => '${_kCmMin + i} cm',
-      onSelectedItemChanged: (_) => onChanged(),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Reusable cylinder wheel with center-item gradient highlight
-// ---------------------------------------------------------------------------
-
-class _Wheel extends StatelessWidget {
+class _SingleWheel extends StatelessWidget {
   final FixedExtentScrollController controller;
   final int itemCount;
   final String Function(int index) labelBuilder;
   final ValueChanged<int> onSelectedItemChanged;
 
-  const _Wheel({
+  const _SingleWheel({
+    super.key,
     required this.controller,
     required this.itemCount,
     required this.labelBuilder,
@@ -283,75 +322,27 @@ class _Wheel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const itemExtent = 48.0;
-    return SizedBox(
-      width: 110,
-      height: itemExtent * 5,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Center selection band — subtle horizontal lines bracketing the
-          // active row, mirroring iOS-style wheel pickers.
-          IgnorePointer(
-            child: Container(
-              height: itemExtent,
-              decoration: BoxDecoration(
-                border: Border(
-                  top: BorderSide(
-                    color: AppColors.interactive100,
-                    width: 1,
-                  ),
-                  bottom: BorderSide(
-                    color: AppColors.interactive100,
-                    width: 1,
-                  ),
-                ),
+    return ListWheelScrollView.useDelegate(
+      controller: controller,
+      itemExtent: _kItemExtent,
+      physics: const FixedExtentScrollPhysics(),
+      diameterRatio: 3.0, // larger = flatter cylinder
+      perspective: 0.001,
+      onSelectedItemChanged: onSelectedItemChanged,
+      childDelegate: ListWheelChildBuilderDelegate(
+        childCount: itemCount,
+        builder: (context, index) {
+          return Center(
+            child: Text(
+              labelBuilder(index),
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.interactive300,
               ),
             ),
-          ),
-          ListWheelScrollView.useDelegate(
-            controller: controller,
-            itemExtent: itemExtent,
-            physics: const FixedExtentScrollPhysics(),
-            diameterRatio: 1.6,
-            perspective: 0.003,
-            onSelectedItemChanged: onSelectedItemChanged,
-            childDelegate: ListWheelChildBuilderDelegate(
-              childCount: itemCount,
-              builder: (context, index) {
-                return AnimatedBuilder(
-                  animation: controller,
-                  builder: (context, _) {
-                    final isCenter = controller.hasClients &&
-                        controller.selectedItem == index;
-                    final label = labelBuilder(index);
-                    final textStyle = GoogleFonts.inter(
-                      fontSize: isCenter ? 28 : 20,
-                      fontWeight:
-                          isCenter ? FontWeight.w700 : FontWeight.w400,
-                      color: isCenter
-                          ? Colors.white // shaded by ShaderMask below
-                          : AppColors.interactive300,
-                    );
-                    final text = Text(label, style: textStyle);
-                    if (!isCenter) {
-                      return Center(child: text);
-                    }
-                    return Center(
-                      child: ShaderMask(
-                        shaderCallback: (bounds) =>
-                            AppColors.brandGradient.createShader(
-                          Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                        ),
-                        child: text,
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
