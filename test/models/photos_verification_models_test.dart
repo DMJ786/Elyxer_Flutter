@@ -97,15 +97,111 @@ void main() {
   });
 
   group('SupportedLanguages', () {
-    test('contains canonical entries used by the language screen', () {
-      expect(SupportedLanguages.all, contains('English'));
-      expect(SupportedLanguages.all, contains('Hindi'));
-      expect(SupportedLanguages.all, contains('Tamil'));
+    test('primary catalog includes all 22 scheduled Indian languages', () {
+      const scheduled = [
+        'Assamese', 'Bengali', 'Bodo', 'Dogri', 'Gujarati', 'Hindi',
+        'Kannada', 'Kashmiri', 'Konkani', 'Maithili', 'Malayalam',
+        'Manipuri', 'Marathi', 'Nepali', 'Odia', 'Punjabi', 'Sanskrit',
+        'Santali', 'Sindhi', 'Tamil', 'Telugu', 'Urdu',
+      ];
+      for (final lang in scheduled) {
+        expect(SupportedLanguages.primary, contains(lang),
+            reason: '$lang should be in primary catalog');
+      }
     });
 
-    test('has no duplicates', () {
+    test('primary catalog includes English', () {
+      expect(SupportedLanguages.primary, contains('English'));
+    });
+
+    test('international catalog has agreed common second-languages', () {
+      expect(SupportedLanguages.international, contains('Spanish'));
+      expect(SupportedLanguages.international, contains('Mandarin'));
+      expect(SupportedLanguages.international, contains('Arabic'));
+    });
+
+    test('all catalog has no duplicates', () {
       final set = SupportedLanguages.all.toSet();
       expect(set.length, SupportedLanguages.all.length);
+    });
+
+    test('total catalog size is in the agreed ~50 range', () {
+      // Hard floor + ceiling so a careless edit doesn't drift the catalog.
+      expect(SupportedLanguages.all.length, inInclusiveRange(45, 55));
+    });
+  });
+
+  group('rankLanguageSuggestions', () {
+    test('returns empty list for empty query', () {
+      expect(
+        rankLanguageSuggestions(query: '', selected: const []),
+        isEmpty,
+      );
+      expect(
+        rankLanguageSuggestions(query: '   ', selected: const []),
+        isEmpty,
+      );
+    });
+
+    test('excludes already-selected languages', () {
+      final result = rankLanguageSuggestions(
+        query: 'eng',
+        selected: const ['English'],
+      );
+      expect(result, isNot(contains('English')));
+    });
+
+    test('prefix match outranks substring match across catalogs', () {
+      // 'in' matches: Indonesian (prefix intl), Hindi/Sindhi (substring
+      // primary), Mandarin (substring intl). Prefix wins regardless of
+      // primary/international tier.
+      final result =
+          rankLanguageSuggestions(query: 'in', selected: const []);
+      final indonesianIdx = result.indexOf('Indonesian');
+      final hindiIdx = result.indexOf('Hindi');
+      expect(indonesianIdx, isNonNegative);
+      expect(hindiIdx, isNonNegative);
+      expect(indonesianIdx, lessThan(hindiIdx),
+          reason: 'Indonesian (prefix) must rank above Hindi (substring)');
+    });
+
+    test('primary outranks international on prefix-match ties', () {
+      // 'P' is a prefix of: Punjabi (primary), Persian/Portuguese (intl).
+      final result =
+          rankLanguageSuggestions(query: 'P', selected: const []);
+      final punjabiIdx = result.indexOf('Punjabi');
+      final persianIdx = result.indexOf('Persian');
+      expect(punjabiIdx, isNonNegative);
+      expect(persianIdx, isNonNegative);
+      expect(punjabiIdx, lessThan(persianIdx),
+          reason: 'Punjabi (primary) must rank above Persian (intl)');
+    });
+
+    test('alphabetical tiebreak within same rank', () {
+      // 'P' prefix in international: Persian, Portuguese.
+      final result =
+          rankLanguageSuggestions(query: 'P', selected: const []);
+      final persianIdx = result.indexOf('Persian');
+      final portugueseIdx = result.indexOf('Portuguese');
+      expect(persianIdx, lessThan(portugueseIdx));
+    });
+
+    test('caps results at kMaxSuggestions (10)', () {
+      // 'a' matches a large set across primary + international.
+      final result =
+          rankLanguageSuggestions(query: 'a', selected: const []);
+      expect(result.length, lessThanOrEqualTo(kMaxSuggestions));
+      expect(result.length, equals(10),
+          reason: 'with 49-entry catalog, "a" should saturate the cap');
+    });
+
+    test('case-insensitive', () {
+      final lower =
+          rankLanguageSuggestions(query: 'tam', selected: const []);
+      final upper =
+          rankLanguageSuggestions(query: 'TAM', selected: const []);
+      expect(lower, equals(upper));
+      expect(lower, contains('Tamil'));
     });
   });
 }

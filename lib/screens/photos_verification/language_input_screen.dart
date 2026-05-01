@@ -41,14 +41,8 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
     super.dispose();
   }
 
-  List<String> _filteredSuggestions(List<String> selected) {
-    final q = _query.trim().toLowerCase();
-    return SupportedLanguages.all.where((language) {
-      if (selected.contains(language)) return false;
-      if (q.isEmpty) return true;
-      return language.toLowerCase().contains(q);
-    }).toList();
-  }
+  // Ranking is defined in `models/photos_verification_models.dart` so it
+  // can be unit-tested as a pure function. See `rankLanguageSuggestions`.
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +51,10 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
     );
     final notifier = ref.read(photosVerificationDataProvider.notifier);
     final atMax = selected.length >= kMaxLanguages;
-    final suggestions = _filteredSuggestions(selected);
+    final suggestions = rankLanguageSuggestions(
+      query: _query,
+      selected: selected,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
