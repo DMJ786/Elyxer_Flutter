@@ -25,6 +25,7 @@ import '../../widgets/add_photo_upload_popup.dart';
 import '../../widgets/photo_error_popup.dart';
 import '../../widgets/photo_grid_slot.dart';
 import '../../widgets/selfie_grid_slot.dart';
+import 'selfie_flow_sheet.dart';
 
 /// Maximum file size accepted from the picker (10 MB).
 const int _kMaxBytes = 10 * 1024 * 1024;
@@ -146,10 +147,8 @@ class AddPhotoScreen extends ConsumerWidget {
     ref.read(photosVerificationDataProvider.notifier).removePhotoAt(index);
   }
 
-  Future<void> _onSelfieTap(BuildContext context) async {
-    // TODO(module5-pr-b): wire SelfieFlowSheet — added in the next
-    // commit. For now this is a no-op so the screen compiles.
-  }
+  Future<void> _onSelfieTap(BuildContext context) =>
+      showSelfieFlowSheet(context);
 
   // ---------------------------------------------------------------------------
   // Helpers
