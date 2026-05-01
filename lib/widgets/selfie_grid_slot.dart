@@ -63,14 +63,15 @@ class _EmptySelfieSlot extends StatelessWidget {
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: 6,
-          vertical: AppSpacing.x8,
+          vertical: AppSpacing.x4,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.camera_alt_outlined,
-              size: 40,
+              size: 32,
               color: AppColors.brandDark,
             ),
             const SizedBox(height: AppSpacing.x1),
@@ -80,16 +81,16 @@ class _EmptySelfieSlot extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: AppColors.brandDark,
-                height: 32 / 16,
+                height: 1.2,
               ),
             ),
             Text(
               'Unlock your badge',
               style: GoogleFonts.inter(
-                fontSize: 14,
+                fontSize: 12,
                 fontStyle: FontStyle.italic,
                 color: AppColors.brandDark,
-                height: 16 / 14,
+                height: 1.2,
               ),
             ),
           ],
