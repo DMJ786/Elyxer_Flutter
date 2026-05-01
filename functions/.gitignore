@@ -1,0 +1,14 @@
+# Compiled JavaScript output
+lib/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Firebase
+.firebase/
+firebase-debug.log*
+
+# Local config
+.runtimeconfig.json
