@@ -2,8 +2,8 @@
 /// PageView host for Height → Language → Photos → Complete with the
 /// 4-step progress indicator at top and Skip / Next at bottom.
 ///
-/// PR A scope: Height + Language + Photos placeholder.
-/// PR B replaces the placeholder with the real AddPhotoScreen + selfie flow.
+/// PR B replaces the photos placeholder with the real AddPhotoScreen.
+/// Selfie flow is launched from inside AddPhotoScreen via showSelfieFlowSheet.
 library;
 
 import 'package:flutter/material.dart';
@@ -14,9 +14,9 @@ import '../../models/photos_verification_models.dart';
 import '../../providers/photos_verification_provider.dart';
 import '../../widgets/photos_verification_progress_indicator.dart';
 import '../../widgets/next_button.dart';
+import 'add_photo_screen.dart';
 import 'height_input_screen.dart';
 import 'language_input_screen.dart';
-import 'photos_step_placeholder.dart';
 
 class PhotosVerificationScreen extends ConsumerStatefulWidget {
   const PhotosVerificationScreen({super.key});
@@ -151,7 +151,7 @@ class _PhotosVerificationScreenState
                   children: const [
                     HeightInputScreen(),
                     LanguageInputScreen(),
-                    PhotosStepPlaceholder(),
+                    AddPhotoScreen(),
                   ],
                 ),
               ),
