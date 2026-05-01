@@ -35,6 +35,8 @@ dependencies:
   # Photos & Media (Module 5)
   image_picker: ^1.1.2               # Camera + gallery photo selection (front camera for selfies)
   permission_handler: ^11.3.1        # Runtime camera/storage permissions
+  google_mlkit_face_detection: ^0.13.1  # On-device selfie validation (face count, eye-open, bounds)
+                                        # ~10MB on-device model — no cloud calls, no biometric data leaves device
 
   # Networking & infrastructure (Bundle 0 — foundation)
   dio: ^5.7.0                       # HTTP client + interceptors (error mapping, retry/backoff)
