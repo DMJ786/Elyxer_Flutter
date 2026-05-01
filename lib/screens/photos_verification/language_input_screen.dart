@@ -134,58 +134,34 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
           ),
           const SizedBox(height: AppSpacing.x3),
 
-          // Suggestions list — only visible while the user is typing.
+          // Search results — only visible while the user is typing.
+          // Renders matches as a Wrap of unselected chips (per Figma
+          // LanguageSelection state=false). Tap a chip to add it as a
+          // selected chip and clear the input.
           Expanded(
             child: _query.trim().isEmpty
                 ? const SizedBox.shrink()
                 : suggestions.isEmpty
                     ? const _EmptySuggestionState()
-                    : ListView.separated(
-                    padding: EdgeInsets.zero,
-                    itemCount: suggestions.length,
-                    separatorBuilder: (_, _) => const Divider(
-                      height: 1,
-                      color: AppColors.interactive100,
-                    ),
-                    itemBuilder: (context, index) {
-                      final language = suggestions[index];
-                      return InkWell(
-                        onTap: atMax
-                            ? null
-                            : () {
-                                notifier.addLanguage(language);
-                                _searchController.clear();
-                                setState(() => _query = '');
-                              },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: AppSpacing.x3,
-                            horizontal: AppSpacing.x2,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  language,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 16,
-                                    color: AppColors.interactive500,
-                                  ),
-                                ),
+                    : SingleChildScrollView(
+                        child: Wrap(
+                          spacing: AppSpacing.x2,
+                          runSpacing: AppSpacing.x2,
+                          children: [
+                            for (final language in suggestions)
+                              _UnselectedLanguageChip(
+                                label: language,
+                                onTap: atMax
+                                    ? null
+                                    : () {
+                                        notifier.addLanguage(language);
+                                        _searchController.clear();
+                                        setState(() => _query = '');
+                                      },
                               ),
-                              Icon(
-                                Icons.add,
-                                color: atMax
-                                    ? AppColors.interactive200
-                                    : AppColors.brandDark,
-                                size: 20,
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
+                      ),
           ),
           const SizedBox(height: AppSpacing.x3),
           const InfoBanner(
@@ -249,6 +225,50 @@ class _SelectedLanguageChip extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Unselected language chip — Figma `LanguageSelection` state=false:
+// gray bg + 1px interactive-100 border + 12px Inter Regular #666 text,
+// no × icon. Tap to promote to a selected chip.
+// ---------------------------------------------------------------------------
+
+class _UnselectedLanguageChip extends StatelessWidget {
+  final String label;
+  final VoidCallback? onTap;
+
+  const _UnselectedLanguageChip({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.interactive50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.interactive100,
+            width: 1,
+          ),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.x4,
+          vertical: 6,
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.interactive300,
+            height: 16 / 12,
+          ),
+        ),
       ),
     );
   }
