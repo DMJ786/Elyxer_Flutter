@@ -54,6 +54,27 @@ coverage/
 analyze_results.txt
 test_evidence.txt
 
+# Secrets & credentials — NEVER commit these
+.env
+.env.*
+.env.local
+.env.production
+.env.staging
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.pfx
+**/key.properties
+**/local.properties
+**/google-services.json
+**/GoogleService-Info.plist
+**/service-account*.json
+**/credentials*.json
+**/secrets*.json
+**/*token*.json
+
 # Exceptions to above rules
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3

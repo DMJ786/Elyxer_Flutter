@@ -106,6 +106,13 @@ flutter analyze
 flutter pub get
 ```
 
+## Security
+- NEVER read, display, log, or commit files matching: `.env*`, `*.pem`, `*.key`, `*.p12`, `*.jks`, `*.keystore`, `key.properties`, `local.properties`, `google-services.json`, `GoogleService-Info.plist`, `*credentials*`, `*secrets*`, `*token*.json`
+- NEVER dump environment variables (`printenv`, `echo $VAR`, `set | grep`)
+- NEVER hardcode API keys, tokens, or secrets in source code
+- If a file looks like it contains secrets, stop and ask the user before proceeding
+- Deny rules in `.claude/settings.local.json` enforce this at the tool level
+
 ## Do NOT
 - Do not use BLoC, Cubit, or Provider (we use Riverpod exclusively)
 - Do not manually edit `.freezed.dart` or `.g.dart` files — they are generated

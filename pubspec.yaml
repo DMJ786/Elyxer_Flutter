@@ -32,6 +32,15 @@ dependencies:
   hooks_riverpod: ^3.0.3
   intl_phone_field: ^3.2.0
 
+  # Networking & infrastructure (Bundle 0 — foundation)
+  dio: ^5.7.0                       # HTTP client + interceptors (error mapping, retry/backoff)
+  # Note 1: env config uses --dart-define (compile-time) instead of flutter_dotenv to
+  # avoid bundling secrets as assets and to respect the "never commit .env*" rule.
+  # Note 2: no flutter_secure_storage — Firebase Auth persists its own session and
+  # auto-refreshes ID tokens internally; manual token storage would be redundant.
+  # Note 3: firebase_core / firebase_auth are deliberately NOT in this PR. They land
+  # in Bundle 1 (PR #2) alongside the actual phone-OTP wiring + Firebase web config.
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -44,6 +53,9 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.7.1
   riverpod_generator: ^3.0.3
+
+  # Testing
+  http_mock_adapter: ^0.6.1         # Mock dio responses in unit/widget tests
 
 flutter:
   uses-material-design: true
