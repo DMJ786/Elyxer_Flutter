@@ -1,27 +1,33 @@
-/// Background Screen - Education, Profession, Location
-/// Container screen with PageView and 4-step progress indicator
+/// Photos & Selfie Verification — Module 5 container.
+/// PageView host for Height → Language → Photos → Complete with the
+/// 4-step progress indicator at top and Skip / Next at bottom.
+///
+/// PR A scope: Height + Language + Photos placeholder.
+/// PR B replaces the placeholder with the real AddPhotoScreen + selfie flow.
 library;
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../theme/app_theme.dart';
-import '../../models/onboarding_models.dart';
-import '../../providers/onboarding_provider.dart';
-import '../../widgets/background_progress_indicator.dart';
+import '../../models/photos_verification_models.dart';
+import '../../providers/photos_verification_provider.dart';
+import '../../widgets/photos_verification_progress_indicator.dart';
 import '../../widgets/next_button.dart';
-import 'education_entry_screen.dart';
-import 'profession_entry_screen.dart';
-import 'location_entry_screen.dart';
+import 'height_input_screen.dart';
+import 'language_input_screen.dart';
+import 'photos_step_placeholder.dart';
 
-class BackgroundScreen extends ConsumerStatefulWidget {
-  const BackgroundScreen({super.key});
+class PhotosVerificationScreen extends ConsumerStatefulWidget {
+  const PhotosVerificationScreen({super.key});
 
   @override
-  ConsumerState<BackgroundScreen> createState() => _BackgroundScreenState();
+  ConsumerState<PhotosVerificationScreen> createState() =>
+      _PhotosVerificationScreenState();
 }
 
-class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
+class _PhotosVerificationScreenState
+    extends ConsumerState<PhotosVerificationScreen>
     with SingleTickerProviderStateMixin {
   late PageController _pageController;
   late AnimationController _fadeController;
@@ -36,10 +42,7 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
       vsync: this,
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _fadeController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
     );
     _fadeController.forward();
   }
@@ -52,35 +55,31 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
   }
 
   void _nextPage() {
-    final currentStep = ref.read(currentBackgroundStepProvider);
+    final currentStep = ref.read(currentPhotosVerificationStepProvider);
 
-    if (currentStep == BackgroundStep.complete) {
-      // All Background steps completed - advance to Module 5 (photos & selfie)
-      context.push('/photos-verification');
+    if (currentStep == PhotosVerificationStep.complete) {
+      // Module 5 finished — temporarily route to /complete until product
+      // decides the next module's destination.
+      context.push('/complete');
       return;
     }
 
-    // Validate current step before proceeding
-    final canProceed = ref.read(onboardingDataProvider.notifier)
-        .canProceedBackground(currentStep);
+    final canProceed = ref.read(canProceedPhotosVerificationProvider);
     if (!canProceed) {
       _showValidationError(currentStep);
       return;
     }
 
-    // Animate fade out then slide to next page
     _fadeController.reverse().then((_) {
-      ref.read(currentBackgroundStepProvider.notifier).next();
+      ref.read(currentPhotosVerificationStepProvider.notifier).next();
 
+      // Advance the PageView for the three real screens; the Complete
+      // step is reflected by the progress indicator alone (no extra page).
       if (currentStep.index < 2) {
-        // Navigate to next page (education, profession, location)
         _pageController.nextPage(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
-      } else if (currentStep == BackgroundStep.location) {
-        // After location, show complete state (no extra page needed)
-        // The progress indicator will show the complete step
       }
 
       _fadeController.forward();
@@ -89,26 +88,25 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
 
   void _skipStep() {
     _fadeController.reverse().then((_) {
-      ref.read(currentBackgroundStepProvider.notifier).next();
-
-      final newStep = ref.read(currentBackgroundStepProvider);
-      if (newStep != BackgroundStep.complete && newStep.index <= 2) {
+      ref.read(currentPhotosVerificationStepProvider.notifier).next();
+      final newStep = ref.read(currentPhotosVerificationStepProvider);
+      if (newStep != PhotosVerificationStep.complete && newStep.index <= 2) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 600),
           curve: Curves.easeInOut,
         );
       }
-
       _fadeController.forward();
     });
   }
 
-  void _showValidationError(BackgroundStep step) {
+  void _showValidationError(PhotosVerificationStep step) {
     final message = switch (step) {
-      BackgroundStep.education => 'Please select your education level',
-      BackgroundStep.profession => 'Please enter your industry or role',
-      BackgroundStep.location => 'Please enter your location',
-      BackgroundStep.complete => 'Please complete all steps',
+      PhotosVerificationStep.height => 'Please select your height',
+      PhotosVerificationStep.language => 'Please add at least one language',
+      PhotosVerificationStep.photos =>
+        'Please add at least $kMinPhotos photos to continue',
+      PhotosVerificationStep.complete => 'Please complete all steps',
     };
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -121,15 +119,18 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
 
   @override
   Widget build(BuildContext context) {
-    final currentStep = ref.watch(currentBackgroundStepProvider);
-    final isComplete = currentStep == BackgroundStep.complete;
+    final currentStep = ref.watch(currentPhotosVerificationStepProvider);
+    final isComplete = currentStep == PhotosVerificationStep.complete;
+    // Photos step is skippable for the selfie portion only; a minimum of
+    // kMinPhotos regular photos is required to proceed to Complete.
+    final showSkip = !isComplete &&
+        currentStep != PhotosVerificationStep.photos;
 
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: SafeArea(
         child: Column(
           children: [
-            // Progress Indicator
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.x5,
@@ -137,45 +138,39 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
                 AppSpacing.x5,
                 AppSpacing.x4,
               ),
-              child: BackgroundProgressIndicator(
+              child: PhotosVerificationProgressIndicator(
                 currentStep: currentStep,
               ),
             ),
-
-            // Page Content
             Expanded(
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: PageView(
-                    controller: _pageController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: const [
-                      EducationEntryScreen(),
-                      ProfessionEntryScreen(),
-                      LocationEntryScreen(),
-                    ],
-                  ),
+                  controller: _pageController,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: const [
+                    HeightInputScreen(),
+                    LanguageInputScreen(),
+                    PhotosStepPlaceholder(),
+                  ],
+                ),
               ),
             ),
-
-            // Bottom Navigation
             Padding(
               padding: const EdgeInsets.fromLTRB(
-                AppSpacing.x5, AppSpacing.x4, AppSpacing.x5, AppSpacing.x5,
+                AppSpacing.x5,
+                AppSpacing.x4,
+                AppSpacing.x5,
+                AppSpacing.x5,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Skip for now (not shown on location screen or complete)
-                  if (!isComplete &&
-                      currentStep != BackgroundStep.location)
+                  if (showSkip)
                     _SkipForNowLink(onTap: _skipStep)
                   else
                     const SizedBox.shrink(),
-
-                  NextButton(
-                    onPressed: _nextPage,
-                  ),
+                  NextButton(onPressed: _nextPage),
                 ],
               ),
             ),
@@ -184,10 +179,9 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
       ),
     );
   }
-
 }
 
-/// Skip for now link with gold gradient text
+/// "Skip for now" gradient text link — same pattern as background_screen.dart.
 class _SkipForNowLink extends StatelessWidget {
   final VoidCallback onTap;
 
