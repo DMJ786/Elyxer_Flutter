@@ -29,31 +29,42 @@ void main() {
     expect(find.byType(TextField), findsOneWidget);
   });
 
-  testWidgets('typing filters the suggestion list', (tester) async {
+  testWidgets('default state hides the suggestion list until user types',
+      (tester) async {
     await pumpScreen(tester);
-    expect(find.text('English'), findsOneWidget);
-    expect(find.text('Hindi'), findsOneWidget);
+    // Per designer: list is hidden until something is typed.
+    expect(find.text('English'), findsNothing);
+    expect(find.text('Hindi'), findsNothing);
+  });
 
+  testWidgets('typing filters the suggestion list to substring matches',
+      (tester) async {
+    await pumpScreen(tester);
     await tester.enterText(find.byType(TextField), 'Eng');
     await tester.pump();
-
     expect(find.text('English'), findsOneWidget);
     expect(find.text('Hindi'), findsNothing);
   });
 
-  testWidgets('tapping a suggestion adds a chip and removes it from list',
+  testWidgets('tapping a search result adds a chip and clears the search',
       (tester) async {
     final container = await pumpScreen(tester);
 
+    // Type a partial query so the TextField text doesn't collide with the
+    // result label when we tap.
+    await tester.enterText(find.byType(TextField), 'Eng');
+    await tester.pump();
     await tester.tap(find.text('English'));
     await tester.pump();
 
     final selected = container
         .read(photosVerificationDataProvider.select((d) => d.languages));
     expect(selected, ['English']);
-    // After selection, 'English' moves out of suggestions and into chip.
-    // The chip uses ShaderMask but the underlying Text is still 'English'.
-    expect(find.text('English'), findsOneWidget);
+
+    // After selection: chip rendered, list closed (input cleared).
+    expect(find.text('English'), findsOneWidget); // the chip
+    final tf = tester.widget<TextField>(find.byType(TextField));
+    expect(tf.controller?.text, isEmpty);
   });
 
   testWidgets('helper text shows 0 / 6 selected initially', (tester) async {

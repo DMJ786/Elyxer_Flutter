@@ -7,9 +7,12 @@
 /// - Selected chips: gradient bg + white text + white × at 12px Inter Regular
 /// - InfoBanner copy: "Helps curate recommendations, you can update this anytime."
 ///
-/// Open with the designer (NOT yet reflected in this file):
-/// - Where do users see/pick languages? (always-visible list is a placeholder)
-/// - Helper text: static "You can add up to 6 languages." vs dynamic "n / 6 selected"
+/// Designer-confirmed UX:
+/// - Suggestions list is hidden by default; appears only after the user
+///   types into the search field. Tapping a result adds it as a chip and
+///   clears the input.
+/// - Helper text uses the dynamic "n / 6 selected" counter (replaced
+///   Figma's static copy by mutual agreement with the designer).
 library;
 
 import 'package:flutter/material.dart';
@@ -131,14 +134,13 @@ class _LanguageInputScreenState extends ConsumerState<LanguageInputScreen> {
           ),
           const SizedBox(height: AppSpacing.x3),
 
-          // Suggestions — PLACEHOLDER UX pending designer reply.
-          // Figma's default state shows no list. Three open possibilities:
-          // (a) list appears below search after typing, (b) separate sheet,
-          // (c) not yet designed. Always-visible list is the safe placeholder.
+          // Suggestions list — only visible while the user is typing.
           Expanded(
-            child: suggestions.isEmpty
-                ? const _EmptySuggestionState()
-                : ListView.separated(
+            child: _query.trim().isEmpty
+                ? const SizedBox.shrink()
+                : suggestions.isEmpty
+                    ? const _EmptySuggestionState()
+                    : ListView.separated(
                     padding: EdgeInsets.zero,
                     itemCount: suggestions.length,
                     separatorBuilder: (_, _) => const Divider(
