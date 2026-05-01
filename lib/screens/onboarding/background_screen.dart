@@ -119,30 +119,6 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
     );
   }
 
-  void _previousPage() {
-    final currentStep = ref.read(currentBackgroundStepProvider);
-
-    if (currentStep == BackgroundStep.complete) {
-      // Go back to location from complete
-      _fadeController.reverse().then((_) {
-        ref.read(currentBackgroundStepProvider.notifier).previous();
-        _fadeController.forward();
-      });
-      return;
-    }
-
-    if (_pageController.page! > 0) {
-      _fadeController.reverse().then((_) {
-        ref.read(currentBackgroundStepProvider.notifier).previous();
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
-        _fadeController.forward();
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final currentStep = ref.watch(currentBackgroundStepProvider);
