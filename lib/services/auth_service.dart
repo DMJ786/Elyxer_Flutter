@@ -39,6 +39,10 @@ class AuthService {
       return _auth.signInWithPopup(provider);
     }
 
+    // Sign out of any cached Google session first so that multi-account
+    // devices always show the account chooser (M8).
+    await _googleSignIn.signOut();
+
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     if (googleUser == null) {
       throw FirebaseAuthException(
@@ -104,42 +108,6 @@ class AuthService {
     );
 
     return _auth.signInWithCredential(oauthCredential);
-  }
-
-  // ---------------------------------------------------------------------------
-  // Phone Sign-In (triggers OTP flow)
-  // ---------------------------------------------------------------------------
-
-  /// Sends an SMS verification code to [phoneNumber].
-  /// On web this renders a reCAPTCHA; on mobile it is invisible.
-  Future<void> verifyPhoneNumber({
-    required String phoneNumber,
-    required void Function(PhoneAuthCredential) onAutoVerified,
-    required void Function(FirebaseAuthException) onFailed,
-    required void Function(String verificationId, int? resendToken) onCodeSent,
-    required void Function(String verificationId) onTimeout,
-    Duration timeout = const Duration(seconds: 60),
-  }) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      timeout: timeout,
-      verificationCompleted: onAutoVerified,
-      verificationFailed: onFailed,
-      codeSent: onCodeSent,
-      codeAutoRetrievalTimeout: onTimeout,
-    );
-  }
-
-  /// Signs in with [verificationId] + [smsCode] (from verifyPhoneNumber).
-  Future<UserCredential> signInWithOTP({
-    required String verificationId,
-    required String smsCode,
-  }) {
-    final credential = PhoneAuthProvider.credential(
-      verificationId: verificationId,
-      smsCode: smsCode,
-    );
-    return _auth.signInWithCredential(credential);
   }
 
   // ---------------------------------------------------------------------------

@@ -38,6 +38,7 @@ dependencies:
   flutter_hooks: ^0.21.3+1
   hooks_riverpod: ^3.0.3
   intl_phone_field: ^3.2.0
+  url_launcher: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +46,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  mocktail: ^0.3.0
 
   # Code Generation
   build_runner: ^2.4.7
@@ -57,6 +59,7 @@ flutter:
 
   # Assets
   assets:
+    - assets/images/auth/
     - assets/images/PhonenumberIconContainer/
     - assets/images/AccountIconContainer/
     - assets/images/MailIconContainer/

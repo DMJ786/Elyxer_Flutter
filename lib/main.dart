@@ -15,10 +15,18 @@ void main() async {
   // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  // Initialize Firebase.
+  // Wrapped in try-catch so the app stays runnable when firebase_options.dart
+  // still contains placeholder TODO_* values (before 'flutterfire configure' is
+  // run). Auth features will be unavailable but all other screens work fine.
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // ignore: avoid_print
+    debugPrint('Firebase init skipped — run flutterfire configure: $e');
+  }
 
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(

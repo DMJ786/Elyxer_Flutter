@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_strings.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/auth/auth_background_widgets.dart';
 
 class LandingScreen extends ConsumerWidget {
   const LandingScreen({super.key});
@@ -17,16 +19,9 @@ class LandingScreen extends ConsumerWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ----------------------------------------------------------------
-          // Hero background image
-          // Place your photo at: assets/images/auth/hero_bg.jpg
-          // ----------------------------------------------------------------
-          _HeroBackground(),
+          const AuthHeroBackground(),
+          const DarkOverlay(),
 
-          // Dark gradient overlay — readable text + button area at bottom
-          _DarkOverlay(),
-
-          // Content
           SafeArea(
             child: Column(
               children: [
@@ -34,17 +29,17 @@ class LandingScreen extends ConsumerWidget {
 
                 // ---- Branding ----
                 Text(
-                  'Elyxer',
+                  AppStrings.appName,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 48,
+                    fontSize: AppSizes.brandHeadingFontSize,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                     letterSpacing: 1.0,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.x2),
                 Text(
-                  '"Dating Redefined"',
+                  AppStrings.appTagline,
                   style: GoogleFonts.inter(
                     fontSize: 16,
                     color: Colors.white.withValues(alpha: 0.85),
@@ -62,32 +57,20 @@ class LandingScreen extends ConsumerWidget {
                   ),
                   child: Column(
                     children: [
-                      // Legal text
-                      Text(
-                        'By creating an account or signing in, you agree to our Terms of Service. '
-                        'Learn more on how we use your data in our Privacy Policy and Cookies Policy.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          height: 1.5,
-                        ),
-                      ),
+                      const AuthLegalText(),
                       const SizedBox(height: AppSpacing.x6),
 
-                      // "Create my account" — gold gradient button
                       _GradientButton(
-                        label: 'Create my account',
+                        label: AppStrings.createAccount,
                         onPressed: () => context.push('/signin'),
                       ),
                       const SizedBox(height: AppSpacing.x4),
 
-                      // "Sign in" — ghost text link
                       TextButton(
                         onPressed: () =>
                             context.push('/signin', extra: {'mode': 'signin'}),
                         child: Text(
-                          'Sign in',
+                          AppStrings.signIn,
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -109,55 +92,7 @@ class LandingScreen extends ConsumerWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Hero background — shows a dark gradient.
-// To use a real photo:
-//   1. Add your image to assets/images/auth/hero_bg.jpg
-//   2. Add `- assets/images/auth/` to pubspec.yaml flutter.assets
-//   3. Replace Container below with:
-//      Image.asset('assets/images/auth/hero_bg.jpg', fit: BoxFit.cover)
-// ---------------------------------------------------------------------------
-
-class _HeroBackground extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF2C1500), Color(0xFF0D0500)],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Dark gradient overlay for text legibility
-// ---------------------------------------------------------------------------
-
-class _DarkOverlay extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            Colors.black.withValues(alpha: 0.3),
-            Colors.black.withValues(alpha: 0.85),
-          ],
-          stops: const [0.0, 0.45, 1.0],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Reusable gold-gradient button
+// Gold-gradient CTA button (landing screen only)
 // ---------------------------------------------------------------------------
 
 class _GradientButton extends StatelessWidget {
@@ -173,7 +108,7 @@ class _GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 52,
+      height: AppSizes.authButtonHeight,
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: AppColors.brandGradient,

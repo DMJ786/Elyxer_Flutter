@@ -3,7 +3,8 @@
 library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
+import 'app_user.dart';
 
 part 'auth_models.freezed.dart';
 
@@ -34,7 +35,7 @@ enum SignInMethod {
 abstract class AuthState with _$AuthState {
   const factory AuthState({
     @Default(AuthStatus.unauthenticated) AuthStatus status,
-    User? user,
+    AppUser? user,
     @Default(null) String? errorMessage,
     @Default(null) SignInMethod? lastProvider,
   }) = _AuthState;

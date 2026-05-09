@@ -4,11 +4,14 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../constants/app_strings.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/auth_models.dart';
+import '../../widgets/auth/auth_background_widgets.dart';
 
 class SignInScreen extends ConsumerWidget {
   const SignInScreen({super.key});
@@ -20,7 +23,7 @@ class SignInScreen extends ConsumerWidget {
     // Navigate to onboarding once authenticated
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.isAuthenticated) {
-        context.go('/verification');
+        context.go('/onboarding');
       }
       if (next.status == AuthStatus.error && next.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -38,16 +41,34 @@ class SignInScreen extends ConsumerWidget {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Hero background (same as landing screen)
-          _HeroBackground(),
-          _DarkOverlay(),
+          const AuthHeroBackground(),
+          const DarkOverlay(),
 
-          // Loading overlay
+          // Loading overlay with cancel control (M6)
           if (authState.isLoading)
-            const ColoredBox(
+            ColoredBox(
               color: Colors.black54,
               child: Center(
-                child: CircularProgressIndicator(color: AppColors.brandLight),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      color: AppColors.brandLight,
+                    ),
+                    const SizedBox(height: AppSpacing.x4),
+                    TextButton(
+                      onPressed: () =>
+                          ref.read(authProvider.notifier).cancelSignIn(),
+                      child: Text(
+                        AppStrings.loadingCancelLabel,
+                        style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
 
@@ -63,7 +84,7 @@ class SignInScreen extends ConsumerWidget {
                     vertical: AppSpacing.x4,
                   ),
                   child: Text(
-                    'Sign In / Create Account',
+                    AppStrings.signInCreateAccount,
                     style: GoogleFonts.inter(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.75),
@@ -72,23 +93,23 @@ class SignInScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // ---- Branding (same as landing) ----
+                // ---- Branding ----
                 const Spacer(),
                 Center(
                   child: Column(
                     children: [
                       Text(
-                        'Elyxer',
+                        AppStrings.appName,
                         style: GoogleFonts.playfairDisplay(
-                          fontSize: 48,
+                          fontSize: AppSizes.brandHeadingFontSize,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                           letterSpacing: 1.0,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.x2),
                       Text(
-                        '"Dating Redefined"',
+                        AppStrings.appTagline,
                         style: GoogleFonts.inter(
                           fontSize: 16,
                           color: Colors.white.withValues(alpha: 0.85),
@@ -109,10 +130,10 @@ class SignInScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Apple Sign-In
+                      // Apple Sign-In (M1: SVG asset icon)
                       _OutlinedAuthButton(
                         icon: const _AppleIcon(),
-                        label: 'Sign in with  Apple',
+                        label: AppStrings.signInWithApple,
                         onPressed: authState.isLoading
                             ? null
                             : () => ref
@@ -121,10 +142,10 @@ class SignInScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.x3),
 
-                      // Google Sign-In
+                      // Google Sign-In (M1: SVG asset icon)
                       _OutlinedAuthButton(
                         icon: const _GoogleIcon(),
-                        label: 'Sign in with  Google',
+                        label: AppStrings.signInWithGoogle,
                         onPressed: authState.isLoading
                             ? null
                             : () => ref
@@ -135,7 +156,7 @@ class SignInScreen extends ConsumerWidget {
 
                       // Phone Sign-In (gold gradient)
                       _GradientAuthButton(
-                        label: 'Sign in with Phone number',
+                        label: AppStrings.signInWithPhone,
                         onPressed: authState.isLoading
                             ? null
                             : () {
@@ -152,7 +173,7 @@ class SignInScreen extends ConsumerWidget {
                         child: TextButton(
                           onPressed: () => context.pop(),
                           child: Text(
-                            'Back',
+                            AppStrings.back,
                             style: GoogleFonts.inter(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -163,18 +184,8 @@ class SignInScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: AppSpacing.x4),
 
-                      // Legal text
-                      Text(
-                        'By creating an account or signing in, you agree to our '
-                        'Terms of Service. Learn more on how we use your data in our '
-                        'Privacy Policy and Cookies Policy.',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: Colors.white.withValues(alpha: 0.7),
-                          height: 1.5,
-                        ),
-                      ),
+                      // Legal text — tappable links (M7)
+                      const AuthLegalText(),
                       const SizedBox(height: AppSpacing.x8),
                     ],
                   ),
@@ -206,7 +217,7 @@ class _OutlinedAuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 52,
+      height: AppSizes.authButtonHeight,
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
@@ -254,13 +265,17 @@ class _GradientAuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 52,
+      height: AppSizes.authButtonHeight,
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: onPressed != null
               ? AppColors.brandGradient
               : const LinearGradient(
-                  colors: [Color(0xFFB0B0B0), Color(0xFFD0D0D0)]),
+                  colors: [
+                    AppColors.interactive200,
+                    AppColors.interactive100,
+                  ],
+                ),
           borderRadius: BorderRadius.circular(AppRadius.round),
         ),
         child: Material(
@@ -286,7 +301,7 @@ class _GradientAuthButton extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// Apple logo icon (vector-drawn, no external asset needed)
+// Apple logo icon — official SVG asset (M1: HIG-compliant)
 // ---------------------------------------------------------------------------
 
 class _AppleIcon extends StatelessWidget {
@@ -294,12 +309,17 @@ class _AppleIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Icon(Icons.apple, size: 22, color: Colors.black87);
+    return SvgPicture.asset(
+      'assets/images/auth/apple_logo.svg',
+      width: AppSizes.authIconSize,
+      height: AppSizes.authIconSize,
+      colorFilter: const ColorFilter.mode(Colors.black87, BlendMode.srcIn),
+    );
   }
 }
 
 // ---------------------------------------------------------------------------
-// Google logo icon (coloured G)
+// Google logo icon — official SVG asset (M1: brand-compliant)
 // ---------------------------------------------------------------------------
 
 class _GoogleIcon extends StatelessWidget {
@@ -307,99 +327,11 @@ class _GoogleIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 22,
-      height: 22,
-      child: CustomPaint(painter: _GoogleLogoPainter()),
+    return SvgPicture.asset(
+      'assets/images/auth/google_logo.svg',
+      width: AppSizes.authIconSize,
+      height: AppSizes.authIconSize,
     );
   }
 }
 
-class _GoogleLogoPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final double cx = size.width / 2;
-    final double cy = size.height / 2;
-    final double r = size.width / 2;
-
-    // Draw coloured segments approximating the Google "G" logo
-    final segments = [
-      // Red (top-right, ~90°)
-      (startAngle: -0.52, sweepAngle: 1.57, color: const Color(0xFFEA4335)),
-      // Yellow (bottom-right, ~90°)
-      (startAngle: 1.05, sweepAngle: 1.57, color: const Color(0xFFFBBC05)),
-      // Green (bottom-left, ~90°)
-      (startAngle: 2.62, sweepAngle: 1.57, color: const Color(0xFF34A853)),
-      // Blue (top-left, ~90°)
-      (startAngle: 4.19, sweepAngle: 1.57, color: const Color(0xFF4285F4)),
-    ];
-
-    for (final seg in segments) {
-      final paint = Paint()
-        ..color = seg.color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = size.width * 0.22
-        ..strokeCap = StrokeCap.butt;
-      canvas.drawArc(
-        Rect.fromCircle(center: Offset(cx, cy), radius: r * 0.72),
-        seg.startAngle,
-        seg.sweepAngle,
-        false,
-        paint,
-      );
-    }
-
-    // White cutout bar for the "G" horizontal stroke
-    final cutPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-    canvas.drawRect(
-      Rect.fromLTWH(cx, cy - size.height * 0.12, r * 0.9, size.height * 0.24),
-      cutPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// ---------------------------------------------------------------------------
-// Shared background helpers
-// ---------------------------------------------------------------------------
-
-class _HeroBackground extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // TODO: replace with Image.asset('assets/images/auth/hero_bg.jpg', fit: BoxFit.cover)
-    // after adding the image and declaring the asset folder in pubspec.yaml.
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF2C1500), Color(0xFF0D0500)],
-        ),
-      ),
-    );
-  }
-}
-
-class _DarkOverlay extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Colors.transparent,
-            Colors.black.withValues(alpha: 0.3),
-            Colors.black.withValues(alpha: 0.85),
-          ],
-          stops: const [0.0, 0.45, 1.0],
-        ),
-      ),
-    );
-  }
-}

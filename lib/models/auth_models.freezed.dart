@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuthState {
 
- AuthStatus get status; User? get user; String? get errorMessage; SignInMethod? get lastProvider;
+ AuthStatus get status; AppUser? get user; String? get errorMessage; SignInMethod? get lastProvider;
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -45,11 +45,11 @@ abstract mixin class $AuthStateCopyWith<$Res>  {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) _then) = _$AuthStateCopyWithImpl;
 @useResult
 $Res call({
- AuthStatus status, User? user, String? errorMessage, SignInMethod? lastProvider
+ AuthStatus status, AppUser? user, String? errorMessage, SignInMethod? lastProvider
 });
 
 
-
+$AppUserCopyWith<$Res>? get user;
 
 }
 /// @nodoc
@@ -66,12 +66,24 @@ class _$AuthStateCopyWithImpl<$Res>
   return _then(_self.copyWith(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AuthStatus,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
-as User?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as AppUser?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,lastProvider: freezed == lastProvider ? _self.lastProvider : lastProvider // ignore: cast_nullable_to_non_nullable
 as SignInMethod?,
   ));
 }
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AppUserCopyWith<$Res>? get user {
+    if (_self.user == null) {
+    return null;
+  }
 
+  return $AppUserCopyWith<$Res>(_self.user!, (value) {
+    return _then(_self.copyWith(user: value));
+  });
+}
 }
 
 
@@ -153,7 +165,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AuthStatus status,  User? user,  String? errorMessage,  SignInMethod? lastProvider)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AuthStatus status,  AppUser? user,  String? errorMessage,  SignInMethod? lastProvider)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
 return $default(_that.status,_that.user,_that.errorMessage,_that.lastProvider);case _:
@@ -174,7 +186,7 @@ return $default(_that.status,_that.user,_that.errorMessage,_that.lastProvider);c
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AuthStatus status,  User? user,  String? errorMessage,  SignInMethod? lastProvider)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AuthStatus status,  AppUser? user,  String? errorMessage,  SignInMethod? lastProvider)  $default,) {final _that = this;
 switch (_that) {
 case _AuthState():
 return $default(_that.status,_that.user,_that.errorMessage,_that.lastProvider);case _:
@@ -194,7 +206,7 @@ return $default(_that.status,_that.user,_that.errorMessage,_that.lastProvider);c
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AuthStatus status,  User? user,  String? errorMessage,  SignInMethod? lastProvider)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AuthStatus status,  AppUser? user,  String? errorMessage,  SignInMethod? lastProvider)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
 return $default(_that.status,_that.user,_that.errorMessage,_that.lastProvider);case _:
@@ -213,7 +225,7 @@ class _AuthState extends AuthState {
   
 
 @override@JsonKey() final  AuthStatus status;
-@override final  User? user;
+@override final  AppUser? user;
 @override@JsonKey() final  String? errorMessage;
 @override@JsonKey() final  SignInMethod? lastProvider;
 
@@ -247,11 +259,11 @@ abstract mixin class _$AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Re
   factory _$AuthStateCopyWith(_AuthState value, $Res Function(_AuthState) _then) = __$AuthStateCopyWithImpl;
 @override @useResult
 $Res call({
- AuthStatus status, User? user, String? errorMessage, SignInMethod? lastProvider
+ AuthStatus status, AppUser? user, String? errorMessage, SignInMethod? lastProvider
 });
 
 
-
+@override $AppUserCopyWith<$Res>? get user;
 
 }
 /// @nodoc
@@ -268,13 +280,25 @@ class __$AuthStateCopyWithImpl<$Res>
   return _then(_AuthState(
 status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as AuthStatus,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
-as User?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
+as AppUser?,errorMessage: freezed == errorMessage ? _self.errorMessage : errorMessage // ignore: cast_nullable_to_non_nullable
 as String?,lastProvider: freezed == lastProvider ? _self.lastProvider : lastProvider // ignore: cast_nullable_to_non_nullable
 as SignInMethod?,
   ));
 }
 
+/// Create a copy of AuthState
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AppUserCopyWith<$Res>? get user {
+    if (_self.user == null) {
+    return null;
+  }
 
+  return $AppUserCopyWith<$Res>(_self.user!, (value) {
+    return _then(_self.copyWith(user: value));
+  });
+}
 }
 
 // dart format on

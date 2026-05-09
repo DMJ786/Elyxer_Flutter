@@ -36,6 +36,10 @@ class AppColors {
   // Icon colors
   static const iconOnBrand = Color(0xFFFFFFFF); // White on gradient
 
+  // Hero / auth background gradient colors
+  static const heroGradientDeep = Color(0xFF2C1500);
+  static const heroGradientDark = Color(0xFF0D0500);
+
   /// Brand gradient (gold)
   static const brandGradient = LinearGradient(
     colors: [brandDark, brandLight],
@@ -67,6 +71,20 @@ class AppRadius {
   static const double medium = 8;
   static const double large = 16;
   static const double round = 999; // Circular
+}
+
+/// App non-spacing UI dimensions
+class AppSizes {
+  AppSizes._();
+
+  /// Standard auth button height (Apple, Google, Phone)
+  static const double authButtonHeight = 52.0;
+
+  /// Auth provider icon size (Google G / Apple logo)
+  static const double authIconSize = 22.0;
+
+  /// Brand display heading font size
+  static const double brandHeadingFontSize = 48.0;
 }
 
 /// Material 3 Theme
