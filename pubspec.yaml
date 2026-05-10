@@ -68,6 +68,7 @@ flutter:
 
   # Assets
   assets:
+    - assets/images/auth/
     - assets/images/PhonenumberIconContainer/
     - assets/images/AccountIconContainer/
     - assets/images/MailIconContainer/
@@ -85,10 +86,9 @@ flutter:
     - assets/images/background/ProfessionIcon/
     - assets/images/background/LocationIcon/
     - assets/images/background/
-    - assets/images/photos_verification/HeightIcon/
-    - assets/images/photos_verification/LanguageIcon/
-    - assets/images/photos_verification/PhotoIcon/
-    - assets/images/photos_verification/
+    - assets/photo_verification/HeightIcons/
+    - assets/photo_verification/LanguageIcons/
+    - assets/photo_verification/PhotoUploadIcons/
 
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API

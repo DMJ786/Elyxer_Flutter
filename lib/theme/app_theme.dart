@@ -69,6 +69,15 @@ class AppRadius {
   static const double round = 999; // Circular
 }
 
+/// App Sizes — component-level sizing constants
+class AppSizes {
+  AppSizes._();
+
+  static const double authButtonHeight = 56;
+  static const double authIconSize = 24;
+  static const double brandHeadingFontSize = 48;
+}
+
 /// Material 3 Theme
 class AppTheme {
   AppTheme._();
