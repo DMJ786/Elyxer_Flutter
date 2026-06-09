@@ -31,11 +31,11 @@ void main() {
     await pumpAt(tester, PhotoVerificationStep.height);
     final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
     expect((svgs[0].key as ValueKey<String>).value,
-        contains('HeightIcon/inprogress'));
+        contains('HeightIcons/state=Inprogress'));
     expect((svgs[1].key as ValueKey<String>).value,
-        contains('LanguageIcon/incomplete'));
+        contains('LanguageIcons/state=Incomplete'));
     expect((svgs[2].key as ValueKey<String>).value,
-        contains('PhotoIcon/incomplete'));
+        contains('PhotoUploadIcons/state=Incomplete'));
   });
 
   testWidgets('language step: Height done, Language active, Photo waiting',
@@ -43,29 +43,29 @@ void main() {
     await pumpAt(tester, PhotoVerificationStep.language);
     final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
     expect((svgs[0].key as ValueKey<String>).value,
-        contains('HeightIcon/completed'));
+        contains('HeightIcons/state=Completed'));
     expect((svgs[1].key as ValueKey<String>).value,
-        contains('LanguageIcon/inprogress'));
+        contains('LanguageIcons/state=Inprogress'));
     expect((svgs[2].key as ValueKey<String>).value,
-        contains('PhotoIcon/incomplete'));
+        contains('PhotoUploadIcons/state=Incomplete'));
   });
 
   testWidgets('photos step: only Photo active', (tester) async {
     await pumpAt(tester, PhotoVerificationStep.photos);
     final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
     expect((svgs[0].key as ValueKey<String>).value,
-        contains('HeightIcon/completed'));
+        contains('HeightIcons/state=Completed'));
     expect((svgs[1].key as ValueKey<String>).value,
-        contains('LanguageIcon/completed'));
+        contains('LanguageIcons/state=Completed'));
     expect((svgs[2].key as ValueKey<String>).value,
-        contains('PhotoIcon/inprogress'));
+        contains('PhotoUploadIcons/state=Inprogress'));
   });
 
   testWidgets('complete step: all SVGs completed', (tester) async {
     await pumpAt(tester, PhotoVerificationStep.complete);
     final svgs = tester.widgetList<SvgPicture>(find.byType(SvgPicture)).toList();
     for (final svg in svgs) {
-      expect((svg.key as ValueKey<String>).value, contains('completed'));
+      expect((svg.key as ValueKey<String>).value, contains('state=Completed'));
     }
   });
 }
