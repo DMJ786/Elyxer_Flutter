@@ -55,8 +55,8 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
     final currentStep = ref.read(currentBackgroundStepProvider);
 
     if (currentStep == BackgroundStep.complete) {
-      // All steps completed - navigate to next flow
-      context.push('/complete');
+      // All Background steps completed - advance to Module 5 (photos & selfie)
+      context.push('/photos-verification');
       return;
     }
 
@@ -117,30 +117,6 @@ class _BackgroundScreenState extends ConsumerState<BackgroundScreen>
         behavior: SnackBarBehavior.floating,
       ),
     );
-  }
-
-  void _previousPage() {
-    final currentStep = ref.read(currentBackgroundStepProvider);
-
-    if (currentStep == BackgroundStep.complete) {
-      // Go back to location from complete
-      _fadeController.reverse().then((_) {
-        ref.read(currentBackgroundStepProvider.notifier).previous();
-        _fadeController.forward();
-      });
-      return;
-    }
-
-    if (_pageController.page! > 0) {
-      _fadeController.reverse().then((_) {
-        ref.read(currentBackgroundStepProvider.notifier).previous();
-        _pageController.previousPage(
-          duration: const Duration(milliseconds: 600),
-          curve: Curves.easeInOut,
-        );
-        _fadeController.forward();
-      });
-    }
   }
 
   @override

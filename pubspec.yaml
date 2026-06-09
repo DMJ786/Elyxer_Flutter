@@ -40,6 +40,21 @@ dependencies:
   intl_phone_field: ^3.2.0
   url_launcher: ^6.3.0
 
+  # Photos & Media (Module 5)
+  image_picker: ^1.1.2               # Camera + gallery photo selection (front camera for selfies)
+  permission_handler: ^11.3.1        # Runtime camera/storage permissions
+  google_mlkit_face_detection: ^0.13.1  # On-device selfie validation (face count, eye-open, bounds)
+                                        # ~10MB on-device model — no cloud calls, no biometric data leaves device
+
+  # Networking & infrastructure (Bundle 0 — foundation)
+  dio: ^5.7.0                       # HTTP client + interceptors (error mapping, retry/backoff)
+  # Note 1: env config uses --dart-define (compile-time) instead of flutter_dotenv to
+  # avoid bundling secrets as assets and to respect the "never commit .env*" rule.
+  # Note 2: no flutter_secure_storage — Firebase Auth persists its own session and
+  # auto-refreshes ID tokens internally; manual token storage would be redundant.
+  # Note 3: firebase_core / firebase_auth are deliberately NOT in this PR. They land
+  # in Bundle 1 (PR #2) alongside the actual phone-OTP wiring + Firebase web config.
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -53,6 +68,9 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.7.1
   riverpod_generator: ^3.0.3
+
+  # Testing
+  http_mock_adapter: ^0.6.1         # Mock dio responses in unit/widget tests
 
 flutter:
   uses-material-design: true
@@ -77,6 +95,10 @@ flutter:
     - assets/images/background/ProfessionIcon/
     - assets/images/background/LocationIcon/
     - assets/images/background/
+    - assets/images/photos_verification/HeightIcon/
+    - assets/images/photos_verification/LanguageIcon/
+    - assets/images/photos_verification/PhotoIcon/
+    - assets/images/photos_verification/
 
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API
