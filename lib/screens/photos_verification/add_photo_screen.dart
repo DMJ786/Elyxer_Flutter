@@ -43,7 +43,10 @@ class AddPhotoScreen extends ConsumerWidget {
     );
     final showHelper = photos.length < kMinPhotos;
 
-    return Padding(
+    // SingleChildScrollView guards against overflow on smaller devices
+    // (Wrap + helper text can exceed viewport height when a fourth
+    // photo lands on row 2 and pushes the helper down).
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
