@@ -13,6 +13,7 @@ import '../../providers/profile_studio_provider.dart';
 import 'inspiration_input_screen.dart';
 import 'profile_refined_screen.dart';
 import 'profile_studio_intro_screen.dart';
+import 'profile_studio_loading_screen.dart';
 
 class ProfileStudioScreen extends ConsumerStatefulWidget {
   const ProfileStudioScreen({super.key});
@@ -35,23 +36,53 @@ class _ProfileStudioScreenState extends ConsumerState<ProfileStudioScreen> {
       },
     );
 
+    // When generation succeeds, advance to Refined and clear the async
+    // flag so the loading screen unmounts.
+    ref.listen<AsyncValue<ProfileStudioData?>>(
+      profileStudioGenerationProvider,
+      (AsyncValue<ProfileStudioData?>? _,
+          AsyncValue<ProfileStudioData?> next) {
+        next.whenOrNull(
+          data: (ProfileStudioData? data) {
+            if (data == null) return;
+            ref
+                .read(currentProfileStudioStepProvider.notifier)
+                .goTo(ProfileStudioStep.refined);
+            ref.read(profileStudioGenerationProvider.notifier).reset();
+          },
+        );
+      },
+    );
+
     final ProfileStudioStep step =
         ref.watch(currentProfileStudioStepProvider);
+    final AsyncValue<ProfileStudioData?> generation =
+        ref.watch(profileStudioGenerationProvider);
+    final bool isGenerating =
+        generation.isLoading || generation.hasError;
 
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 400),
       switchInCurve: Curves.easeInOut,
       switchOutCurve: Curves.easeInOut,
-      child: switch (step) {
-        ProfileStudioStep.intro =>
-          const ProfileStudioIntroScreen(key: ValueKey<String>('intro')),
-        ProfileStudioStep.inspiration =>
-          const InspirationInputScreen(key: ValueKey<String>('inspiration')),
-        ProfileStudioStep.refined =>
-          const ProfileRefinedScreen(key: ValueKey<String>('refined')),
-        ProfileStudioStep.complete =>
-          const SizedBox.shrink(key: ValueKey<String>('complete')),
-      },
+      child: isGenerating
+          ? const ProfileStudioLoadingScreen(
+              key: ValueKey<String>('generating'),
+            )
+          : switch (step) {
+              ProfileStudioStep.intro => const ProfileStudioIntroScreen(
+                  key: ValueKey<String>('intro'),
+                ),
+              ProfileStudioStep.inspiration => const InspirationInputScreen(
+                  key: ValueKey<String>('inspiration'),
+                ),
+              ProfileStudioStep.refined => const ProfileRefinedScreen(
+                  key: ValueKey<String>('refined'),
+                ),
+              ProfileStudioStep.complete => const SizedBox.shrink(
+                  key: ValueKey<String>('complete'),
+                ),
+            },
     );
   }
 }

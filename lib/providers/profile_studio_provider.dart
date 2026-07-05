@@ -5,8 +5,78 @@ library;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../models/profile_studio_models.dart';
+import '../services/profile_studio_service.dart';
 
 part 'profile_studio_provider.g.dart';
+
+/// The active service impl. Defaults to the mock so dev + design review
+/// work with no backend; swap to [HttpProfileStudioService] once the
+/// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+@Riverpod(keepAlive: true)
+ProfileStudioService profileStudioService(Ref ref) =>
+    MockProfileStudioService();
+
+/// Async state of the LLM generation call. `AsyncValue.data` after a
+/// successful call — screens read this to know when to swap from the
+/// loading state to the Refined screen.
+@Riverpod(keepAlive: true)
+class ProfileStudioGeneration extends _$ProfileStudioGeneration {
+  @override
+  AsyncValue<ProfileStudioData?> build() =>
+      const AsyncValue<ProfileStudioData?>.data(null);
+
+  /// Kick off a generation. Pulls the current inspiration text + tone
+  /// from [profileStudioDataProvider] and sends it to the service.
+  /// On success: writes the response into [profileStudioDataProvider]
+  /// AND surfaces AsyncValue.data(newData) so the container can advance.
+  /// On error: exposes AsyncValue.error for the UI to show a retry hint.
+  Future<void> run() async {
+    final ProfileStudioData current = ref.read(profileStudioDataProvider);
+    final String inspirationText = switch (current.inspiration) {
+      InspirationInputEmpty() => '',
+      InspirationInputTyped(:final String text) => text,
+      InspirationInputUsed(:final String text) => text,
+    };
+
+    if (inspirationText.trim().isEmpty) {
+      state = AsyncValue<ProfileStudioData?>.error(
+        StateError('Add a few words of inspiration first.'),
+        StackTrace.current,
+      );
+      return;
+    }
+
+    state = const AsyncValue<ProfileStudioData?>.loading();
+
+    final ProfileStudioService service = ref.read(profileStudioServiceProvider);
+    final ProfileStudioGenerateResult result = await service.generate(
+      ProfileStudioGenerateRequest(
+        inspirationText: inspirationText,
+        tone: current.tone,
+      ),
+    );
+
+    switch (result) {
+      case ProfileStudioGenerateSuccess(:final ProfileStudioData data):
+        ref.read(profileStudioDataProvider.notifier).replace(data);
+        state = AsyncValue<ProfileStudioData?>.data(data);
+      case ProfileStudioGenerateClientError(:final String message):
+        state = AsyncValue<ProfileStudioData?>.error(
+          StateError(message),
+          StackTrace.current,
+        );
+      case ProfileStudioGenerateServerError(:final Object error):
+        state = AsyncValue<ProfileStudioData?>.error(
+          error,
+          StackTrace.current,
+        );
+    }
+  }
+
+  /// Reset back to idle — used after the container navigates away.
+  void reset() =>
+      state = const AsyncValue<ProfileStudioData?>.data(null);
+}
 
 @Riverpod(keepAlive: true)
 class CurrentProfileStudioStep extends _$CurrentProfileStudioStep {
@@ -104,6 +174,13 @@ class ProfileStudioDataNotifier extends _$ProfileStudioDataNotifier {
     state = state.copyWith(
       joinMeFor: experiences.take(WordLimits.joinMeForMax).toList(),
     );
+  }
+
+  /// Overwrite the entire aggregate — used when the LLM returns a
+  /// generated profile. Preserves the current inspiration so the user
+  /// can see what they typed on the way to the Refined screen.
+  void replace(ProfileStudioData next) {
+    state = next.copyWith(inspiration: state.inspiration);
   }
 }
 
