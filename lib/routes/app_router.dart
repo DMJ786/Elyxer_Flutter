@@ -15,6 +15,7 @@ import '../screens/onboarding/onboarding_screen.dart';
 import '../screens/orientation/orientation_screen.dart';
 import '../screens/onboarding/background_screen.dart';
 import '../screens/photos_verification/photos_verification_screen.dart';
+import '../screens/profile_studio/profile_studio_screen.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -76,6 +77,13 @@ final appRouter = GoRouter(
       path: '/photos-verification',
       name: 'photos-verification',
       builder: (context, state) => const PhotosVerificationScreen(),
+    ),
+
+    // Route 5c: Profile Studio (Module 6)
+    GoRoute(
+      path: '/profile-studio',
+      name: 'profile-studio',
+      builder: (context, state) => const ProfileStudioScreen(),
     ),
 
     // Route 6: Username Input
