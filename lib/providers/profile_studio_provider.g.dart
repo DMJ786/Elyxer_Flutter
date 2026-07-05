@@ -8,6 +8,147 @@ part of 'profile_studio_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
+/// The active service impl. Defaults to the mock so dev + design review
+/// work with no backend; swap to [HttpProfileStudioService] once the
+/// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+
+@ProviderFor(profileStudioService)
+const profileStudioServiceProvider = ProfileStudioServiceProvider._();
+
+/// The active service impl. Defaults to the mock so dev + design review
+/// work with no backend; swap to [HttpProfileStudioService] once the
+/// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+
+final class ProfileStudioServiceProvider
+    extends
+        $FunctionalProvider<
+          ProfileStudioService,
+          ProfileStudioService,
+          ProfileStudioService
+        >
+    with $Provider<ProfileStudioService> {
+  /// The active service impl. Defaults to the mock so dev + design review
+  /// work with no backend; swap to [HttpProfileStudioService] once the
+  /// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+  const ProfileStudioServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileStudioServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileStudioServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProfileStudioService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProfileStudioService create(Ref ref) {
+    return profileStudioService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProfileStudioService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProfileStudioService>(value),
+    );
+  }
+}
+
+String _$profileStudioServiceHash() =>
+    r'6fd8ba78a752871545e799414a95e8e917a6d183';
+
+/// Async state of the LLM generation call. `AsyncValue.data` after a
+/// successful call — screens read this to know when to swap from the
+/// loading state to the Refined screen.
+
+@ProviderFor(ProfileStudioGeneration)
+const profileStudioGenerationProvider = ProfileStudioGenerationProvider._();
+
+/// Async state of the LLM generation call. `AsyncValue.data` after a
+/// successful call — screens read this to know when to swap from the
+/// loading state to the Refined screen.
+final class ProfileStudioGenerationProvider
+    extends
+        $NotifierProvider<
+          ProfileStudioGeneration,
+          AsyncValue<ProfileStudioData?>
+        > {
+  /// Async state of the LLM generation call. `AsyncValue.data` after a
+  /// successful call — screens read this to know when to swap from the
+  /// loading state to the Refined screen.
+  const ProfileStudioGenerationProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileStudioGenerationProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileStudioGenerationHash();
+
+  @$internal
+  @override
+  ProfileStudioGeneration create() => ProfileStudioGeneration();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AsyncValue<ProfileStudioData?> value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AsyncValue<ProfileStudioData?>>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$profileStudioGenerationHash() =>
+    r'c459bb611458ea55fe8c69c23c69f08d23cf83cd';
+
+/// Async state of the LLM generation call. `AsyncValue.data` after a
+/// successful call — screens read this to know when to swap from the
+/// loading state to the Refined screen.
+
+abstract class _$ProfileStudioGeneration
+    extends $Notifier<AsyncValue<ProfileStudioData?>> {
+  AsyncValue<ProfileStudioData?> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref =
+        this.ref
+            as $Ref<
+              AsyncValue<ProfileStudioData?>,
+              AsyncValue<ProfileStudioData?>
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                AsyncValue<ProfileStudioData?>,
+                AsyncValue<ProfileStudioData?>
+              >,
+              AsyncValue<ProfileStudioData?>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
 
 @ProviderFor(CurrentProfileStudioStep)
 const currentProfileStudioStepProvider = CurrentProfileStudioStepProvider._();
@@ -96,7 +237,7 @@ final class ProfileStudioDataNotifierProvider
 }
 
 String _$profileStudioDataNotifierHash() =>
-    r'098eab999dd4738c39e9f75b6ab5e16aff889a08';
+    r'985f26314acdce4583b51318587c1f3436661067';
 
 abstract class _$ProfileStudioDataNotifier
     extends $Notifier<ProfileStudioData> {
@@ -162,4 +303,4 @@ final class CanCreateProfileProvider
   }
 }
 
-String _$canCreateProfileHash() => r'99b188e1009bcf7b1980eb43e4ab508820acc324';
+String _$canCreateProfileHash() => r'334d417efb64e96d8bfe735bb709fb96ab74b5c7';

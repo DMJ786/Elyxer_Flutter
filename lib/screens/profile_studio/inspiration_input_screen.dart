@@ -174,9 +174,13 @@ class InspirationInputScreen extends HookConsumerWidget {
                     );
                     return;
                   }
+                  // Kick off the LLM generation. The container listens
+                  // to profileStudioGenerationProvider and swaps to the
+                  // loading screen while this future is in flight, then
+                  // advances to Refined on success.
                   ref
-                      .read(currentProfileStudioStepProvider.notifier)
-                      .goTo(ProfileStudioStep.refined);
+                      .read(profileStudioGenerationProvider.notifier)
+                      .run();
                 },
               ),
               const SizedBox(height: 40),
