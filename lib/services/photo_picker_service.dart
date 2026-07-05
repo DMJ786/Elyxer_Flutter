@@ -5,6 +5,7 @@
 /// `photoPickerServiceProvider.overrideWithValue(...)`.
 library;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -71,8 +72,12 @@ class ImagePickerPhotoPickerService implements PhotoPickerService {
   Future<PhotoPickResult> pickFromCamera({
     PhotoCameraDevice preferred = PhotoCameraDevice.rear,
   }) async {
-    final denial = await _ensurePermission(Permission.camera);
-    if (denial != null) return denial;
+    // Web has no permission_handler plugin — the browser handles the
+    // camera permission prompt natively when getUserMedia is invoked.
+    if (!kIsWeb) {
+      final denial = await _ensurePermission(Permission.camera);
+      if (denial != null) return denial;
+    }
 
     try {
       final file = await _picker.pickImage(
@@ -97,9 +102,12 @@ class ImagePickerPhotoPickerService implements PhotoPickerService {
     // Photo library permission is named differently across platforms but
     // permission_handler exposes the right one as Permission.photos on
     // both iOS and Android 13+. Older Android uses storage scope
-    // (handled by image_picker internally for legacy SDKs).
-    final denial = await _ensurePermission(Permission.photos);
-    if (denial != null) return denial;
+    // (handled by image_picker internally for legacy SDKs). Web has no
+    // pre-flight permission — the browser handles the file picker itself.
+    if (!kIsWeb) {
+      final denial = await _ensurePermission(Permission.photos);
+      if (denial != null) return denial;
+    }
 
     try {
       final file = await _picker.pickImage(
@@ -117,7 +125,10 @@ class ImagePickerPhotoPickerService implements PhotoPickerService {
   }
 
   @override
-  Future<void> openSettings() => openAppSettings();
+  Future<void> openSettings() async {
+    if (kIsWeb) return; // No app settings on web.
+    await openAppSettings();
+  }
 
   /// Returns null on grant; a typed denial result otherwise.
   Future<PhotoPickResult?> _ensurePermission(Permission p) async {
