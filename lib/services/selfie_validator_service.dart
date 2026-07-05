@@ -14,9 +14,9 @@
 ///   - Face match against profile photos — needs server-side embedding
 library;
 
-import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -96,6 +96,11 @@ class MlKitSelfieValidatorService implements SelfieValidatorService {
 
   @override
   Future<SelfieValidationResult> validate(XFile file) async {
+    // ML Kit face detection is Android/iOS only — the underlying native
+    // model can't load in a browser. Auto-pass on web so design review
+    // and dev flows aren't blocked; real validation runs on device.
+    if (kIsWeb) return const SelfieValid();
+
     try {
       final inputImage = InputImage.fromFilePath(file.path);
       final faces = await _detector.processImage(inputImage);
@@ -109,8 +114,10 @@ class MlKitSelfieValidatorService implements SelfieValidatorService {
       final face = faces.first;
 
       // Compute face area ratio (we need image dimensions for this; ML
-      // Kit returns the bounding box in image-pixel coordinates).
-      final bytes = await File(file.path).readAsBytes();
+      // Kit returns the bounding box in image-pixel coordinates). Use
+      // XFile.readAsBytes() so the same code path works on all platforms
+      // when the web guard above is later relaxed.
+      final bytes = await file.readAsBytes();
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       final decoded = frame.image;

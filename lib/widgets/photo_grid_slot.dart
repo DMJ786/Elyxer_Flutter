@@ -3,9 +3,9 @@
 /// `PhotoAddSpace`). Filled: Image.file + × delete top-right.
 library;
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'platform_image.dart';
 
 class PhotoGridSlot extends StatelessWidget {
   /// Local file path of the photo, or null for the empty state.
@@ -76,8 +76,8 @@ class _FilledSlot extends StatelessWidget {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          child: Image.file(
-            File(imagePath),
+          child: PlatformImage(
+            path: imagePath,
             width: 160,
             height: 160,
             fit: BoxFit.cover,

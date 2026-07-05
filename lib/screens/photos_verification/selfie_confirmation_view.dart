@@ -5,13 +5,12 @@
 /// Retake (returns to capture state).
 library;
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../theme/app_theme.dart';
+import '../../widgets/platform_image.dart';
 
 class SelfieConfirmationView extends StatelessWidget {
   /// The validated selfie file the user is reviewing.
@@ -68,8 +67,8 @@ class SelfieConfirmationView extends StatelessWidget {
                 child: Center(
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(AppRadius.large),
-                    child: Image.file(
-                      File(selfieFile.path),
+                    child: PlatformImage(
+                      path: selfieFile.path,
                       width: 280,
                       height: 360,
                       fit: BoxFit.cover,

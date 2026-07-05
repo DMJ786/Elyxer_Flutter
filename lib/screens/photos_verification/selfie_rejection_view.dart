@@ -6,7 +6,6 @@
 /// blurred behind the rejection messaging.
 library;
 
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -15,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../services/selfie_validator_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/platform_image.dart';
 
 class SelfieRejectionView extends StatelessWidget {
   /// The attempted selfie (may be null if the failure was a picker
@@ -49,8 +49,8 @@ class SelfieRejectionView extends StatelessWidget {
         if (attemptedFile != null)
           ImageFiltered(
             imageFilter: ui.ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Image.file(
-              File(attemptedFile!.path),
+            child: PlatformImage(
+              path: attemptedFile!.path,
               fit: BoxFit.cover,
             ),
           ),
