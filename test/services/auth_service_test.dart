@@ -30,6 +30,10 @@ void main() {
   setUp(() {
     mockAuth = MockFirebaseAuth();
     mockGoogleSignIn = MockGoogleSignIn();
+    // Default no-op stub so tests that don't explicitly care about
+    // signOut() don't trip on AuthService.signInWithGoogle calling it
+    // before signIn() (a deliberate step to force the account chooser).
+    when(() => mockGoogleSignIn.signOut()).thenAnswer((_) async => null);
     service = AuthService(auth: mockAuth, googleSignIn: mockGoogleSignIn);
   });
 
