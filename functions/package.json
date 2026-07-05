@@ -15,16 +15,29 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:logs": "docker compose logs -f postgres",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:migrate": "node-pg-migrate up",
+    "db:migrate:down": "node-pg-migrate down",
+    "db:migrate:create": "node-pg-migrate create",
+    "db:psql": "docker compose exec postgres psql -U elyxer -d elyxer_dev"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "firebase-admin": "^12.6.0",
-    "firebase-functions": "^6.1.0"
+    "firebase-functions": "^6.1.0",
+    "kysely": "^0.27.4",
+    "pg": "^8.13.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",
     "@types/node": "^20.16.10",
+    "@types/pg": "^8.11.10",
     "jest": "^29.7.0",
+    "node-pg-migrate": "^7.9.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.6.2"
   }

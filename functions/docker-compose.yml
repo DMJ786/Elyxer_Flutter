@@ -1,0 +1,29 @@
+# Local Postgres for BFF development.
+#
+# Uses postgis/postgis so the PostGIS extension is available from day
+# one (we don't ship geo features yet, but enabling it now avoids a
+# risky migration when Module 7 discovery lands).
+#
+# Data lives in a named volume — `npm run db:reset` wipes it.
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4
+    container_name: elyxer-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: elyxer
+      POSTGRES_PASSWORD: elyxer_dev
+      POSTGRES_DB: elyxer_dev
+    volumes:
+      - elyxer-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U elyxer -d elyxer_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  elyxer-pg-data:
