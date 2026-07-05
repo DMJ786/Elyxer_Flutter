@@ -4,10 +4,10 @@
 /// Filled: Image.file of the selfie. Tap re-opens the SelfieFlowSheet.
 library;
 
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import 'platform_image.dart';
 
 class SelfieGridSlot extends StatelessWidget {
   /// Local file path of the selfie, or null for the empty state.
@@ -111,7 +111,7 @@ class _FilledSelfieSlot extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.file(File(path), fit: BoxFit.cover),
+          PlatformImage(path: path, fit: BoxFit.cover),
           // Soft brand-tint overlay to signal the selfie is "earned" /
           // distinct from regular photos.
           Container(

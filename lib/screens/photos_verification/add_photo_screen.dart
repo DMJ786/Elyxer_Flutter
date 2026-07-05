@@ -8,7 +8,6 @@
 /// 3939:24587 (filled). Helper text and grid layout match Figma.
 library;
 
-import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -43,7 +42,10 @@ class AddPhotoScreen extends ConsumerWidget {
     );
     final showHelper = photos.length < kMinPhotos;
 
-    return Padding(
+    // SingleChildScrollView guards against overflow on smaller devices
+    // (Wrap + helper text can exceed viewport height when a fourth
+    // photo lands on row 2 and pushes the helper down).
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.x5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,11 +157,15 @@ class AddPhotoScreen extends ConsumerWidget {
   // ---------------------------------------------------------------------------
 
   /// Returns true if the file is within size + decodable.
+  ///
+  /// Uses XFile.readAsBytes() rather than dart:io File(...) so the check
+  /// works on both mobile and Flutter web (XFile.path is a blob URL on
+  /// web that dart:io can't open).
   Future<bool> _validatePhotoFile(XFile file) async {
     final size = await file.length();
     if (size > _kMaxBytes) return false;
     try {
-      final bytes = await File(file.path).readAsBytes();
+      final bytes = await file.readAsBytes();
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       final img = frame.image;
