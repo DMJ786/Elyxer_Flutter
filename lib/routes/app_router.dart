@@ -5,6 +5,8 @@ library;
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 
+import '../screens/auth/landing_screen.dart';
+import '../screens/auth/sign_in_screen.dart';
 import '../screens/phone_input_screen.dart';
 import '../screens/phone_otp_screen.dart';
 import '../screens/username_screen.dart';
@@ -24,9 +26,23 @@ final appRouter = GoRouter(
   initialLocation: '/',
   debugLogDiagnostics: true,
   routes: [
-    // Route 1: Verification Flow (Initial screen - with animations)
+    // Route 0: Landing Screen (entry point)
     GoRoute(
       path: '/',
+      name: 'landing',
+      builder: (context, state) => const LandingScreen(),
+    ),
+
+    // Route 0b: Sign-In / Create Account
+    GoRoute(
+      path: '/signin',
+      name: 'signin',
+      builder: (context, state) => const SignInScreen(),
+    ),
+
+    // Route 1: Verification Flow (phone + email OTP steps)
+    GoRoute(
+      path: '/verification',
       name: 'verification-flow',
       builder: (context, state) => const VerificationFlowScreen(),
     ),

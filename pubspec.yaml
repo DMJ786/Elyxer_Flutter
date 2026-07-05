@@ -25,12 +25,20 @@ dependencies:
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0
 
+  # Firebase & Authentication
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  google_sign_in: ^6.2.1
+  sign_in_with_apple: ^6.1.1
+  crypto: ^3.0.5
+
   # UI Components
   flutter_svg: ^2.0.9
   google_fonts: ^6.1.0
   flutter_hooks: ^0.21.3+1
   hooks_riverpod: ^3.0.3
   intl_phone_field: ^3.2.0
+  url_launcher: ^6.3.0
 
   # Photos & Media (Module 5)
   image_picker: ^1.1.2               # Camera + gallery photo selection (front camera for selfies)
@@ -53,6 +61,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  mocktail: ^0.3.0
 
   # Code Generation
   build_runner: ^2.4.7
@@ -68,6 +77,7 @@ flutter:
 
   # Assets
   assets:
+    - assets/images/auth/
     - assets/images/PhonenumberIconContainer/
     - assets/images/AccountIconContainer/
     - assets/images/MailIconContainer/
