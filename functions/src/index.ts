@@ -40,6 +40,11 @@ export { submitUsername } from "./auth/submitUsername";
 // export { finalizeUpload } from "./photos/finalizeUpload";
 // export { verifySelfie } from "./photos/verifySelfie";
 
+// === Bundle 4 (Profile Studio LLM) ===
+// generateProfileStudio turns a few sentences of user inspiration into
+// a full structured dating profile via Claude Haiku 4.5 on Vertex AI.
+export { generateProfileStudio } from "./profile_studio/generate";
+
 // Bundle 0 ships a single placeholder so the deploy isn't empty (Firebase
 // rejects deploys with zero functions). Remove once PR #2 lands.
 import { onRequest } from "firebase-functions/v2/https";
