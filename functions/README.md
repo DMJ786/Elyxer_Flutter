@@ -69,9 +69,15 @@ functions/
 │   │   ├── pool.ts            # pg connection pool singleton
 │   │   ├── kysely.ts          # Kysely instance
 │   │   └── schema.ts          # Typed schema for Kysely
-│   └── auth/
-│       ├── verifyIdToken.ts   # Firebase ID-token verification helper
-│       └── submitUsername.ts  # POST /auth/username
+│   ├── auth/
+│   │   ├── verifyIdToken.ts   # Firebase ID-token verification helper
+│   │   └── submitUsername.ts  # POST /auth/username
+│   ├── ai/
+│   │   ├── vertex.ts          # Claude via Vertex AI (Anthropic SDK)
+│   │   └── extract_json.ts    # JSON extraction from LLM output
+│   └── profile_studio/
+│       ├── prompt.ts          # System prompt + response schema
+│       └── generate.ts        # POST /generateProfileStudio
 └── package.json
 ```
 
@@ -91,6 +97,35 @@ Migrations against Cloud SQL are a manual step (Cloud SQL Auth Proxy
 + `npm run db:migrate` with the prod `DATABASE_URL`) — automated
 migration deploys are deferred until we have a staging environment.
 
+### Vertex AI setup for `generateProfileStudio`
+
+The Profile Studio endpoint calls Claude Haiku 4.5 through **Google
+Vertex AI Model Garden**. No API key lives in the app — Cloud Functions'
+runtime service account is granted the `roles/aiplatform.user` role and
+the Anthropic Vertex SDK picks up ambient credentials.
+
+**One-time setup for a new environment:**
+
+```bash
+# 1. Enable the API on the project
+gcloud services enable aiplatform.googleapis.com --project=<project-id>
+
+# 2. Grant the default Functions service account access to Vertex
+gcloud projects add-iam-policy-binding <project-id> \
+  --member="serviceAccount:<project-id>@appspot.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+
+# 3. Subscribe to Claude Haiku 4.5 in Model Garden (one-time per project)
+#    https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-haiku-4-5
+```
+
+**Local dev:** run `gcloud auth application-default login` once —
+the SDK reads those creds when `GCLOUD_PROJECT` in `.env` is set.
+
+**Model switching:** flip `CLAUDE_MODEL` in `.env` (dev) or in the
+Cloud Functions env config (prod). Currently defaults to
+`claude-haiku-4-5`; upgrade to `claude-sonnet-4-6` for a paid tier.
+
 ## Testing an endpoint locally
 
 ```bash
@@ -101,9 +136,15 @@ npm run db:migrate
 # Terminal 2: Functions emulator
 npm run serve
 
-# Terminal 3: hit the endpoint (you'll need a valid Firebase ID token)
+# Terminal 3: hit an endpoint (you'll need a valid Firebase ID token)
 curl -X POST http://localhost:5001/<project-id>/asia-south1/submitUsername \
   -H "Authorization: Bearer <id-token>" \
   -H "Content-Type: application/json" \
   -d '{"username":"dhili","firstName":"Dhili"}'
+
+# Or the Profile Studio LLM endpoint:
+curl -X POST http://localhost:5001/<project-id>/asia-south1/generateProfileStudio \
+  -H "Authorization: Bearer <id-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"inspirationText":"weekends on trails, chai in hand, strong coffee opinions","tone":"natural"}'
 ```

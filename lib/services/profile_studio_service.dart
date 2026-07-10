@@ -131,7 +131,9 @@ class HttpProfileStudioService implements ProfileStudioService {
 
   final Dio _dio;
 
-  static const String _path = '/profile-studio/generate';
+  // Cloud Functions v2 onRequest exposes each export as its own
+  // top-level path segment (`/<functionName>` under the region host).
+  static const String _path = '/generateProfileStudio';
 
   @override
   Future<ProfileStudioGenerateResult> generate(
@@ -146,8 +148,11 @@ class HttpProfileStudioService implements ProfileStudioService {
 
       final int status = response.statusCode ?? 500;
       if (status >= 400 && status < 500) {
-        final String msg =
-            (response.data?['message'] as String?) ?? 'Request rejected.';
+        // Server uses { error: string }; keep `message` as a fallback for
+        // future symmetry with other endpoints.
+        final String msg = (response.data?['error'] as String?) ??
+            (response.data?['message'] as String?) ??
+            'Request rejected.';
         return ProfileStudioGenerateClientError(msg);
       }
       if (status >= 500 || response.data == null) {

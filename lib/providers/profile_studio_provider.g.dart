@@ -8,16 +8,22 @@ part of 'profile_studio_provider.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The active service impl. Defaults to the mock so dev + design review
-/// work with no backend; swap to [HttpProfileStudioService] once the
-/// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+/// The active service impl. Uses the real BFF endpoint
+/// (`POST /generateProfileStudio` on Cloud Functions) — Claude Haiku 4.5
+/// on Vertex AI Model Garden generates the profile.
+///
+/// For local dev without the emulator, override this provider with
+/// `MockProfileStudioService()` in tests via a ProviderScope override.
 
 @ProviderFor(profileStudioService)
 const profileStudioServiceProvider = ProfileStudioServiceProvider._();
 
-/// The active service impl. Defaults to the mock so dev + design review
-/// work with no backend; swap to [HttpProfileStudioService] once the
-/// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+/// The active service impl. Uses the real BFF endpoint
+/// (`POST /generateProfileStudio` on Cloud Functions) — Claude Haiku 4.5
+/// on Vertex AI Model Garden generates the profile.
+///
+/// For local dev without the emulator, override this provider with
+/// `MockProfileStudioService()` in tests via a ProviderScope override.
 
 final class ProfileStudioServiceProvider
     extends
@@ -27,9 +33,12 @@ final class ProfileStudioServiceProvider
           ProfileStudioService
         >
     with $Provider<ProfileStudioService> {
-  /// The active service impl. Defaults to the mock so dev + design review
-  /// work with no backend; swap to [HttpProfileStudioService] once the
-  /// BFF endpoint (`POST /profile-studio/generate`) is deployed.
+  /// The active service impl. Uses the real BFF endpoint
+  /// (`POST /generateProfileStudio` on Cloud Functions) — Claude Haiku 4.5
+  /// on Vertex AI Model Garden generates the profile.
+  ///
+  /// For local dev without the emulator, override this provider with
+  /// `MockProfileStudioService()` in tests via a ProviderScope override.
   const ProfileStudioServiceProvider._()
     : super(
         from: null,
@@ -65,7 +74,7 @@ final class ProfileStudioServiceProvider
 }
 
 String _$profileStudioServiceHash() =>
-    r'6fd8ba78a752871545e799414a95e8e917a6d183';
+    r'2466be2528b968e452cfffff0b99eede2612e0ac';
 
 /// Async state of the LLM generation call. `AsyncValue.data` after a
 /// successful call — screens read this to know when to swap from the
