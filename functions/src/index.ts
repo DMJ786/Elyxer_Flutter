@@ -32,8 +32,9 @@ export { submitUsername } from "./auth/submitUsername";
 // export { updateEmailPrefs } from "./auth/updateEmailPrefs";
 // export { sendPhoneOTPMSG91 } from "./auth/sendPhoneOTPMSG91";
 
-// === Bundle 2 (Onboarding + location) — added in PR #3 ===
-// export { submitOnboarding } from "./onboarding/submitOnboarding";
+// === Bundle 2 (Onboarding + location) ===
+// submitOnboarding persists Module 1 + 2 selections to onboarding_profiles.
+export { submitOnboarding } from "./onboarding/submitOnboarding";
 
 // === Bundle 3 (Photos pipeline) — added in PR #4 ===
 // export { requestUploadUrl } from "./photos/requestUploadUrl";

@@ -4,6 +4,7 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/onboarding_models.dart';
+import '../services/onboarding_service.dart';
 
 part 'onboarding_provider.g.dart';
 
@@ -260,10 +261,10 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     }
   }
 
-  /// Submit onboarding data
+  /// Submit onboarding data (Module 1 + 2) to the BFF. Persisted server-side
+  /// keyed on the authenticated user; idempotent across re-submits.
   Future<void> submit() async {
-    // TODO: Implement API call to submit onboarding data
-    // await ref.read(verificationServiceProvider).submitOnboarding(state);
+    await OnboardingService().submit(state);
   }
 }
 
