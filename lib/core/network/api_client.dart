@@ -12,6 +12,7 @@ library;
 import 'package:dio/dio.dart';
 
 import '../config/env.dart';
+import 'auth_interceptor.dart';
 import 'error_interceptor.dart';
 import 'retry_interceptor.dart';
 
@@ -37,10 +38,11 @@ class ApiClient {
 
   static ApiClient _build() {
     final dio = _buildDio();
-    // Note: AuthInterceptor (Firebase ID token bearer) lands in PR #2 with the
-    // verification-flow wiring. Bundle 0 only ships error mapping + retry.
     dio.interceptors.add(ErrorInterceptor());
     dio.interceptors.add(RetryInterceptor(dio: dio));
+    // AuthInterceptor runs last: it attaches the Firebase ID token on every
+    // request and refreshes-and-retries once on a 401.
+    dio.interceptors.add(AuthInterceptor(dio: dio));
     return ApiClient._(dio);
   }
 
