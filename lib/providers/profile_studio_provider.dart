@@ -73,6 +73,13 @@ class ProfileStudioGeneration extends _$ProfileStudioGeneration {
           StateError(message),
           StackTrace.current,
         );
+      case ProfileStudioGenerateRateLimited(:final String message):
+        // Friendly quota message — surfaced as an error state with the
+        // server's "come back tomorrow" copy (no retry CTA needed).
+        state = AsyncValue<ProfileStudioData?>.error(
+          StateError(message),
+          StackTrace.current,
+        );
       case ProfileStudioGenerateServerError(:final Object error):
         state = AsyncValue<ProfileStudioData?>.error(
           error,

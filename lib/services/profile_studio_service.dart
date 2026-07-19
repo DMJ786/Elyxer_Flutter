@@ -58,6 +58,14 @@ class ProfileStudioGenerateServerError extends ProfileStudioGenerateResult {
   final Object error;
 }
 
+/// Daily generation quota reached (HTTP 429). Distinct from a generic client
+/// error so the UI can show a "come back tomorrow" message without a retry
+/// CTA (retrying won't help until the quota resets).
+class ProfileStudioGenerateRateLimited extends ProfileStudioGenerateResult {
+  const ProfileStudioGenerateRateLimited(this.message);
+  final String message;
+}
+
 abstract class ProfileStudioService {
   Future<ProfileStudioGenerateResult> generate(
     ProfileStudioGenerateRequest request,
@@ -147,6 +155,12 @@ class HttpProfileStudioService implements ProfileStudioService {
       );
 
       final int status = response.statusCode ?? 500;
+      if (status == 429) {
+        // Daily quota reached — surface a distinct, friendly result.
+        final String msg = (response.data?['error'] as String?) ??
+            "You've reached today's limit. Come back tomorrow.";
+        return ProfileStudioGenerateRateLimited(msg);
+      }
       if (status >= 400 && status < 500) {
         // Server uses { error: string }; keep `message` as a fallback for
         // future symmetry with other endpoints.
