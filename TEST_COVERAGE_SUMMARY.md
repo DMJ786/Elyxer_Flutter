@@ -225,7 +225,7 @@ Integration tests for navigation and screen behavior.
 ## Test Execution Results
 
 ```
-✅ All 51 critical tests passing
+✅ All 116 tests passing
 ✅ 0 failures
 ✅ 0 skipped
 ```
