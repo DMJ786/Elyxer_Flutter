@@ -18,6 +18,9 @@ import '../screens/orientation/orientation_screen.dart';
 import '../screens/onboarding/background_screen.dart';
 import '../screens/photos_verification/photos_verification_screen.dart';
 import '../screens/profile_studio/profile_studio_screen.dart';
+import '../screens/chat/chats_screen.dart';
+import '../screens/chat/conversation_screen.dart';
+import '../models/chat_models.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -100,6 +103,21 @@ final appRouter = GoRouter(
       path: '/profile-studio',
       name: 'profile-studio',
       builder: (context, state) => const ProfileStudioScreen(),
+    ),
+
+    // Route 5d: Chat module — list + conversation thread (Phase A)
+    GoRoute(
+      path: '/chats',
+      name: 'chats',
+      builder: (context, state) => const ChatsScreen(),
+    ),
+    GoRoute(
+      path: '/conversation',
+      name: 'conversation',
+      builder: (context, state) {
+        final channel = state.extra as ChatChannel;
+        return ConversationScreen(channel: channel);
+      },
     ),
 
     // Route 6: Username Input
