@@ -41,6 +41,21 @@ enum Gender {
   nonBinary,
   other;
 
+  /// Value sent to / stored by the BFF `gender` enum. Matches the
+  /// Postgres `CREATE TYPE gender AS ENUM (...)` in the onboarding migration.
+  String get wireValue {
+    switch (this) {
+      case Gender.man:
+        return 'man';
+      case Gender.woman:
+        return 'woman';
+      case Gender.nonBinary:
+        return 'non_binary';
+      case Gender.other:
+        return 'other';
+    }
+  }
+
   String get displayName {
     switch (this) {
       case Gender.man:
@@ -114,6 +129,10 @@ enum SexualOrientation {
   asexual,
   queer;
 
+  /// Value sent to / stored by the BFF `sexual_orientation` enum.
+  /// The Dart names already match the Postgres enum values.
+  String get wireValue => name;
+
   String get displayName {
     switch (this) {
       case SexualOrientation.straight:
@@ -140,6 +159,21 @@ enum DatingPreference {
   women,
   nonBinary,
   openToAll;
+
+  /// Value sent to / stored by the BFF `dating_preference` enum. Matches
+  /// the Postgres `CREATE TYPE dating_preference AS ENUM (...)`.
+  String get wireValue {
+    switch (this) {
+      case DatingPreference.men:
+        return 'men';
+      case DatingPreference.women:
+        return 'women';
+      case DatingPreference.nonBinary:
+        return 'non_binary';
+      case DatingPreference.openToAll:
+        return 'open_to_all';
+    }
+  }
 
   String get displayName {
     switch (this) {
