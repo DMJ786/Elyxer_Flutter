@@ -168,54 +168,6 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
     state = state.copyWith(datingGoalIds: goals);
   }
 
-  /// Validate if current step can proceed (Onboarding Module)
-  bool canProceed(OnboardingStep step) {
-    switch (step) {
-      case OnboardingStep.age:
-        return state.birthdate != null && _isAgeValid();
-      case OnboardingStep.gender:
-        return state.gender != null;
-      case OnboardingStep.pronoun:
-        return state.pronouns.isNotEmpty || state.customPronoun != null;
-      case OnboardingStep.complete:
-        return true;
-    }
-  }
-
-  /// Validate if current orientation step can proceed (Orientation Module)
-  bool canProceedOrientation(OrientationStep step) {
-    switch (step) {
-      case OrientationStep.sexualOrientation:
-        return state.sexualOrientation != null;
-      case OrientationStep.datingPreference:
-        return state.datingPreferences.isNotEmpty;
-      case OrientationStep.datingGoals:
-        return state.datingGoalIds.isNotEmpty && state.datingGoalIds.length <= 2;
-      case OrientationStep.complete:
-        return true;
-    }
-  }
-
-  bool _isAgeValid() {
-    if (state.birthdate == null) {
-      return false;
-    }
-
-    final now = DateTime.now();
-    final birthdate = state.birthdate!;
-
-    // Calculate actual age considering if birthday has passed this year
-    var age = now.year - birthdate.year;
-
-    // If birthday hasn't occurred yet this year, subtract 1
-    if (now.month < birthdate.month ||
-        (now.month == birthdate.month && now.day < birthdate.day)) {
-      age--;
-    }
-
-    return age >= 18 && age <= 100; // Minimum age 18
-  }
-
   // Module 4 methods
   void updateIndustry(String industry) {
     state = state.copyWith(industry: industry);
@@ -275,21 +227,25 @@ bool canProceedOnboarding(Ref ref) {
   final data = ref.watch(onboardingDataProvider);
 
   return switch (currentStep) {
-    OnboardingStep.age => () {
-      if (data.birthdate == null) return false;
-      final now = DateTime.now();
-      final birthdate = data.birthdate!;
-      var age = now.year - birthdate.year;
-      if (now.month < birthdate.month ||
-          (now.month == birthdate.month && now.day < birthdate.day)) {
-        age--;
-      }
-      return age >= 18 && age <= 100;
-    }(),
+    OnboardingStep.age =>
+      data.birthdate != null && isValidDatingAge(data.birthdate!),
     OnboardingStep.gender => data.gender != null,
     OnboardingStep.pronoun => data.pronouns.isNotEmpty || data.customPronoun != null,
     OnboardingStep.complete => true,
   };
+}
+
+/// Single source of truth for the dating age rule: [birthdate] must place the
+/// user between 18 and 100 years old (inclusive), accounting for whether this
+/// year's birthday has already passed.
+bool isValidDatingAge(DateTime birthdate) {
+  final now = DateTime.now();
+  var age = now.year - birthdate.year;
+  if (now.month < birthdate.month ||
+      (now.month == birthdate.month && now.day < birthdate.day)) {
+    age--;
+  }
+  return age >= 18 && age <= 100;
 }
 
 /// Computed provider: Can proceed with current orientation step

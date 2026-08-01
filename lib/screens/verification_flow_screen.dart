@@ -13,6 +13,7 @@ import '../models/verification_models.dart';
 import '../providers/verification_provider.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
+import '../widgets/gradient_text_link.dart';
 import '../widgets/info_banner.dart';
 import '../widgets/otp_verification_content.dart';
 import '../widgets/phone_number_input.dart';
@@ -296,7 +297,6 @@ class _PhoneInputContentState extends ConsumerState<PhoneInputContent> {
               ),
               NextButton(
                 onPressed: (_isLoading || !_isValidPhone) ? null : _handleContinue,
-                isDisabled: _isLoading || !_isValidPhone,
               ),
             ],
           ),
@@ -465,27 +465,19 @@ class _UsernameContentState extends ConsumerState<UsernameContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: () {
+                GradientTextLink(
+                  text: 'Can I change my name later?',
+                  onTap: () {
                     // TODO: Show help dialog about name change
                   },
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => AppColors.brandGradient.createShader(
-                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                    ),
-                    child: const Text(
-                      'Can I change my name later?',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
                 NextButton(
                   onPressed: _isLoading ? null : _handleContinue,
-                  isDisabled: _isLoading,
                 ),
               ],
             ),
@@ -631,25 +623,17 @@ class _EmailInputContentState extends ConsumerState<EmailInputContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                TextButton(
-                  onPressed: widget.onNext,
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => AppColors.brandGradient.createShader(
-                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                    ),
-                    child: const Text(
-                      'Skip for now',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
+                GradientTextLink(
+                  text: 'Skip for now',
+                  onTap: widget.onNext,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
                 NextButton(
                   onPressed: _isLoading ? null : _handleContinue,
-                  isDisabled: _isLoading,
                 ),
               ],
             ),
