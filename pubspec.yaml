@@ -48,6 +48,7 @@ dependencies:
 
   # Networking & infrastructure (Bundle 0 — foundation)
   dio: ^5.7.0                       # HTTP client + interceptors (error mapping, retry/backoff)
+  sendbird_chat_sdk: ^4.10.0
   # Note 1: env config uses --dart-define (compile-time) instead of flutter_dotenv to
   # avoid bundling secrets as assets and to respect the "never commit .env*" rule.
   # Note 2: no flutter_secure_storage — Firebase Auth persists its own session and

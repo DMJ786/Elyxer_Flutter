@@ -26,6 +26,16 @@ class Env {
     defaultValue: 'asia-south1',
   );
 
+  /// Sendbird Chat Application ID (Mumbai region). NOT a secret — the App ID
+  /// ships in every client build; security comes from session tokens minted
+  /// server-side + Sendbird's dashboard access controls. The Master API token
+  /// is server-only and never lives here. Override per env with
+  /// `--dart-define=SENDBIRD_APP_ID=...`.
+  static const String sendbirdAppId = String.fromEnvironment(
+    'SENDBIRD_APP_ID',
+    defaultValue: 'A3438FE2-4C40-45A9-8F21-413FD12BBE7A',
+  );
+
   /// Mapbox public access token (client-safe; restricted by URL referrer
   /// in the Mapbox dashboard).
   static const String mapboxToken = String.fromEnvironment('MAPBOX_TOKEN');
