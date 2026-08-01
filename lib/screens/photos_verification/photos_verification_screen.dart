@@ -58,9 +58,8 @@ class _PhotosVerificationScreenState
     final currentStep = ref.read(currentPhotosVerificationStepProvider);
 
     if (currentStep == PhotosVerificationStep.complete) {
-      // Module 5 finished — temporarily route to /complete until product
-      // decides the next module's destination.
-      context.push('/complete');
+      // Module 5 finished — continue to Module 6 (Profile Studio).
+      context.push('/profile-studio');
       return;
     }
 
