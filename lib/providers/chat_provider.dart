@@ -7,21 +7,25 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/config/env.dart';
 import '../models/chat_models.dart';
 import '../services/chat_repository.dart';
-import '../services/chat_repository_factory.dart';
+import '../services/sendbird_chat_repository.dart';
 
 part 'chat_provider.g.dart';
 
-/// The active repository impl — Sendbird on mobile, mock on web, selected at
-/// compile time by [makeChatRepository] (keeps the Sendbird SDK out of the web
-/// bundle). Override with a mock in tests via a ProviderScope override.
+/// The active repository impl. Real Sendbird on every platform (the SDK
+/// supports web + mobile); the in-memory mock only when
+/// `--dart-define=USE_MOCK_CHAT=true` (offline design review) or via a
+/// ProviderScope override in tests.
 ///
 /// keepAlive because the connection + channel handlers must outlive any
 /// single screen. Disposed explicitly when the user leaves the chat feature.
 @Riverpod(keepAlive: true)
 ChatRepository chatRepository(Ref ref) {
-  final repo = makeChatRepository();
+  final ChatRepository repo = Env.useMockChat
+      ? MockChatRepository()
+      : SendbirdChatRepository();
   ref.onDispose(repo.dispose);
   return repo;
 }

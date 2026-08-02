@@ -49,21 +49,32 @@ class SendbirdChatRepository implements ChatRepository {
   @override
   Future<void> connect(String userId) async {
     _meId = userId;
-    if (!_initialised) {
-      await sb.SendbirdChat.init(appId: _appId);
-      sb.SendbirdChat.addChannelHandler(_handlerId, _ChannelHandler(this));
-      sb.SendbirdChat.addConnectionHandler(
-          _handlerId, _ConnectionHandler(this));
-      _initialised = true;
+    try {
+      if (!_initialised) {
+        await sb.SendbirdChat.init(appId: _appId);
+        sb.SendbirdChat.addChannelHandler(_handlerId, _ChannelHandler(this));
+        sb.SendbirdChat.addConnectionHandler(
+            _handlerId, _ConnectionHandler(this));
+        _initialised = true;
+      }
+
+      _connection.add(ChatConnectionState.connecting);
+      // For the trial we connect with just the user id. Production passes a
+      // server-minted session token: connect(userId, accessToken: token).
+      await sb.SendbirdChat.connect(userId);
+      _connection.add(ChatConnectionState.connected);
+    } catch (_) {
+      _connection.add(ChatConnectionState.disconnected);
+      return;
     }
 
-    _connection.add(ChatConnectionState.connecting);
-    // For the trial we connect with just the user id. Production passes a
-    // server-minted session token: connect(userId, accessToken: token).
-    await sb.SendbirdChat.connect(userId);
-    _connection.add(ChatConnectionState.connected);
-
-    await _loadChannels();
+    // Load the channel list separately — a load failure must NOT undo the
+    // established connection.
+    try {
+      await _loadChannels();
+    } catch (_) {
+      // Non-fatal; the list can refresh on the next channel event.
+    }
   }
 
   @override
@@ -101,7 +112,13 @@ class SendbirdChatRepository implements ChatRepository {
     _channelCache[channel.channelUrl] = channel;
     _messages.putIfAbsent(channel.channelUrl, () => []);
     _emitChannels();
-    return _toChannel(channel);
+    final mapped = _toChannel(channel);
+    // A freshly-created channel can have thin member info; fall back to the
+    // id we were asked to chat with so the header isn't "Unknown".
+    return mapped.otherUser.id.isEmpty
+        ? mapped.copyWith(
+            otherUser: ChatUser(id: otherUserId, name: otherUserId))
+        : mapped;
   }
 
   // --- messages ------------------------------------------------------------
@@ -227,8 +244,16 @@ class SendbirdChatRepository implements ChatRepository {
 
   void _onMessageReceived(String channelUrl, ChatMessage message) {
     _replaceOrAppend(channelUrl, message);
-    final cached = _channelCache[channelUrl];
-    if (cached != null) _emitChannels();
+    _emitChannels();
+  }
+
+  /// Upsert a channel object into the cache. Emits the channel list when the
+  /// channel is new so a conversation created by the other party appears
+  /// without a manual refresh (e.g. once its first message arrives).
+  void _cacheChannel(sb.GroupChannel channel) {
+    final isNew = !_channelCache.containsKey(channel.channelUrl);
+    _channelCache[channel.channelUrl] = channel;
+    if (isNew) _emitChannels();
   }
 
   void _onTypingUpdated(String channelUrl, bool isTyping) {
@@ -385,6 +410,7 @@ class _ChannelHandler extends sb.GroupChannelHandler {
 
   @override
   void onMessageReceived(sb.BaseChannel channel, sb.BaseMessage message) {
+    if (channel is sb.GroupChannel) _repo._cacheChannel(channel);
     _repo._onMessageReceived(channel.channelUrl, _repo._toMessage(message));
   }
 

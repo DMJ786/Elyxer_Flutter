@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/config/env.dart';
 import '../../models/chat_models.dart';
 import '../../providers/chat_provider.dart';
 import '../../theme/app_theme.dart';
@@ -34,7 +35,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
     // Deferred connect — this is the MAU-billing moment, done only on
     // entering the chat feature, never at app launch.
     Future.microtask(
-      () => ref.read(chatSessionProvider.notifier).enterChat(widget.meId),
+      () => ref.read(chatSessionProvider.notifier).enterChat(Env.chatUserId),
     );
   }
 
@@ -88,6 +89,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
       ),
     );
   }
+
 }
 
 class _ChatsBody extends StatelessWidget {

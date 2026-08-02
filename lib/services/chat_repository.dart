@@ -96,6 +96,7 @@ class MockChatRepository implements ChatRepository {
 
   var _seeded = false;
   var _counter = 0;
+  var _disposed = false;
 
   String _nextId(String prefix) => '$prefix-${_counter++}';
 
@@ -179,6 +180,28 @@ class MockChatRepository implements ChatRepository {
     Future<void>.delayed(const Duration(milliseconds: 1600), () {
       _updateStatus(channelUrl, pending.id, ChatMessageStatus.read);
     });
+
+    // Simulate the partner replying ONCE per sent message: a typing burst
+    // (mirrors the Figma's ~1.8s delay) then a canned reply. Tied to send —
+    // not to keystrokes — so it can't stack.
+    Future<void>.delayed(const Duration(milliseconds: 1800), () {
+      if (_disposed) return;
+      _typingCtrls[channelUrl]?.add(true);
+    });
+    Future<void>.delayed(const Duration(milliseconds: 3400), () {
+      if (_disposed) return;
+      _typingCtrls[channelUrl]?.add(false);
+      _append(
+        channelUrl,
+        ChatMessage(
+          id: _nextId('reply'),
+          channelUrl: channelUrl,
+          senderId: _channels[channelUrl]?.otherUser.id ?? 'them',
+          text: 'So happy to hear 🙂',
+          sentAt: _now(),
+        ),
+      );
+    });
     return pending;
   }
 
@@ -222,24 +245,9 @@ class MockChatRepository implements ChatRepository {
 
   @override
   void startTyping(String channelUrl) {
-    // Mock: echo a partner typing burst 1.8s later (mirrors the Figma spec),
-    // then a canned reply, so the typing indicator is demoable.
-    Future<void>.delayed(const Duration(milliseconds: 1800), () {
-      _typingCtrls[channelUrl]?.add(true);
-    });
-    Future<void>.delayed(const Duration(milliseconds: 3400), () {
-      _typingCtrls[channelUrl]?.add(false);
-      _append(
-        channelUrl,
-        ChatMessage(
-          id: _nextId('reply'),
-          channelUrl: channelUrl,
-          senderId: _channels[channelUrl]?.otherUser.id ?? 'them',
-          text: 'So happy to hear 🙂',
-          sentAt: _now(),
-        ),
-      );
-    });
+    // No-op in the mock. The simulated partner reply is driven by [sendText]
+    // (once per sent message) so it can't stack on per-keystroke calls. On
+    // real Sendbird this sends a typing event to the partner.
   }
 
   @override
@@ -253,6 +261,9 @@ class MockChatRepository implements ChatRepository {
 
   @override
   void dispose() {
+    // Set first so any in-flight delayed callbacks (status transitions, the
+    // simulated reply) short-circuit instead of adding to closed controllers.
+    _disposed = true;
     _connection.close();
     _channelsCtrl.close();
     for (final c in _messageCtrls.values) {
@@ -271,6 +282,7 @@ class MockChatRepository implements ChatRepository {
       DateTime.fromMillisecondsSinceEpoch(1700000000000 + (_counter * 1000));
 
   void _append(String channelUrl, ChatMessage msg) {
+    if (_disposed) return;
     final list = _messages.putIfAbsent(channelUrl, () => []);
     list.add(msg);
     _messageCtrls[channelUrl]?.add(List.unmodifiable(list));
@@ -287,6 +299,7 @@ class MockChatRepository implements ChatRepository {
     String messageId,
     ChatMessageStatus status,
   ) {
+    if (_disposed) return;
     final list = _messages[channelUrl];
     if (list == null) return;
     final i = list.indexWhere((m) => m.id == messageId);
@@ -302,7 +315,10 @@ class MockChatRepository implements ChatRepository {
     return List.unmodifiable(sorted);
   }
 
-  void _emitChannels() => _channelsCtrl.add(_sortedChannels());
+  void _emitChannels() {
+    if (_disposed) return;
+    _channelsCtrl.add(_sortedChannels());
+  }
 
   void _seed() {
     const asha = ChatUser(id: 'asha', name: 'Asha', isOnline: true);

@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/config/env.dart';
 import '../../models/chat_models.dart';
 import '../../providers/chat_provider.dart';
 import '../../theme/app_theme.dart';
@@ -21,7 +22,7 @@ class ConversationScreen extends ConsumerStatefulWidget {
   const ConversationScreen({
     super.key,
     required this.channel,
-    this.meId = 'me',
+    this.meId = Env.chatUserId,
   });
 
   final ChatChannel channel;
