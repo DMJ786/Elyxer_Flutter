@@ -285,8 +285,15 @@ class SendbirdChatRepository implements ChatRepository {
     final customType = m.customType;
     final type = ChatMessageType.fromWire(
         (customType == null || customType.isEmpty) ? null : customType);
+    // Prefer the client requestId for messages I sent: it's stable across the
+    // pending (messageId 0) → confirmed (real messageId) transition, so the
+    // two collapse into one row. Received / historical messages carry no
+    // requestId and key on messageId.
+    final requestId = m.requestId;
     return ChatMessage(
-      id: m.messageId.toString(),
+      id: (requestId != null && requestId.isNotEmpty)
+          ? 'req_$requestId'
+          : m.messageId.toString(),
       channelUrl: m.channelUrl,
       senderId: m.sender?.userId ?? '',
       text: m.message,
