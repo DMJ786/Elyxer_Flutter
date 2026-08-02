@@ -26,6 +26,33 @@ class Env {
     defaultValue: 'asia-south1',
   );
 
+  /// Sendbird Chat Application ID (Mumbai region). NOT a secret — the App ID
+  /// ships in every client build; security comes from session tokens minted
+  /// server-side + Sendbird's dashboard access controls. The Master API token
+  /// is server-only and never lives here. Override per env with
+  /// `--dart-define=SENDBIRD_APP_ID=...`.
+  static const String sendbirdAppId = String.fromEnvironment(
+    'SENDBIRD_APP_ID',
+    defaultValue: 'A3438FE2-4C40-45A9-8F21-413FD12BBE7A',
+  );
+
+  /// Chat user id to connect as. Temporary test hook — in production this is
+  /// the authenticated Firebase UID. Lets you run a second instance as another
+  /// user for two-way testing: `--dart-define=CHAT_USER_ID=asha`.
+  static const String chatUserId = String.fromEnvironment(
+    'CHAT_USER_ID',
+    defaultValue: 'me',
+  );
+
+  /// Force the in-memory mock chat repository instead of real Sendbird.
+  /// Sendbird supports web + mobile, so the default is the real backend on
+  /// every platform; set `--dart-define=USE_MOCK_CHAT=true` for offline design
+  /// review / demos that shouldn't open a (billable) Sendbird connection.
+  static const bool useMockChat = bool.fromEnvironment(
+    'USE_MOCK_CHAT',
+    defaultValue: false,
+  );
+
   /// Mapbox public access token (client-safe; restricted by URL referrer
   /// in the Mapbox dashboard).
   static const String mapboxToken = String.fromEnvironment('MAPBOX_TOKEN');
