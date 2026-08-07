@@ -8,6 +8,7 @@
 /// 3939:24587 (filled). Helper text and grid layout match Figma.
 library;
 
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ import '../../models/photos_verification_models.dart';
 import '../../providers/photo_picker_provider.dart';
 import '../../providers/photos_verification_provider.dart';
 import '../../services/photo_picker_service.dart';
+import '../../services/photo_upload_service.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/add_photo_upload_popup.dart';
 import '../../widgets/photo_error_popup.dart';
@@ -126,9 +128,16 @@ class AddPhotoScreen extends ConsumerWidget {
         final ok = await _validatePhotoFile(file);
         if (!context.mounted) return;
         if (ok) {
+          // The next free grid slot is the current photo count (0-based).
+          final position =
+              ref.read(photosVerificationDataProvider).photos.length;
           ref
               .read(photosVerificationDataProvider.notifier)
               .addPhoto(file.path);
+          // Fire the direct-to-Storage upload without blocking the UI — the
+          // local path already renders the photo. Upload status / retry UI and
+          // storage-path tracking land with #40 (needs the live endpoint).
+          unawaited(_uploadPhotoBestEffort(file, position));
         } else {
           await showPhotoErrorPopUp(context);
         }
@@ -147,6 +156,22 @@ class AddPhotoScreen extends ConsumerWidget {
 
   void _onRemovePhoto(WidgetRef ref, int index) {
     ref.read(photosVerificationDataProvider.notifier).removePhotoAt(index);
+  }
+
+  /// Uploads the picked file to Cloud Storage via the BFF presigned-URL flow.
+  /// Best-effort: any failure (offline, endpoint not yet deployed) is
+  /// swallowed so the in-memory photo grid keeps working.
+  Future<void> _uploadPhotoBestEffort(XFile file, int position) async {
+    try {
+      final bytes = await file.readAsBytes();
+      await PhotoUploadService().upload(
+        bytes: bytes,
+        position: position,
+        isSelfie: false,
+      );
+    } catch (_) {
+      // Intentionally ignored — see #40 for surfacing upload status.
+    }
   }
 
   Future<void> _onSelfieTap(BuildContext context) =>

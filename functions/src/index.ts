@@ -39,9 +39,11 @@ export { submitOnboarding } from "./onboarding/submitOnboarding";
 // to background_profiles, storing location as a PostGIS point.
 export { submitBackground } from "./onboarding/submitBackground";
 
-// === Bundle 3 (Photos pipeline) — added in PR #4 ===
-// export { requestUploadUrl } from "./photos/requestUploadUrl";
-// export { finalizeUpload } from "./photos/finalizeUpload";
+// === Bundle 3 (Photos pipeline) ===
+// Direct-to-Storage uploads: request a scoped signed URL, then record the
+// object after the client PUTs the bytes.
+export { requestPhotoUploadUrl } from "./photos/requestPhotoUploadUrl";
+export { finalizePhotoUpload } from "./photos/finalizePhotoUpload";
 // export { verifySelfie } from "./photos/verifySelfie";
 
 // === Bundle 4 (Profile Studio LLM) ===
