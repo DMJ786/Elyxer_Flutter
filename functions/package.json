@@ -16,6 +16,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "jest --passWithNoTests",
+    "try:profile-studio": "npm run build && node scripts/try-profile-studio.js",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down",
     "db:logs": "docker compose logs -f postgres",
@@ -26,6 +27,7 @@
     "db:psql": "docker compose exec postgres psql -U elyxer -d elyxer_dev"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
     "@anthropic-ai/vertex-sdk": "^0.6.4",
     "dotenv": "^16.4.5",
     "firebase-admin": "^12.6.0",

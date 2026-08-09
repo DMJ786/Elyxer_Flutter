@@ -11,24 +11,58 @@
  * reason to redo the work.
  */
 
-import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
+// Type-only imports — erased at compile time, so neither SDK is loaded until
+// the selected branch in getClient() `require`s it. This keeps the local
+// Anthropic path from importing the Vertex SDK at all.
+import type Anthropic from "@anthropic-ai/sdk";
+import type { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
 import { extractJsonBlock } from "./extract_json";
 
-let client: AnthropicVertex | undefined;
+/**
+ * Both backends expose the same Messages API (`messages.create`), so callers
+ * don't care which one they got.
+ */
+type LlmClient = Anthropic | AnthropicVertex;
 
-function getClient(): AnthropicVertex {
+let client: LlmClient | undefined;
+
+/**
+ * Selects the LLM backend from `LLM_PROVIDER`:
+ *   - `anthropic` → direct Anthropic API (local dev). The SDK reads
+ *     `ANTHROPIC_API_KEY` (or an `ant auth login` profile) itself — no GCP,
+ *     no Vertex, no deploy required.
+ *   - anything else (default) → Vertex AI Model Garden (production). Uses GCP
+ *     application-default credentials; no API key is stored anywhere.
+ *
+ * Same model id works on both, so nothing else in the call path changes. Each
+ * SDK is `require`d lazily inside its branch so selecting one never loads the
+ * other (the two SDK versions aren't import-compatible in the same process).
+ */
+function getClient(): LlmClient {
   if (client) return client;
+
+  const provider = (process.env.LLM_PROVIDER ?? "vertex").toLowerCase();
+
+  if (provider === "anthropic") {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const AnthropicCtor = require("@anthropic-ai/sdk").default;
+    client = new AnthropicCtor() as Anthropic;
+    return client;
+  }
 
   const projectId = process.env.GCLOUD_PROJECT;
   const region = process.env.VERTEX_REGION || "asia-south1";
   if (!projectId) {
     throw new Error(
       "GCLOUD_PROJECT is not set. On Cloud Functions this is provided " +
-        "automatically; for local dev set it in functions/.env.",
+        "automatically; for local dev set LLM_PROVIDER=anthropic (+ " +
+        "ANTHROPIC_API_KEY) in functions/.env to call the API directly.",
     );
   }
 
-  client = new AnthropicVertex({ projectId, region });
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const AnthropicVertexCtor = require("@anthropic-ai/vertex-sdk").AnthropicVertex;
+  client = new AnthropicVertexCtor({ projectId, region }) as AnthropicVertex;
   return client;
 }
 
