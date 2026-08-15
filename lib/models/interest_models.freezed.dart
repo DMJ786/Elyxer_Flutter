@@ -557,4 +557,580 @@ as DateTime,
 
 }
 
+/// @nodoc
+mixin _$ReceivedVibe {
+
+ String get id; DiscoveryProfile get from; VibeContext get context;/// For a Join-Me-For vibe: the option they vibed with.
+ String? get joinMeForOption; InterestStatus get status;
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReceivedVibeCopyWith<ReceivedVibe> get copyWith => _$ReceivedVibeCopyWithImpl<ReceivedVibe>(this as ReceivedVibe, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReceivedVibe&&(identical(other.id, id) || other.id == id)&&(identical(other.from, from) || other.from == from)&&(identical(other.context, context) || other.context == context)&&(identical(other.joinMeForOption, joinMeForOption) || other.joinMeForOption == joinMeForOption)&&(identical(other.status, status) || other.status == status));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,from,context,joinMeForOption,status);
+
+@override
+String toString() {
+  return 'ReceivedVibe(id: $id, from: $from, context: $context, joinMeForOption: $joinMeForOption, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReceivedVibeCopyWith<$Res>  {
+  factory $ReceivedVibeCopyWith(ReceivedVibe value, $Res Function(ReceivedVibe) _then) = _$ReceivedVibeCopyWithImpl;
+@useResult
+$Res call({
+ String id, DiscoveryProfile from, VibeContext context, String? joinMeForOption, InterestStatus status
+});
+
+
+$DiscoveryProfileCopyWith<$Res> get from;
+
+}
+/// @nodoc
+class _$ReceivedVibeCopyWithImpl<$Res>
+    implements $ReceivedVibeCopyWith<$Res> {
+  _$ReceivedVibeCopyWithImpl(this._self, this._then);
+
+  final ReceivedVibe _self;
+  final $Res Function(ReceivedVibe) _then;
+
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? from = null,Object? context = null,Object? joinMeForOption = freezed,Object? status = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
+as DiscoveryProfile,context: null == context ? _self.context : context // ignore: cast_nullable_to_non_nullable
+as VibeContext,joinMeForOption: freezed == joinMeForOption ? _self.joinMeForOption : joinMeForOption // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as InterestStatus,
+  ));
+}
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DiscoveryProfileCopyWith<$Res> get from {
+  
+  return $DiscoveryProfileCopyWith<$Res>(_self.from, (value) {
+    return _then(_self.copyWith(from: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ReceivedVibe].
+extension ReceivedVibePatterns on ReceivedVibe {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReceivedVibe value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ReceivedVibe() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReceivedVibe value)  $default,){
+final _that = this;
+switch (_that) {
+case _ReceivedVibe():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReceivedVibe value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ReceivedVibe() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DiscoveryProfile from,  VibeContext context,  String? joinMeForOption,  InterestStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ReceivedVibe() when $default != null:
+return $default(_that.id,_that.from,_that.context,_that.joinMeForOption,_that.status);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DiscoveryProfile from,  VibeContext context,  String? joinMeForOption,  InterestStatus status)  $default,) {final _that = this;
+switch (_that) {
+case _ReceivedVibe():
+return $default(_that.id,_that.from,_that.context,_that.joinMeForOption,_that.status);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DiscoveryProfile from,  VibeContext context,  String? joinMeForOption,  InterestStatus status)?  $default,) {final _that = this;
+switch (_that) {
+case _ReceivedVibe() when $default != null:
+return $default(_that.id,_that.from,_that.context,_that.joinMeForOption,_that.status);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ReceivedVibe implements ReceivedVibe {
+  const _ReceivedVibe({required this.id, required this.from, required this.context, this.joinMeForOption, this.status = InterestStatus.pending});
+  
+
+@override final  String id;
+@override final  DiscoveryProfile from;
+@override final  VibeContext context;
+/// For a Join-Me-For vibe: the option they vibed with.
+@override final  String? joinMeForOption;
+@override@JsonKey() final  InterestStatus status;
+
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReceivedVibeCopyWith<_ReceivedVibe> get copyWith => __$ReceivedVibeCopyWithImpl<_ReceivedVibe>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReceivedVibe&&(identical(other.id, id) || other.id == id)&&(identical(other.from, from) || other.from == from)&&(identical(other.context, context) || other.context == context)&&(identical(other.joinMeForOption, joinMeForOption) || other.joinMeForOption == joinMeForOption)&&(identical(other.status, status) || other.status == status));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,from,context,joinMeForOption,status);
+
+@override
+String toString() {
+  return 'ReceivedVibe(id: $id, from: $from, context: $context, joinMeForOption: $joinMeForOption, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReceivedVibeCopyWith<$Res> implements $ReceivedVibeCopyWith<$Res> {
+  factory _$ReceivedVibeCopyWith(_ReceivedVibe value, $Res Function(_ReceivedVibe) _then) = __$ReceivedVibeCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, DiscoveryProfile from, VibeContext context, String? joinMeForOption, InterestStatus status
+});
+
+
+@override $DiscoveryProfileCopyWith<$Res> get from;
+
+}
+/// @nodoc
+class __$ReceivedVibeCopyWithImpl<$Res>
+    implements _$ReceivedVibeCopyWith<$Res> {
+  __$ReceivedVibeCopyWithImpl(this._self, this._then);
+
+  final _ReceivedVibe _self;
+  final $Res Function(_ReceivedVibe) _then;
+
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? from = null,Object? context = null,Object? joinMeForOption = freezed,Object? status = null,}) {
+  return _then(_ReceivedVibe(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
+as DiscoveryProfile,context: null == context ? _self.context : context // ignore: cast_nullable_to_non_nullable
+as VibeContext,joinMeForOption: freezed == joinMeForOption ? _self.joinMeForOption : joinMeForOption // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as InterestStatus,
+  ));
+}
+
+/// Create a copy of ReceivedVibe
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DiscoveryProfileCopyWith<$Res> get from {
+  
+  return $DiscoveryProfileCopyWith<$Res>(_self.from, (value) {
+    return _then(_self.copyWith(from: value));
+  });
+}
+}
+
+/// @nodoc
+mixin _$ReceivedInvite {
+
+ String get id; DiscoveryProfile get from; InviteType get type; String? get message; InterestStatus get status;
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$ReceivedInviteCopyWith<ReceivedInvite> get copyWith => _$ReceivedInviteCopyWithImpl<ReceivedInvite>(this as ReceivedInvite, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is ReceivedInvite&&(identical(other.id, id) || other.id == id)&&(identical(other.from, from) || other.from == from)&&(identical(other.type, type) || other.type == type)&&(identical(other.message, message) || other.message == message)&&(identical(other.status, status) || other.status == status));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,from,type,message,status);
+
+@override
+String toString() {
+  return 'ReceivedInvite(id: $id, from: $from, type: $type, message: $message, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $ReceivedInviteCopyWith<$Res>  {
+  factory $ReceivedInviteCopyWith(ReceivedInvite value, $Res Function(ReceivedInvite) _then) = _$ReceivedInviteCopyWithImpl;
+@useResult
+$Res call({
+ String id, DiscoveryProfile from, InviteType type, String? message, InterestStatus status
+});
+
+
+$DiscoveryProfileCopyWith<$Res> get from;
+
+}
+/// @nodoc
+class _$ReceivedInviteCopyWithImpl<$Res>
+    implements $ReceivedInviteCopyWith<$Res> {
+  _$ReceivedInviteCopyWithImpl(this._self, this._then);
+
+  final ReceivedInvite _self;
+  final $Res Function(ReceivedInvite) _then;
+
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? from = null,Object? type = null,Object? message = freezed,Object? status = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
+as DiscoveryProfile,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as InviteType,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as InterestStatus,
+  ));
+}
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DiscoveryProfileCopyWith<$Res> get from {
+  
+  return $DiscoveryProfileCopyWith<$Res>(_self.from, (value) {
+    return _then(_self.copyWith(from: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [ReceivedInvite].
+extension ReceivedInvitePatterns on ReceivedInvite {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _ReceivedInvite value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _ReceivedInvite() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _ReceivedInvite value)  $default,){
+final _that = this;
+switch (_that) {
+case _ReceivedInvite():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _ReceivedInvite value)?  $default,){
+final _that = this;
+switch (_that) {
+case _ReceivedInvite() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  DiscoveryProfile from,  InviteType type,  String? message,  InterestStatus status)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _ReceivedInvite() when $default != null:
+return $default(_that.id,_that.from,_that.type,_that.message,_that.status);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  DiscoveryProfile from,  InviteType type,  String? message,  InterestStatus status)  $default,) {final _that = this;
+switch (_that) {
+case _ReceivedInvite():
+return $default(_that.id,_that.from,_that.type,_that.message,_that.status);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  DiscoveryProfile from,  InviteType type,  String? message,  InterestStatus status)?  $default,) {final _that = this;
+switch (_that) {
+case _ReceivedInvite() when $default != null:
+return $default(_that.id,_that.from,_that.type,_that.message,_that.status);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _ReceivedInvite implements ReceivedInvite {
+  const _ReceivedInvite({required this.id, required this.from, required this.type, this.message, this.status = InterestStatus.pending});
+  
+
+@override final  String id;
+@override final  DiscoveryProfile from;
+@override final  InviteType type;
+@override final  String? message;
+@override@JsonKey() final  InterestStatus status;
+
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$ReceivedInviteCopyWith<_ReceivedInvite> get copyWith => __$ReceivedInviteCopyWithImpl<_ReceivedInvite>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _ReceivedInvite&&(identical(other.id, id) || other.id == id)&&(identical(other.from, from) || other.from == from)&&(identical(other.type, type) || other.type == type)&&(identical(other.message, message) || other.message == message)&&(identical(other.status, status) || other.status == status));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,id,from,type,message,status);
+
+@override
+String toString() {
+  return 'ReceivedInvite(id: $id, from: $from, type: $type, message: $message, status: $status)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$ReceivedInviteCopyWith<$Res> implements $ReceivedInviteCopyWith<$Res> {
+  factory _$ReceivedInviteCopyWith(_ReceivedInvite value, $Res Function(_ReceivedInvite) _then) = __$ReceivedInviteCopyWithImpl;
+@override @useResult
+$Res call({
+ String id, DiscoveryProfile from, InviteType type, String? message, InterestStatus status
+});
+
+
+@override $DiscoveryProfileCopyWith<$Res> get from;
+
+}
+/// @nodoc
+class __$ReceivedInviteCopyWithImpl<$Res>
+    implements _$ReceivedInviteCopyWith<$Res> {
+  __$ReceivedInviteCopyWithImpl(this._self, this._then);
+
+  final _ReceivedInvite _self;
+  final $Res Function(_ReceivedInvite) _then;
+
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? from = null,Object? type = null,Object? message = freezed,Object? status = null,}) {
+  return _then(_ReceivedInvite(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,from: null == from ? _self.from : from // ignore: cast_nullable_to_non_nullable
+as DiscoveryProfile,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as InviteType,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as InterestStatus,
+  ));
+}
+
+/// Create a copy of ReceivedInvite
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DiscoveryProfileCopyWith<$Res> get from {
+  
+  return $DiscoveryProfileCopyWith<$Res>(_self.from, (value) {
+    return _then(_self.copyWith(from: value));
+  });
+}
+}
+
 // dart format on
