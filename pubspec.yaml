@@ -100,6 +100,7 @@ flutter:
     - assets/images/photos_verification/LanguageIcon/
     - assets/images/photos_verification/PhotoIcon/
     - assets/images/photos_verification/
+    - assets/images/discovery/
 
   # Fonts are automatically downloaded by google_fonts package
   # No manual font files needed - Playfair Display & Inter are used via GoogleFonts API

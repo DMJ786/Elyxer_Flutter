@@ -16,6 +16,7 @@ import '../../core/config/env.dart';
 import '../../models/chat_models.dart';
 import '../../providers/chat_provider.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_bottom_nav.dart';
 import 'widgets/chat_widgets.dart';
 
 class ChatsScreen extends ConsumerStatefulWidget {
@@ -83,7 +84,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
                 ),
               ),
             ),
-            const _ChatBottomNav(),
+            const AppBottomNav(active: AppTab.chat),
           ],
         ),
       ),
@@ -238,7 +239,7 @@ class _NoChatsEmptyState extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.round),
               ),
               child: TextButton(
-                onPressed: () {},
+                onPressed: () => context.go('/discover'),
                 child: Text(
                   'Discover',
                   style: GoogleFonts.inter(
@@ -273,56 +274,3 @@ class _FilterButton extends StatelessWidget {
   }
 }
 
-/// Presentational bottom nav with Chat active. Other tabs are stubs for
-/// Phase A (their modules route separately).
-class _ChatBottomNav extends StatelessWidget {
-  const _ChatBottomNav();
-
-  static const _items = [
-    (Icons.people_outline, 'Profile'),
-    (Icons.auto_awesome_outlined, 'Moments'),
-    (Icons.all_inclusive, 'Discover'),
-    (Icons.favorite_outline, 'Interests'),
-    (Icons.chat_bubble_outline, 'Chat'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 68,
-      decoration: const BoxDecoration(
-        color: AppColors.cream,
-        border: Border(top: BorderSide(color: AppColors.interactive100)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          for (final (icon, label) in _items)
-            _NavItem(icon: icon, label: label, active: label == 'Chat'),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  const _NavItem(
-      {required this.icon, required this.label, required this.active});
-  final IconData icon;
-  final String label;
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = active ? AppColors.brandDark : AppColors.interactive400;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 22, color: color),
-        const SizedBox(height: 4),
-        Text(label,
-            style: GoogleFonts.inter(fontSize: 11, color: color)),
-      ],
-    );
-  }
-}
