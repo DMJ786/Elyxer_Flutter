@@ -7,11 +7,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../models/discovery_models.dart';
 import '../../../theme/app_theme.dart';
 import '../../profile_studio/widgets/profile_studio_widgets.dart';
+import '../widgets/discovery_widgets.dart' show kVibeIconAsset;
 
 const Color _goldMedium = Color(0xFFC29240);
 const Color _pillFill = Color(0xFFFAF6EC);
@@ -81,7 +83,16 @@ class _SendVibeSheetState extends State<_SendVibeSheet> {
               color: _pillFill,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.favorite, size: 28, color: AppColors.brandDark),
+            child: Center(
+              child: SvgPicture.asset(
+                kVibeIconAsset,
+                width: 30,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.brandDark,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.x5),
           Text(
@@ -140,7 +151,7 @@ class _SendVibeSheetState extends State<_SendVibeSheet> {
               Expanded(
                 child: _GradientButton(
                   label: 'Send Vibe',
-                  icon: Icons.favorite,
+                  iconAsset: kVibeIconAsset,
                   enabled: _canSend,
                   onTap: () => Navigator.of(context).pop(
                     VibeSheetResult(
@@ -923,12 +934,16 @@ class _GradientButton extends StatelessWidget {
     required this.label,
     required this.onTap,
     this.icon,
+    this.iconAsset,
     this.enabled = true,
   });
 
   final String label;
   final VoidCallback onTap;
   final IconData? icon;
+
+  /// SVG asset shown (white) instead of [icon] when provided.
+  final String? iconAsset;
   final bool enabled;
 
   @override
@@ -950,7 +965,17 @@ class _GradientButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                if (icon != null) ...<Widget>[
+                if (iconAsset != null) ...<Widget>[
+                  SvgPicture.asset(
+                    iconAsset!,
+                    width: 16,
+                    colorFilter: ColorFilter.mode(
+                      enabled ? Colors.white : AppColors.interactive300,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.x2),
+                ] else if (icon != null) ...<Widget>[
                   Icon(icon, size: 16,
                       color: enabled ? Colors.white : AppColors.interactive300),
                   const SizedBox(width: AppSpacing.x2),

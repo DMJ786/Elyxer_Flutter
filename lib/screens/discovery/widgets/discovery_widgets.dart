@@ -7,10 +7,15 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../models/discovery_models.dart';
 import '../../../theme/app_theme.dart';
+
+/// Brand SVG marks exported from Figma.
+const String kVibeIconAsset = 'assets/images/discovery/vibe_icon.svg';
+const String kBadgeIconAsset = 'assets/images/discovery/verified_badge.svg';
 
 /// Design tokens local to Discovery (not in the global palette yet).
 class _Gold {
@@ -46,10 +51,15 @@ class VibeButton extends StatelessWidget {
         child: SizedBox(
           width: size,
           height: size,
-          child: Icon(
-            Icons.favorite,
-            size: size * 0.5,
-            color: AppColors.brandDark,
+          child: Center(
+            child: SvgPicture.asset(
+              kVibeIconAsset,
+              width: size * 0.5,
+              colorFilter: const ColorFilter.mode(
+                AppColors.brandDark,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ),
       ),
@@ -230,7 +240,7 @@ class _NameCard extends StatelessWidget {
               ),
               if (profile.verified) ...<Widget>[
                 const SizedBox(width: AppSpacing.x3),
-                const Icon(Icons.verified, size: 20, color: _Gold.medium),
+                SvgPicture.asset(kBadgeIconAsset, width: 20),
               ],
             ],
           ),

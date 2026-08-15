@@ -70,10 +70,10 @@ class MockDiscoveryRepository implements DiscoveryRepository {
 
   String _nextId(String prefix) => '${prefix}_${_seq++}';
 
-  // Deterministic portrait-ratio images so the layout always renders for
-  // review. Real profile photos arrive from the BFF later.
-  static String _photo(String seed) =>
-      'https://picsum.photos/seed/$seed/800/1040';
+  // Real portrait photos (Unsplash, cropped to portrait). These stand in for
+  // the member's uploaded photos until the profile store is wired.
+  static String _img(String id) =>
+      'https://images.unsplash.com/photo-$id?auto=format&fit=crop&w=800&h=1040&q=80';
 
   @override
   Future<List<DiscoveryProfile>> loadDeck() async {
@@ -151,11 +151,11 @@ class MockDiscoveryRepository implements DiscoveryRepository {
       occupation: 'Product Designer • UX Strategy',
       location: 'Mumbai',
       photos: <String>[
-        _photo('maya-1'),
-        _photo('maya-2'),
-        _photo('maya-3'),
-        _photo('maya-4'),
-        _photo('maya-5'),
+        _img('1494790108377-be9c29b29330'),
+        _img('1517841905240-472988babdf9'),
+        _img('1524504388940-b1c1722653e1'),
+        _img('1487412720507-e7ab37603c6f'),
+        _img('1534528741775-53994a69daeb'),
       ],
       myStory:
           "I'm someone who brings the same focus to my personal life as I do "
@@ -204,10 +204,10 @@ class MockDiscoveryRepository implements DiscoveryRepository {
       occupation: 'Software Architect • Fintech',
       location: 'Bengaluru',
       photos: <String>[
-        _photo('aarav-1'),
-        _photo('aarav-2'),
-        _photo('aarav-3'),
-        _photo('aarav-4'),
+        _img('1500648767791-00dcc994a43e'),
+        _img('1507003211169-0a1dd7228f2d'),
+        _img('1506794778202-cad84cf45f1d'),
+        _img('1531123897727-8f129e1688ce'),
       ],
       myStory:
           'Builder by trade, wanderer by weekend. I like conversations that '
@@ -248,9 +248,9 @@ class MockDiscoveryRepository implements DiscoveryRepository {
       occupation: 'Documentary Filmmaker',
       location: 'Delhi',
       photos: <String>[
-        _photo('zoya-1'),
-        _photo('zoya-2'),
-        _photo('zoya-3'),
+        _img('1544005313-94ddf0286df2'),
+        _img('1438761681033-6461ffad8d80'),
+        _img('1502823403499-6ccfcf4fb453'),
       ],
       myStory:
           'I chase stories for a living, so I notice the little things. Warmth, '
