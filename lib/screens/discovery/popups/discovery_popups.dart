@@ -413,7 +413,8 @@ class _InviteCard extends StatelessWidget {
       child: Container(
         width: 86,
         height: 96,
-        padding: const EdgeInsets.all(AppSpacing.x3),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppSpacing.x2, horizontal: AppSpacing.x1),
         decoration: BoxDecoration(
           color: selected ? _pillFill : Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.medium),
@@ -434,16 +435,19 @@ class _InviteCard extends StatelessWidget {
               ),
               child: Icon(type.icon, size: 18, color: _goldMedium),
             ),
-            const SizedBox(height: AppSpacing.x2),
-            Text(
-              type.label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: AppColors.interactive300,
+            const SizedBox(height: AppSpacing.x1),
+            Flexible(
+              child: Text(
+                type.label,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  height: 1.15,
+                  color: AppColors.interactive300,
+                ),
               ),
             ),
           ],
