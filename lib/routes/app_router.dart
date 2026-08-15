@@ -21,6 +21,9 @@ import '../screens/profile_studio/profile_studio_screen.dart';
 import '../screens/chat/chats_screen.dart';
 import '../screens/chat/conversation_screen.dart';
 import '../models/chat_models.dart';
+import '../screens/discovery/discover_screen.dart';
+import '../screens/coming_soon_screen.dart';
+import '../widgets/app_bottom_nav.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -118,6 +121,30 @@ final appRouter = GoRouter(
         final channel = state.extra as ChatChannel;
         return ConversationScreen(channel: channel);
       },
+    ),
+
+    // Discovery module — the "Discover" tab (profile browse + vibe/invite).
+    GoRoute(
+      path: '/discover',
+      name: 'discover',
+      builder: (context, state) => const DiscoverScreen(),
+    ),
+
+    // Main-shell tab placeholders (modules not built yet).
+    GoRoute(
+      path: '/moments',
+      name: 'moments',
+      builder: (context, state) => const ComingSoonScreen(tab: AppTab.moments),
+    ),
+    GoRoute(
+      path: '/interests',
+      name: 'interests',
+      builder: (context, state) => const ComingSoonScreen(tab: AppTab.interests),
+    ),
+    GoRoute(
+      path: '/profile-home',
+      name: 'profile-home',
+      builder: (context, state) => const ComingSoonScreen(tab: AppTab.profile),
     ),
 
     // Route 6: Username Input
