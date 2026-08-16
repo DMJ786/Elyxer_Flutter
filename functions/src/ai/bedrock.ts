@@ -1,39 +1,64 @@
 /**
- * Vertex-hosted Anthropic Claude client.
+ * Amazon Bedrock Claude client.
  *
- * Uses `@anthropic-ai/vertex-sdk` so the same prompt / message API works
- * across Anthropic direct, Bedrock, and Vertex. On Cloud Functions the
- * runtime automatically provides GCP application-default credentials,
- * so no API key is stored anywhere in code or config.
+ * Uses `@anthropic-ai/bedrock-sdk`, which exposes the same Messages API as the
+ * direct Anthropic SDK, so the prompt / call path is unchanged. Credentials
+ * come from the standard AWS provider chain — an IAM role on the BFF compute
+ * (Lambda / App Runner) in production, or `aws configure` / SSO / `AWS_*` env
+ * vars locally — so no key is ever stored in code or committed config.
+ *
+ * Region defaults to ap-south-1 (Mumbai) for India DPDP data residency: keep
+ * Bedrock traffic in-region. The model is a Bedrock model id or, for
+ * ap-south-1, a Mumbai cross-region inference-profile id, supplied via
+ * `BEDROCK_MODEL` (see resolveModel).
  *
  * The client is lazily instantiated on first use and reused across
- * warm-instance invocations — creating it is cheap but there's no
- * reason to redo the work.
+ * warm-instance invocations — creating it is cheap but there's no reason to
+ * redo the work.
  */
 
-import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
+import { AnthropicBedrock } from "@anthropic-ai/bedrock-sdk";
 import { extractJsonBlock } from "./extract_json";
 
-let client: AnthropicVertex | undefined;
+let client: AnthropicBedrock | undefined;
 
-function getClient(): AnthropicVertex {
+function getClient(): AnthropicBedrock {
   if (client) return client;
 
-  const projectId = process.env.GCLOUD_PROJECT;
-  const region = process.env.VERTEX_REGION || "asia-south1";
-  if (!projectId) {
-    throw new Error(
-      "GCLOUD_PROJECT is not set. On Cloud Functions this is provided " +
-        "automatically; for local dev set it in functions/.env.",
-    );
-  }
+  // Region drives DPDP residency — keep the model's traffic in-region. The
+  // standard AWS env name takes precedence so an IAM role or `aws configure`d
+  // profile works with no extra config.
+  const awsRegion =
+    process.env.AWS_REGION || process.env.BEDROCK_REGION || "ap-south-1";
 
-  client = new AnthropicVertex({ projectId, region });
+  client = new AnthropicBedrock({ awsRegion });
   return client;
 }
 
+/**
+ * Resolves the Bedrock model id.
+ *
+ * Bedrock uses its own model-id namespace (not the plain `claude-haiku-4-5`
+ * used by the direct API), so there is no safe default: an inference profile
+ * that routes outside India would silently move user profile text across
+ * borders (DPDP). `BEDROCK_MODEL` is therefore required and must be copied
+ * verbatim from the Bedrock console for the ap-south-1 region.
+ */
+function resolveModel(explicit: string | undefined): string {
+  const model = explicit ?? process.env.BEDROCK_MODEL;
+  if (!model) {
+    throw new Error(
+      "BEDROCK_MODEL is not set. Bedrock uses its own model-id namespace; set " +
+        "it to the exact Claude Haiku 4.5 model or ap-south-1 cross-region " +
+        "inference-profile id from the Bedrock console (keeping traffic in " +
+        "Mumbai for DPDP residency).",
+    );
+  }
+  return model;
+}
+
 export type GenerateJsonParams<T> = {
-  /** Model ID, e.g. "claude-haiku-4-5". Defaults to CLAUDE_MODEL env. */
+  /** Bedrock model / inference-profile id. Defaults to BEDROCK_MODEL env. */
   model?: string;
   /** System prompt — must instruct the model to return JSON. */
   system: string;
@@ -50,7 +75,8 @@ export type GenerateJsonParams<T> = {
 };
 
 /**
- * Call Claude with a structured-JSON contract and return a typed result.
+ * Call Claude on Bedrock with a structured-JSON contract and return a typed
+ * result.
  *
  * Throws:
  *   - `LlmValidationError` if the model returned malformed JSON or the
@@ -59,8 +85,7 @@ export type GenerateJsonParams<T> = {
  *     rate limit) — caller catches to map to HTTP status.
  */
 export async function generateJson<T>(params: GenerateJsonParams<T>): Promise<T> {
-  const model =
-    params.model ?? process.env.CLAUDE_MODEL ?? "claude-haiku-4-5";
+  const model = resolveModel(params.model);
   const maxTokens =
     params.maxTokens ??
     Number.parseInt(process.env.CLAUDE_MAX_OUTPUT_TOKENS ?? "1024", 10);
