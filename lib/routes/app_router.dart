@@ -25,6 +25,9 @@ import '../screens/discovery/discover_screen.dart';
 import '../screens/moments/moments_screen.dart';
 import '../screens/moments/share_moment_screen.dart';
 import '../models/moment_models.dart';
+import '../screens/interests/interests_screen.dart';
+import '../screens/interests/profile_preview_screen.dart';
+import '../models/interest_models.dart';
 import '../screens/coming_soon_screen.dart';
 import '../widgets/app_bottom_nav.dart';
 import '../screens/verification_flow_screen.dart';
@@ -148,7 +151,19 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/interests',
       name: 'interests',
-      builder: (context, state) => const ComingSoonScreen(tab: AppTab.interests),
+      builder: (context, state) => const InterestsScreen(),
+    ),
+    GoRoute(
+      path: '/interest-vibe',
+      name: 'interest-vibe',
+      builder: (context, state) =>
+          ProfilePreviewScreen.vibe(state.extra as ReceivedVibe),
+    ),
+    GoRoute(
+      path: '/interest-invite',
+      name: 'interest-invite',
+      builder: (context, state) =>
+          ProfilePreviewScreen.invite(state.extra as ReceivedInvite),
     ),
     GoRoute(
       path: '/profile-home',
