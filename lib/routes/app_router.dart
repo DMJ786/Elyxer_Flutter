@@ -22,6 +22,9 @@ import '../screens/chat/chats_screen.dart';
 import '../screens/chat/conversation_screen.dart';
 import '../models/chat_models.dart';
 import '../screens/discovery/discover_screen.dart';
+import '../screens/moments/moments_screen.dart';
+import '../screens/moments/share_moment_screen.dart';
+import '../models/moment_models.dart';
 import '../screens/interests/interests_screen.dart';
 import '../screens/interests/profile_preview_screen.dart';
 import '../models/interest_models.dart';
@@ -137,7 +140,13 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/moments',
       name: 'moments',
-      builder: (context, state) => const ComingSoonScreen(tab: AppTab.moments),
+      builder: (context, state) => const MomentsScreen(),
+    ),
+    GoRoute(
+      path: '/share-moment',
+      name: 'share-moment',
+      builder: (context, state) =>
+          ShareMomentScreen(editing: state.extra as Moment?),
     ),
     GoRoute(
       path: '/interests',

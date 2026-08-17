@@ -35,12 +35,14 @@ Future<VibeSheetResult?> showSendVibeSheet(
   BuildContext context, {
   required VibeContext vibeContext,
   List<String> joinMeForOptions = const <String>[],
+  String? labelOverride,
 }) {
   return showProfileStudioSheet<VibeSheetResult>(
     context: context,
     child: _SendVibeSheet(
       vibeContext: vibeContext,
       joinMeForOptions: joinMeForOptions,
+      labelOverride: labelOverride,
     ),
   );
 }
@@ -49,10 +51,15 @@ class _SendVibeSheet extends StatefulWidget {
   const _SendVibeSheet({
     required this.vibeContext,
     required this.joinMeForOptions,
+    this.labelOverride,
   });
 
   final VibeContext vibeContext;
   final List<String> joinMeForOptions;
+
+  /// Overrides the bold subtitle noun (e.g. "Moments"). Defaults to the
+  /// context's own label.
+  final String? labelOverride;
 
   @override
   State<_SendVibeSheet> createState() => _SendVibeSheetState();
@@ -131,7 +138,7 @@ class _SendVibeSheetState extends State<_SendVibeSheet> {
                 ),
                 children: <InlineSpan>[
                   TextSpan(
-                    text: widget.vibeContext.label,
+                    text: widget.labelOverride ?? widget.vibeContext.label,
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
