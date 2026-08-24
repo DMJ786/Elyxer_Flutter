@@ -28,9 +28,8 @@ import '../models/moment_models.dart';
 import '../screens/interests/interests_screen.dart';
 import '../screens/interests/profile_preview_screen.dart';
 import '../models/interest_models.dart';
-import '../screens/coming_soon_screen.dart';
-import '../widgets/app_bottom_nav.dart';
 import '../widgets/app_shell.dart';
+import '../models/profile_studio_models.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -123,14 +122,17 @@ final appRouter = GoRouter(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),
       branches: [
-        // 0 · Profile (placeholder until Module 6 is wired — issue #66).
+        // 0 · Profile — the user's own profile via Profile Studio (Module 6),
+        // landing on the refined view with edit sheets (issue #66).
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/profile-home',
               name: 'profile-home',
-              builder: (context, state) =>
-                  const ComingSoonScreen(tab: AppTab.profile),
+              builder: (context, state) => const ProfileStudioScreen(
+                initialStep: ProfileStudioStep.refined,
+                asProfileTab: true,
+              ),
             ),
           ],
         ),
