@@ -53,7 +53,6 @@ class ComingSoonScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: AppBottomNav(active: tab),
     );
   }
 }
