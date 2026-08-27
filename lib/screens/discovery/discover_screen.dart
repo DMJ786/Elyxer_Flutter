@@ -14,7 +14,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../models/discovery_models.dart';
 import '../../providers/discovery_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app_bottom_nav.dart';
 import 'popups/discovery_filter_sheet.dart';
 import 'popups/discovery_popups.dart';
 import 'widgets/discovery_widgets.dart';
@@ -29,7 +28,6 @@ class DiscoverScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.cream,
-      bottomNavigationBar: const AppBottomNav(active: AppTab.discover),
       body: SafeArea(
         bottom: false,
         child: deckAsync.when(

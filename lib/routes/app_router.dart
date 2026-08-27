@@ -28,8 +28,8 @@ import '../models/moment_models.dart';
 import '../screens/interests/interests_screen.dart';
 import '../screens/interests/profile_preview_screen.dart';
 import '../models/interest_models.dart';
-import '../screens/coming_soon_screen.dart';
-import '../widgets/app_bottom_nav.dart';
+import '../widgets/app_shell.dart';
+import '../models/profile_studio_models.dart';
 import '../screens/verification_flow_screen.dart';
 import '../screens/debug/next_button_debug_screen.dart';
 
@@ -114,12 +114,72 @@ final appRouter = GoRouter(
       builder: (context, state) => const ProfileStudioScreen(),
     ),
 
-    // Route 5d: Chat module — list + conversation thread (Phase A)
-    GoRoute(
-      path: '/chats',
-      name: 'chats',
-      builder: (context, state) => const ChatsScreen(),
+    // Main app shell — the five primary tabs in an indexed stack so each
+    // keeps its own navigation stack + scroll/state across switches. Branch
+    // order MUST match AppTab.values (profile, moments, discover, interests,
+    // chat) so AppBottomNav's index lines up with the active branch.
+    StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          AppShell(navigationShell: navigationShell),
+      branches: [
+        // 0 · Profile — the user's own profile via Profile Studio (Module 6),
+        // landing on the refined view with edit sheets (issue #66).
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile-home',
+              name: 'profile-home',
+              builder: (context, state) => const ProfileStudioScreen(
+                initialStep: ProfileStudioStep.refined,
+                asProfileTab: true,
+              ),
+            ),
+          ],
+        ),
+        // 1 · Moments.
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/moments',
+              name: 'moments',
+              builder: (context, state) => const MomentsScreen(),
+            ),
+          ],
+        ),
+        // 2 · Discover — the landing tab after onboarding.
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/discover',
+              name: 'discover',
+              builder: (context, state) => const DiscoverScreen(),
+            ),
+          ],
+        ),
+        // 3 · Interests.
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/interests',
+              name: 'interests',
+              builder: (context, state) => const InterestsScreen(),
+            ),
+          ],
+        ),
+        // 4 · Chat.
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/chats',
+              name: 'chats',
+              builder: (context, state) => const ChatsScreen(),
+            ),
+          ],
+        ),
+      ],
     ),
+
+    // Detail routes pushed over the shell (full-screen, no bottom nav).
     GoRoute(
       path: '/conversation',
       name: 'conversation',
@@ -128,30 +188,11 @@ final appRouter = GoRouter(
         return ConversationScreen(channel: channel);
       },
     ),
-
-    // Discovery module — the "Discover" tab (profile browse + vibe/invite).
-    GoRoute(
-      path: '/discover',
-      name: 'discover',
-      builder: (context, state) => const DiscoverScreen(),
-    ),
-
-    // Main-shell tab placeholders (modules not built yet).
-    GoRoute(
-      path: '/moments',
-      name: 'moments',
-      builder: (context, state) => const MomentsScreen(),
-    ),
     GoRoute(
       path: '/share-moment',
       name: 'share-moment',
       builder: (context, state) =>
           ShareMomentScreen(editing: state.extra as Moment?),
-    ),
-    GoRoute(
-      path: '/interests',
-      name: 'interests',
-      builder: (context, state) => const InterestsScreen(),
     ),
     GoRoute(
       path: '/interest-vibe',
@@ -164,11 +205,6 @@ final appRouter = GoRouter(
       name: 'interest-invite',
       builder: (context, state) =>
           ProfilePreviewScreen.invite(state.extra as ReceivedInvite),
-    ),
-    GoRoute(
-      path: '/profile-home',
-      name: 'profile-home',
-      builder: (context, state) => const ComingSoonScreen(tab: AppTab.profile),
     ),
 
     // Route 6: Username Input

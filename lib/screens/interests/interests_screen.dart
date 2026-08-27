@@ -11,7 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../models/interest_models.dart';
 import '../../providers/interests_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app_bottom_nav.dart';
 import 'widgets/interest_widgets.dart';
 
 class InterestsScreen extends ConsumerWidget {
@@ -22,7 +21,6 @@ class InterestsScreen extends ConsumerWidget {
     final AsyncValue<InterestsState> async = ref.watch(interestsProvider);
     return Scaffold(
       backgroundColor: AppColors.cream,
-      bottomNavigationBar: const AppBottomNav(active: AppTab.interests),
       body: SafeArea(
         bottom: false,
         child: async.when(

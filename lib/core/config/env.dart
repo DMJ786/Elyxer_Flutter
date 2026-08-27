@@ -53,6 +53,16 @@ class Env {
     defaultValue: false,
   );
 
+  /// Force the mock Profile Studio generator instead of the BFF/Claude call.
+  /// The real generation needs a live Claude backend (Bedrock, #57), which
+  /// can't run in a pure-local setup (LocalStack doesn't emulate the model).
+  /// Set `--dart-define=USE_MOCK_PROFILE_STUDIO=true` to make Create My Profile
+  /// return canned copy so the whole flow works locally with no backend.
+  static const bool useMockProfileStudio = bool.fromEnvironment(
+    'USE_MOCK_PROFILE_STUDIO',
+    defaultValue: false,
+  );
+
   /// Mapbox public access token (client-safe; restricted by URL referrer
   /// in the Mapbox dashboard).
   static const String mapboxToken = String.fromEnvironment('MAPBOX_TOKEN');
