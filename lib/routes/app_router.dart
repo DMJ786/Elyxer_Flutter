@@ -24,7 +24,9 @@ import '../models/chat_models.dart';
 import '../screens/discovery/discover_screen.dart';
 import '../screens/moments/moments_screen.dart';
 import '../screens/moments/share_moment_screen.dart';
+import '../screens/moments/moment_author_preview_screen.dart';
 import '../models/moment_models.dart';
+import '../models/discovery_models.dart';
 import '../screens/interests/interests_screen.dart';
 import '../screens/interests/profile_preview_screen.dart';
 import '../models/interest_models.dart';
@@ -193,6 +195,12 @@ final appRouter = GoRouter(
       name: 'share-moment',
       builder: (context, state) =>
           ShareMomentScreen(editing: state.extra as Moment?),
+    ),
+    GoRoute(
+      path: '/moment-author',
+      name: 'moment-author',
+      builder: (context, state) =>
+          MomentAuthorPreviewScreen(profile: state.extra as DiscoveryProfile),
     ),
     GoRoute(
       path: '/interest-vibe',
