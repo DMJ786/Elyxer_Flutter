@@ -1,19 +1,18 @@
 /// Shared bottom navigation for the main app shell (Profile · Moments ·
 /// Discover · Interests · Chat).
 ///
-/// Promoted from the Chat module's private nav stub so every tab screen shares
-/// one bar. Purely presentational + routing: each tab `context.go`s to its
-/// route. Tabs whose modules aren't built yet route to a "coming soon"
-/// placeholder.
+/// Purely presentational: the [AppShell] drives it from the
+/// `StatefulShellRoute` branch index and switches branches on tap. The tab
+/// order here is the single source of truth for the shell's branch order —
+/// keep them in sync.
 library;
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
 
-/// The five primary destinations.
+/// The five primary destinations. Order matches the shell's branch order.
 enum AppTab {
   profile(Icons.people_outline, 'Profile', '/profile-home'),
   moments(Icons.auto_awesome_outlined, 'Moments', '/moments'),
@@ -25,14 +24,24 @@ enum AppTab {
 
   final IconData icon;
   final String label;
+
+  /// Canonical root route for this tab's branch (used for deep links).
   final String route;
 }
 
 class AppBottomNav extends StatelessWidget {
-  const AppBottomNav({super.key, required this.active});
+  const AppBottomNav({
+    super.key,
+    required this.currentIndex,
+    required this.onSelect,
+  });
 
-  /// The tab whose screen is currently showing.
-  final AppTab active;
+  /// Index of the active tab, in [AppTab.values] order — the shell's current
+  /// branch index.
+  final int currentIndex;
+
+  /// Called with the tapped tab's index so the shell can switch branch.
+  final ValueChanged<int> onSelect;
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +54,11 @@ class AppBottomNav extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          for (final AppTab tab in AppTab.values)
+          for (int i = 0; i < AppTab.values.length; i++)
             _NavItem(
-              tab: tab,
-              active: tab == active,
-              onTap: () {
-                if (tab == active) return;
-                context.go(tab.route);
-              },
+              tab: AppTab.values[i],
+              active: i == currentIndex,
+              onTap: () => onSelect(i),
             ),
         ],
       ),
