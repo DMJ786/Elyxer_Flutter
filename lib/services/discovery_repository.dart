@@ -143,6 +143,9 @@ class MockDiscoveryRepository implements DiscoveryRepository {
 
   // ---- Seed profiles ------------------------------------------------------
 
+  /// Shared seed profiles — also reused as senders by the Interests mock.
+  static List<DiscoveryProfile> get seedProfiles => _seed;
+
   static final List<DiscoveryProfile> _seed = <DiscoveryProfile>[
     DiscoveryProfile(
       id: 'maya',

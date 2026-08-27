@@ -24,7 +24,10 @@
     "db:migrate:down": "node-pg-migrate down",
     "db:migrate:create": "node-pg-migrate create",
     "db:psql": "docker compose exec postgres psql -U elyxer -d elyxer_dev",
-    "try:profile-studio": "npm run build && node scripts/try-profile-studio.js"
+    "try:profile-studio": "npm run build && node scripts/try-profile-studio.js",
+    "localstack:up": "docker compose up -d localstack",
+    "localstack:logs": "docker compose logs -f localstack",
+    "localstack:health": "curl -s http://localhost:4566/_localstack/health"
   },
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.32.4",

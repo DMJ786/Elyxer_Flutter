@@ -3,6 +3,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
@@ -79,7 +80,8 @@ class CompleteScreen extends StatelessWidget {
                 children: [
                   NextButton(
                     onPressed: () {
-                      // TODO: Navigate to main app
+                      // Enter the tabbed app, landing on Discover.
+                      context.go('/discover');
                     },
                   ),
                 ],

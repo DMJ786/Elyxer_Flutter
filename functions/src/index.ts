@@ -35,6 +35,9 @@ export { submitUsername } from "./auth/submitUsername";
 // === Bundle 2 (Onboarding + location) ===
 // submitOnboarding persists Module 1 + 2 selections to onboarding_profiles.
 export { submitOnboarding } from "./onboarding/submitOnboarding";
+// submitBackground persists Module 4 (education / profession / location)
+// to background_profiles, storing location as a PostGIS point.
+export { submitBackground } from "./onboarding/submitBackground";
 
 // === Bundle 3 (Photos pipeline) — added in PR #4 ===
 // export { requestUploadUrl } from "./photos/requestUploadUrl";

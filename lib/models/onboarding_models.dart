@@ -237,6 +237,26 @@ enum EducationLevel {
   studying,
   preferNotToSay;
 
+  /// Value sent to / stored by the BFF `education_level` enum. Matches the
+  /// Postgres `CREATE TYPE education_level AS ENUM (...)` in the background
+  /// migration.
+  String get wireValue {
+    switch (this) {
+      case EducationLevel.highSchool:
+        return 'high_school';
+      case EducationLevel.undergraduate:
+        return 'undergraduate';
+      case EducationLevel.postgraduate:
+        return 'postgraduate';
+      case EducationLevel.doctorate:
+        return 'doctorate';
+      case EducationLevel.studying:
+        return 'studying';
+      case EducationLevel.preferNotToSay:
+        return 'prefer_not_to_say';
+    }
+  }
+
   String get displayName {
     switch (this) {
       case EducationLevel.highSchool:
