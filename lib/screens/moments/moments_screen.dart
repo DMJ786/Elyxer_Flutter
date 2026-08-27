@@ -76,6 +76,10 @@ class MomentsScreen extends ConsumerWidget {
                           moment: moments[i],
                           onAction: (MomentMenuAction a) =>
                               _handleAction(context, ref, moments[i], a),
+                          onTapAuthor: () => context.push(
+                            '/moment-author',
+                            extra: moments[i].author,
+                          ),
                         ),
                       ),
               ),
