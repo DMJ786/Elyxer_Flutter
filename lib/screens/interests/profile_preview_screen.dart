@@ -9,8 +9,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../../core/config/env.dart';
+import '../../models/chat_models.dart';
 import '../../models/discovery_models.dart';
 import '../../models/interest_models.dart';
+import '../../providers/chat_provider.dart';
 import '../../providers/interests_provider.dart';
 import '../../theme/app_theme.dart';
 import '../discovery/widgets/discovery_widgets.dart';
@@ -89,23 +92,40 @@ class ProfilePreviewScreen extends ConsumerWidget {
 
   Future<void> _primary(BuildContext context, WidgetRef ref) async {
     final Interests notifier = ref.read(interestsProvider.notifier);
-    final String name = _profile.name;
+    final DiscoveryProfile profile = _profile;
     bool? chatNow;
     if (_isVibe) {
       await notifier.vibeBack(vibe!.id);
       if (!context.mounted) return;
-      chatNow = await showMutualVibeDialog(context, name);
+      chatNow = await showMutualVibeDialog(context, profile.name);
     } else {
       await notifier.acceptInvite(invite!.id);
       if (!context.mounted) return;
-      chatNow = await showInviteAcceptedDialog(context, name);
+      chatNow = await showInviteAcceptedDialog(context, profile.name);
     }
     if (!context.mounted) return;
     if (chatNow == true) {
-      context.go('/chats');
+      await _openConversation(context, ref, profile);
     } else {
       context.pop();
     }
+  }
+
+  /// Accepting a vibe/invite is where a match becomes a conversation. This is
+  /// the deferred-connect MAU-billing moment — the user is entering the chat
+  /// feature now — so connect here, open (or reuse) the 1:1 channel with the
+  /// other member, and replace this preview with the thread.
+  Future<void> _openConversation(
+    BuildContext context,
+    WidgetRef ref,
+    DiscoveryProfile profile,
+  ) async {
+    await ref.read(chatSessionProvider.notifier).enterChat(Env.chatUserId);
+    final ChatChannel channel = await ref
+        .read(chatRepositoryProvider)
+        .openOrCreateDirectChannel(profile.id);
+    if (!context.mounted) return;
+    context.go('/conversation', extra: channel);
   }
 
   Future<void> _secondary(BuildContext context, WidgetRef ref) async {

@@ -4,20 +4,25 @@ library;
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../core/config/env.dart';
 import '../models/profile_studio_models.dart';
 import '../services/profile_studio_service.dart';
 
 part 'profile_studio_provider.g.dart';
 
-/// The active service impl. Uses the real BFF endpoint
-/// (`POST /generateProfileStudio` on Cloud Functions) — Claude Haiku 4.5
-/// on Vertex AI Model Garden generates the profile.
+/// The active service impl. Defaults to the real BFF endpoint
+/// (`POST /generateProfileStudio` on Cloud Functions) — Claude generates the
+/// profile server-side.
 ///
-/// For local dev without the emulator, override this provider with
-/// `MockProfileStudioService()` in tests via a ProviderScope override.
+/// For local dev with no backend/AI, build with
+/// `--dart-define=USE_MOCK_PROFILE_STUDIO=true` and this returns
+/// [MockProfileStudioService] (canned copy). Tests override it directly via a
+/// ProviderScope override.
 @Riverpod(keepAlive: true)
 ProfileStudioService profileStudioService(Ref ref) =>
-    HttpProfileStudioService();
+    Env.useMockProfileStudio
+        ? MockProfileStudioService()
+        : HttpProfileStudioService();
 
 /// Async state of the LLM generation call. `AsyncValue.data` after a
 /// successful call — screens read this to know when to swap from the

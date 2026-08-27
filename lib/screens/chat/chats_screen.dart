@@ -16,7 +16,6 @@ import '../../core/config/env.dart';
 import '../../models/chat_models.dart';
 import '../../providers/chat_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app_bottom_nav.dart';
 import 'widgets/chat_widgets.dart';
 
 class ChatsScreen extends ConsumerStatefulWidget {
@@ -47,6 +46,7 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: SafeArea(
+        bottom: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -84,7 +84,6 @@ class _ChatsScreenState extends ConsumerState<ChatsScreen> {
                 ),
               ),
             ),
-            const AppBottomNav(active: AppTab.chat),
           ],
         ),
       ),

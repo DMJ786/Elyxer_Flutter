@@ -11,7 +11,6 @@ import '../../models/discovery_models.dart';
 import '../../models/moment_models.dart';
 import '../../providers/moments_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/app_bottom_nav.dart';
 import '../discovery/popups/discovery_popups.dart';
 import 'moment_popups.dart';
 import 'widgets/moment_widgets.dart';
@@ -25,7 +24,6 @@ class MomentsScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.cream,
-      bottomNavigationBar: const AppBottomNav(active: AppTab.moments),
       body: SafeArea(
         bottom: false,
         child: Column(

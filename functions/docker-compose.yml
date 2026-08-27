@@ -1,10 +1,11 @@
-# Local Postgres for BFF development.
+# Local dev backing services for the BFF:
+#   - postgres   : Postgres 16 + PostGIS (the app DB)
+#   - localstack : local AWS emulator (S3 / SSM / Secrets Manager / SNS) so
+#                  AWS code runs before the real account exists (issue #70).
 #
-# Uses postgis/postgis so the PostGIS extension is available from day
-# one (we don't ship geo features yet, but enabling it now avoids a
-# risky migration when Module 7 discovery lands).
-#
-# Data lives in a named volume — `npm run db:reset` wipes it.
+# `npm run db:up` starts both. Postgres data lives in a named volume
+# (`npm run db:reset` wipes it); LocalStack runs ephemeral (PERSISTENCE=0)
+# and re-bootstraps its bucket from ./localstack/init on every start.
 
 services:
   postgres:
@@ -24,6 +25,29 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  localstack:
+    image: localstack/localstack:3
+    container_name: elyxer-localstack
+    restart: unless-stopped
+    ports:
+      - "4566:4566" # edge port — all AWS service APIs
+    environment:
+      # Community-edition services we need locally. (Cognito needs LocalStack
+      # Pro — tracked under #54, not enabled here.)
+      SERVICES: "s3,ssm,secretsmanager,sns"
+      AWS_DEFAULT_REGION: "ap-south-1"
+      DEBUG: "0"
+      PERSISTENCE: "0"
+    volumes:
+      # Init hooks run once the edge port is ready — seeds the photos bucket.
+      - "./localstack/init:/etc/localstack/init/ready.d"
+    healthcheck:
+      test:
+        ["CMD-SHELL", "curl -sf http://localhost:4566/_localstack/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
 
 volumes:
   elyxer-pg-data:

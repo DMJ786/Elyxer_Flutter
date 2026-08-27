@@ -23,10 +23,14 @@
     "db:migrate": "node-pg-migrate up",
     "db:migrate:down": "node-pg-migrate down",
     "db:migrate:create": "node-pg-migrate create",
-    "db:psql": "docker compose exec postgres psql -U elyxer -d elyxer_dev"
+    "db:psql": "docker compose exec postgres psql -U elyxer -d elyxer_dev",
+    "try:profile-studio": "npm run build && node scripts/try-profile-studio.js",
+    "localstack:up": "docker compose up -d localstack",
+    "localstack:logs": "docker compose logs -f localstack",
+    "localstack:health": "curl -s http://localhost:4566/_localstack/health"
   },
   "dependencies": {
-    "@anthropic-ai/vertex-sdk": "^0.6.4",
+    "@anthropic-ai/bedrock-sdk": "^0.32.4",
     "dotenv": "^16.4.5",
     "firebase-admin": "^12.6.0",
     "firebase-functions": "^6.1.0",
