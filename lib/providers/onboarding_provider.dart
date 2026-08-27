@@ -5,6 +5,7 @@ library;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/onboarding_models.dart';
 import '../services/onboarding_service.dart';
+import '../services/background_service.dart';
 
 part 'onboarding_provider.g.dart';
 
@@ -217,6 +218,13 @@ class OnboardingDataNotifier extends _$OnboardingDataNotifier {
   /// keyed on the authenticated user; idempotent across re-submits.
   Future<void> submit() async {
     await OnboardingService().submit(state);
+  }
+
+  /// Submit Module 4 background data (education / profession / location) to
+  /// the BFF. Persisted server-side keyed on the authenticated user;
+  /// idempotent across re-submits.
+  Future<void> submitBackground() async {
+    await BackgroundService().submit(state);
   }
 }
 

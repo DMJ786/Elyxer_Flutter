@@ -8,7 +8,7 @@
  * call sites are the safety net.
  */
 
-import type { ColumnType, Generated } from "kysely";
+import type { ColumnType, Generated, RawBuilder } from "kysely";
 
 /**
  * Wire up a column that Postgres fills automatically (defaults,
@@ -31,6 +31,13 @@ export type SexualOrientation =
   | "asexual"
   | "queer";
 export type DatingPreference = "men" | "women" | "non_binary" | "open_to_all";
+export type EducationLevel =
+  | "high_school"
+  | "undergraduate"
+  | "postgraduate"
+  | "doctorate"
+  | "studying"
+  | "prefer_not_to_say";
 
 export interface UsersTable {
   id: Generated<string>;
@@ -69,7 +76,31 @@ export interface OnboardingProfilesTable {
   updated_at: AutoTimestamp;
 }
 
+/**
+ * PostGIS GEOGRAPHY column. Kysely has no first-class geo type, so it is
+ * written via a raw `ST_SetSRID(ST_MakePoint(...), 4326)::geography`
+ * expression (or NULL) and never selected directly — endpoints project
+ * `ST_X` / `ST_Y` instead.
+ */
+type GeographyPoint = ColumnType<
+  string | null,
+  RawBuilder<unknown> | null,
+  RawBuilder<unknown> | null
+>;
+
+export interface BackgroundProfilesTable {
+  user_id: string;
+  industry: string | null;
+  role: string | null;
+  education_level: EducationLevel | null;
+  location_query: string | null;
+  location_point: GeographyPoint;
+  created_at: AutoTimestamp;
+  updated_at: AutoTimestamp;
+}
+
 export interface Database {
   users: UsersTable;
   onboarding_profiles: OnboardingProfilesTable;
+  background_profiles: BackgroundProfilesTable;
 }
