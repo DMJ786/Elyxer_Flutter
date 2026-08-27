@@ -44,7 +44,13 @@ class DiscoveryDeck extends _$DiscoveryDeck {
   @override
   Future<DiscoveryDeckState> build() async {
     final profiles = await ref.watch(discoveryRepositoryProvider).loadDeck();
-    return DiscoveryDeckState(profiles: profiles, index: 0);
+    // Client-side filters narrow the mock deck today; the BFF will do this
+    // server-side later. Watching the filter state rebuilds the deck (and
+    // resets the cursor to the top) whenever filters are applied or cleared.
+    final DiscoveryFilters filters = ref.watch(discoveryFilterStateProvider);
+    final List<DiscoveryProfile> visible =
+        profiles.where(filters.matches).toList();
+    return DiscoveryDeckState(profiles: visible, index: 0);
   }
 
   DiscoveryRepository get _repo => ref.read(discoveryRepositoryProvider);
@@ -101,4 +107,61 @@ class DiscoveryDeck extends _$DiscoveryDeck {
     await _repo.report(profile, reason: reason, details: details);
     _advance();
   }
+}
+
+/// Client-side Discovery filters (age range + intents). Applied to the mock
+/// deck today; the real query moves server-side with the BFF later.
+class DiscoveryFilters {
+  const DiscoveryFilters({
+    this.ageMin = minAge,
+    this.ageMax = maxAge,
+    this.intents = const <String>{},
+  });
+
+  /// Bounds for the age range slider.
+  static const int minAge = 18;
+  static const int maxAge = 60;
+
+  final int ageMin;
+  final int ageMax;
+
+  /// Selected intents — a profile matches if it has ANY of them. Empty = any.
+  final Set<String> intents;
+
+  /// The unfiltered default (nothing narrowed).
+  static const DiscoveryFilters none = DiscoveryFilters();
+
+  /// True when the filters would narrow the deck at all.
+  bool get isActive =>
+      ageMin != minAge || ageMax != maxAge || intents.isNotEmpty;
+
+  /// Whether [p] passes the current filters.
+  bool matches(DiscoveryProfile p) {
+    if (p.age < ageMin || p.age > ageMax) return false;
+    if (intents.isNotEmpty && !p.intents.any(intents.contains)) return false;
+    return true;
+  }
+}
+
+/// The applied Discovery filters. keepAlive so a filter survives leaving and
+/// returning to the Discover tab; the deck provider watches this.
+@Riverpod(keepAlive: true)
+class DiscoveryFilterState extends _$DiscoveryFilterState {
+  @override
+  DiscoveryFilters build() => DiscoveryFilters.none;
+
+  void apply(DiscoveryFilters filters) => state = filters;
+
+  void clear() => state = DiscoveryFilters.none;
+}
+
+/// The distinct intent values across the deck — the filter sheet's options.
+@riverpod
+Future<List<String>> discoveryIntentOptions(Ref ref) async {
+  final List<DiscoveryProfile> profiles =
+      await ref.watch(discoveryRepositoryProvider).loadDeck();
+  final Set<String> options = <String>{
+    for (final DiscoveryProfile p in profiles) ...p.intents,
+  };
+  return options.toList()..sort();
 }

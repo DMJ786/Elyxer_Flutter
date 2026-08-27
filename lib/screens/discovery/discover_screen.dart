@@ -14,6 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../models/discovery_models.dart';
 import '../../providers/discovery_provider.dart';
 import '../../theme/app_theme.dart';
+import 'popups/discovery_filter_sheet.dart';
 import 'popups/discovery_popups.dart';
 import 'widgets/discovery_widgets.dart';
 
@@ -52,13 +53,19 @@ class _DeckView extends ConsumerWidget {
       children: <Widget>[
         DiscoveryHeader(
           canUndo: state.canUndo,
-          onFilter: () => _comingSoon(context, 'Filters'),
+          onFilter: () => showDiscoveryFilterSheet(context),
           onMagicSearch: () => _comingSoon(context, 'Magic Search'),
           onUndo: () => ref.read(discoveryDeckProvider.notifier).undo(),
         ),
         Expanded(
           child: profile == null
-              ? const _CaughtUpState()
+              ? (ref.watch(discoveryFilterStateProvider).isActive
+                  ? _NoMatchesState(
+                      onClear: () => ref
+                          .read(discoveryFilterStateProvider.notifier)
+                          .clear(),
+                    )
+                  : const _CaughtUpState())
               : Stack(
                   children: <Widget>[
                     _ProfileScroll(profile: profile),
@@ -186,6 +193,61 @@ class _CaughtUpState extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               color: AppColors.interactive300,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown when active filters narrow the deck to zero — offers a quick reset.
+class _NoMatchesState extends StatelessWidget {
+  const _NoMatchesState({required this.onClear});
+
+  final VoidCallback onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          const Icon(Icons.tune, size: 56, color: AppColors.interactive200),
+          const SizedBox(height: AppSpacing.x4),
+          Text(
+            'No matches for your filters',
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: AppColors.interactive500,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.x2),
+          Text(
+            'Try widening the age range or clearing filters',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: AppColors.interactive300,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.x4),
+          OutlinedButton(
+            onPressed: onClear,
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: AppColors.brandDark),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppRadius.round),
+              ),
+            ),
+            child: Text(
+              'Clear filters',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppColors.brandDark,
+              ),
             ),
           ),
         ],
