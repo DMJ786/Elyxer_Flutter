@@ -2,7 +2,7 @@
  * POST /generateProfileStudio
  *
  * Verifies the caller's Firebase ID token, validates input, calls
- * Claude via Vertex AI Model Garden, defensively clamps the result to
+ * Claude on Amazon Bedrock, defensively clamps the result to
  * the Flutter client's word limits, logs the event for rate-limit
  * accounting, and returns the structured profile.
  *
@@ -17,7 +17,7 @@ import { AuthError, verifyIdToken } from "../auth/verifyIdToken";
 import {
   generateJson,
   LlmValidationError,
-} from "../ai/vertex";
+} from "../ai/bedrock";
 import {
   buildSystemPrompt,
   buildUserMessage,
@@ -40,7 +40,7 @@ const MAX_INPUT_CHARS = 1000;
 export const generateProfileStudio = onRequest(
   {
     region: "asia-south1",
-    // Vertex AI calls can take a few seconds cold — bump default 60s.
+    // Bedrock calls can take a few seconds cold — bump default 60s.
     timeoutSeconds: 45,
     // Small memory bump so streaming/parse isn't tight on cold start.
     memory: "512MiB",
