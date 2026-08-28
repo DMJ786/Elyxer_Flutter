@@ -50,8 +50,10 @@ void main() {
     await tester.pumpWidget(_profileTab());
     await tester.pumpAndSettle();
 
-    // First Edit button belongs to the My Story section.
-    await tester.tap(find.widgetWithText(TextButton, 'Edit').first);
+    // First Edit affordance belongs to the My Story section. Tap the label
+    // directly — `TextButton.icon` isn't reliably matched by
+    // `find.byType(TextButton)` across Flutter versions, so target the text.
+    await tester.tap(find.text('Edit').first);
     await tester.pumpAndSettle();
 
     expect(find.byType(MyStoryEditSheet), findsOneWidget);
