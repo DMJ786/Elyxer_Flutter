@@ -3,11 +3,18 @@
  *
  * Verifies the caller's Firebase ID token, validates input, then:
  *   1. serves a cached response for an identical (tone, inspiration) if one
- *      is still within its 24h TTL — no model call;
- *   2. enforces a per-user daily generation cap (Postgres event log);
- *   3. otherwise calls Claude on Amazon Bedrock, clamps the result to the
- *      client's word limits, records the generation, caches the response,
- *      and returns it.
+ *      is still within its 24h TTL — no model call, no quota spent;
+ *   2. atomically RESERVES a per-user daily generation slot (a pending row
+ *      inserted under a per-user advisory lock, so concurrent requests can't
+ *      all pass the cap — closes the count-then-insert TOCTOU race);
+ *   3. calls Claude on Amazon Bedrock, clamps the result to the client's word
+ *      limits, finalizes the reservation, caches the response, and returns it.
+ *      A failed generation RELEASES the slot so the user isn't charged quota.
+ *
+ * The rate limit exists to cap (billable) model cost, so a Postgres outage on
+ * the cache/reserve path returns a clean 503 rather than failing open into an
+ * uncapped endpoint. Post-generation accounting (finalize, cache write) is
+ * best-effort and never fails a successful generation.
  *
  * Response shape mirrors the Flutter `ProfileStudioData` model so the
  * client HttpProfileStudioService can consume it without a translation
@@ -37,6 +44,7 @@ import {
   DAILY_GENERATION_LIMIT,
   isCacheFresh,
   isRateLimited,
+  RATE_LIMIT_WINDOW_MS,
 } from "./rate_limit";
 
 type GenerateBody = {
@@ -112,51 +120,41 @@ export const generateProfileStudio = onRequest(
     }
 
     const db = getDb();
+    const key = cacheKeyFor(tone, inspirationText);
 
-    // Resolve the caller's user row (needed for rate-limit accounting).
-    const user = await db
-      .selectFrom("users")
-      .select(["id"])
-      .where("firebase_uid", "=", uid)
-      .executeTakeFirst();
+    // Cache read + slot reservation both hit Postgres. Because the rate limit
+    // guards (billable) model cost, a DB outage here is a hard failure (503) —
+    // we refuse rather than fail open into an uncapped endpoint.
+    let reservation: ReserveResult;
+    try {
+      const cached = await readFreshCache(db, key);
+      if (cached) {
+        logger.info("profile-studio.generate.cache_hit", { uid, tone });
+        res.status(200).json(cached);
+        return;
+      }
+      reservation = await reserveSlot(db, uid, tone, inspirationText.length);
+    } catch (e) {
+      logger.error("profile-studio.generate.db_unavailable", {
+        uid,
+        message: e instanceof Error ? e.message : String(e),
+      });
+      res.status(503).json({
+        error:
+          "Profile Studio is temporarily unavailable. Please try again shortly.",
+      });
+      return;
+    }
 
-    if (!user) {
+    if (reservation.status === "no_user") {
       res
         .status(404)
         .json({ error: "Complete account setup before using Profile Studio." });
       return;
     }
-
-    // Cache -----------------------------------------------------------------
-    // Identical (tone, inspiration) within the TTL skips the model entirely and
-    // does not count against the daily quota.
-    const key = cacheKeyFor(tone, inspirationText);
-    const cached = await db
-      .selectFrom("profile_studio_cache")
-      .select(["response", "created_at"])
-      .where("cache_key", "=", key)
-      .executeTakeFirst();
-
-    if (cached && isCacheFresh(new Date(cached.created_at), new Date())) {
-      logger.info("profile-studio.generate.cache_hit", { uid, tone });
-      res.status(200).json(cached.response);
-      return;
-    }
-
-    // Rate limit ------------------------------------------------------------
-    const { n } = await db
-      .selectFrom("profile_studio_generations")
-      .select((eb) => eb.fn.countAll<string>().as("n"))
-      .where("user_id", "=", user.id)
-      .where("created_at", ">", sql<Date>`NOW() - INTERVAL '24 hours'`)
-      .executeTakeFirstOrThrow();
-
-    const dailyCount = Number(n);
-    if (isRateLimited(dailyCount)) {
-      logger.info("profile-studio.generate.rate_limited", {
-        uid,
-        count: dailyCount,
-      });
+    if (reservation.status === "rate_limited") {
+      logger.info("profile-studio.generate.rate_limited", { uid });
+      res.set("Retry-After", String(reservation.retryAfterSec));
       res.status(429).json({
         error:
           `You've reached today's limit of ${DAILY_GENERATION_LIMIT} ` +
@@ -175,13 +173,12 @@ export const generateProfileStudio = onRequest(
         validate: isProfileStudioGenerated,
       });
     } catch (e) {
-      await recordGeneration(db, {
-        userId: user.id,
-        tone,
-        inputChars: inspirationText.length,
-        durationMs: Date.now() - startedAt,
-        succeeded: false,
-      });
+      // Free the reserved slot — a failed generation must not consume quota.
+      await releaseSlot(db, reservation.generationId).catch((err) =>
+        logger.error("profile-studio.generate.release_failed", {
+          message: err instanceof Error ? err.message : String(err),
+        }),
+      );
 
       if (e instanceof LlmValidationError) {
         logger.error("profile-studio.generate.llm_validation", {
@@ -209,13 +206,13 @@ export const generateProfileStudio = onRequest(
     const clamped = clampToLimits(generated);
     const durationMs = Date.now() - startedAt;
 
-    await recordGeneration(db, {
-      userId: user.id,
-      tone,
-      inputChars: inspirationText.length,
-      durationMs,
-      succeeded: true,
-    });
+    // Finalize the reservation (mark succeeded + record duration). Best-effort:
+    // an accounting failure must not fail a successful generation.
+    await finalizeSlot(db, reservation.generationId, durationMs).catch((err) =>
+      logger.error("profile-studio.generate.finalize_failed", {
+        message: err instanceof Error ? err.message : String(err),
+      }),
+    );
 
     // Response --------------------------------------------------------------
     // Shape matches Flutter HttpProfileStudioService._parseResponse().
@@ -230,24 +227,17 @@ export const generateProfileStudio = onRequest(
       joinMeFor: clamped.joinMeFor,
     };
 
-    // Cache the response for identical future requests (refresh TTL on write).
-    const responseJson = sql`${JSON.stringify(payload)}::jsonb`;
-    await db
-      .insertInto("profile_studio_cache")
-      .values({ cache_key: key, response: responseJson })
-      .onConflict((oc) =>
-        oc.column("cache_key").doUpdateSet({
-          response: responseJson,
-          created_at: sql`NOW()`,
-        }),
-      )
-      .execute();
+    // Cache the response for identical future requests (best-effort).
+    await writeCache(db, key, payload).catch((err) =>
+      logger.error("profile-studio.generate.cache_write_failed", {
+        message: err instanceof Error ? err.message : String(err),
+      }),
+    );
 
     logger.info("profile-studio.generate.success", {
       uid,
       tone,
       durationMs,
-      dailyCount: dailyCount + 1,
       inputChars: inspirationText.length,
       myStoryChars: clamped.myStory.length,
     });
@@ -256,35 +246,149 @@ export const generateProfileStudio = onRequest(
   },
 );
 
-/**
- * Append a row to the generation log for rate-limit accounting. Never
- * throws — a logging failure must not fail the user's request.
- */
-async function recordGeneration(
+// ---------------------------------------------------------------------------
+// Store access
+// ---------------------------------------------------------------------------
+
+type ReserveResult =
+  | { status: "ok"; userId: string; generationId: string }
+  | { status: "no_user" }
+  | { status: "rate_limited"; retryAfterSec: number };
+
+/** Returns the cached response if one exists and is still within its TTL. */
+async function readFreshCache(
   db: Kysely<Database>,
-  row: {
-    userId: string;
-    tone: string;
-    inputChars: number;
-    durationMs: number;
-    succeeded: boolean;
-  },
-): Promise<void> {
-  try {
-    await db
+  key: string,
+): Promise<ProfileStudioResponse | undefined> {
+  const cached = await db
+    .selectFrom("profile_studio_cache")
+    .select(["response", "created_at"])
+    .where("cache_key", "=", key)
+    .executeTakeFirst();
+
+  if (cached && isCacheFresh(new Date(cached.created_at), new Date())) {
+    return cached.response as ProfileStudioResponse;
+  }
+  return undefined;
+}
+
+/**
+ * Atomically reserves a daily generation slot for the caller.
+ *
+ * Runs in a transaction holding a per-user advisory lock so the
+ * count-then-insert is serialized across concurrent requests (closes the
+ * TOCTOU race). The inserted row is "pending" (`succeeded=false`) and counts
+ * against the window immediately, so parallel callers can't all pass the cap.
+ */
+async function reserveSlot(
+  db: Kysely<Database>,
+  firebaseUid: string,
+  tone: string,
+  inputChars: number,
+): Promise<ReserveResult> {
+  return db.transaction().execute(async (trx): Promise<ReserveResult> => {
+    const user = await trx
+      .selectFrom("users")
+      .select(["id"])
+      .where("firebase_uid", "=", firebaseUid)
+      .executeTakeFirst();
+    if (!user) return { status: "no_user" };
+
+    // Serialize concurrent requests for THIS user (released at txn end).
+    await sql`SELECT pg_advisory_xact_lock(hashtext(${user.id}))`.execute(trx);
+
+    const agg = await trx
+      .selectFrom("profile_studio_generations")
+      .select((eb) => [
+        eb.fn.countAll<string>().as("n"),
+        eb.fn.min("created_at").as("oldest"),
+      ])
+      .where("user_id", "=", user.id)
+      .where("created_at", ">", sql<Date>`NOW() - INTERVAL '24 hours'`)
+      .executeTakeFirstOrThrow();
+
+    if (isRateLimited(Number(agg.n))) {
+      // The user can generate again once the oldest windowed row ages out.
+      const oldest = agg.oldest ? new Date(agg.oldest as unknown as string) : new Date();
+      const retryAfterSec = Math.max(
+        1,
+        Math.ceil((oldest.getTime() + RATE_LIMIT_WINDOW_MS - Date.now()) / 1000),
+      );
+      return { status: "rate_limited", retryAfterSec };
+    }
+
+    const row = await trx
       .insertInto("profile_studio_generations")
       .values({
-        user_id: row.userId,
-        tone: row.tone,
-        input_chars: row.inputChars,
-        duration_ms: row.durationMs,
-        succeeded: row.succeeded,
+        user_id: user.id,
+        tone,
+        input_chars: inputChars,
+        duration_ms: 0,
+        succeeded: false,
       })
+      .returning("id")
+      .executeTakeFirstOrThrow();
+
+    return { status: "ok", userId: user.id, generationId: row.id };
+  });
+}
+
+/** Marks a reserved slot as a successful generation. */
+async function finalizeSlot(
+  db: Kysely<Database>,
+  generationId: string,
+  durationMs: number,
+): Promise<void> {
+  await db
+    .updateTable("profile_studio_generations")
+    .set({ succeeded: true, duration_ms: durationMs })
+    .where("id", "=", generationId)
+    .execute();
+}
+
+/** Frees a reserved slot (failed generation) so it doesn't consume quota. */
+async function releaseSlot(
+  db: Kysely<Database>,
+  generationId: string,
+): Promise<void> {
+  await db
+    .deleteFrom("profile_studio_generations")
+    .where("id", "=", generationId)
+    .execute();
+}
+
+/**
+ * Writes/refreshes the cache entry, plus an occasional opportunistic sweep of
+ * expired rows to bound table growth. (A scheduled retention job is the
+ * production-grade approach; this keeps things cheap without one.)
+ */
+async function writeCache(
+  db: Kysely<Database>,
+  key: string,
+  payload: ProfileStudioResponse,
+): Promise<void> {
+  const responseJson = sql`${JSON.stringify(payload)}::jsonb`;
+  await db
+    .insertInto("profile_studio_cache")
+    .values({ cache_key: key, response: responseJson })
+    .onConflict((oc) =>
+      oc.column("cache_key").doUpdateSet({
+        response: responseJson,
+        created_at: sql`NOW()`,
+      }),
+    )
+    .execute();
+
+  if (Math.random() < 0.1) {
+    await db
+      .deleteFrom("profile_studio_cache")
+      .where("created_at", "<", sql<Date>`NOW() - INTERVAL '24 hours'`)
       .execute();
-  } catch (e) {
-    logger.error("profile-studio.generate.log_failed", {
-      message: e instanceof Error ? e.message : String(e),
-    });
+    // Generation rows older than the window are no longer counted; prune them.
+    await db
+      .deleteFrom("profile_studio_generations")
+      .where("created_at", "<", sql<Date>`NOW() - INTERVAL '48 hours'`)
+      .execute();
   }
 }
 
