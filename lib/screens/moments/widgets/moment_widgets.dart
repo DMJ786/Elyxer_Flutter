@@ -230,6 +230,7 @@ class _MomentMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<MomentMenuAction>(
       icon: const Icon(Icons.more_vert, color: AppColors.interactive300),
+      tooltip: 'Post options',
       onSelected: onAction,
       itemBuilder: (BuildContext context) => isMine
           ? const <PopupMenuEntry<MomentMenuAction>>[

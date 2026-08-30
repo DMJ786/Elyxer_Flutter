@@ -33,31 +33,43 @@ class _Gold {
 
 /// The circular gold "Send a Vibe" heart button on every card & section.
 class VibeButton extends StatelessWidget {
-  const VibeButton({super.key, required this.onTap, this.size = 40});
+  const VibeButton({
+    super.key,
+    required this.onTap,
+    this.size = 40,
+    this.semanticLabel = 'Send a vibe',
+  });
 
   final VoidCallback onTap;
   final double size;
 
+  /// Screen-reader label — the button is icon-only (a heart mark).
+  final String semanticLabel;
+
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: _Gold.pillFill,
-      shape: const CircleBorder(
-        side: BorderSide(color: AppColors.brandDark, width: 0.5),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: Center(
-            child: SvgPicture.asset(
-              kVibeIconAsset,
-              width: size * 0.5,
-              colorFilter: const ColorFilter.mode(
-                AppColors.brandDark,
-                BlendMode.srcIn,
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: Material(
+        color: _Gold.pillFill,
+        shape: const CircleBorder(
+          side: BorderSide(color: AppColors.brandDark, width: 0.5),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: SizedBox(
+            width: size,
+            height: size,
+            child: Center(
+              child: SvgPicture.asset(
+                kVibeIconAsset,
+                width: size * 0.5,
+                colorFilter: const ColorFilter.mode(
+                  AppColors.brandDark,
+                  BlendMode.srcIn,
+                ),
               ),
             ),
           ),
@@ -69,15 +81,21 @@ class VibeButton extends StatelessWidget {
 
 /// A small round icon button (header filter / undo).
 class _RoundIconButton extends StatelessWidget {
-  const _RoundIconButton({required this.icon, required this.onTap});
+  const _RoundIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.semanticLabel,
+  });
 
   final IconData icon;
   final VoidCallback onTap;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
       onPressed: onTap,
+      tooltip: semanticLabel,
       icon: Icon(icon, size: 22, color: AppColors.interactive400),
       splashRadius: 22,
     );
@@ -118,7 +136,11 @@ class DiscoveryHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          _RoundIconButton(icon: Icons.tune, onTap: onFilter),
+          _RoundIconButton(
+            icon: Icons.tune,
+            onTap: onFilter,
+            semanticLabel: 'Filters',
+          ),
           InkWell(
             onTap: onMagicSearch,
             borderRadius: BorderRadius.circular(AppRadius.round),
@@ -128,14 +150,16 @@ class DiscoveryHeader extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Icon(Icons.auto_awesome, size: 20, color: _Gold.medium),
+                  const Icon(Icons.auto_awesome,
+                      size: 20, color: AppColors.brandDark),
                   const SizedBox(width: AppSpacing.x2),
                   Text(
                     'Magic Search',
                     style: GoogleFonts.inter(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: _Gold.medium,
+                      // brandDark meets AA (4.98:1); _Gold.medium fails (#63).
+                      color: AppColors.brandDark,
                     ),
                   ),
                 ],
@@ -145,6 +169,7 @@ class DiscoveryHeader extends StatelessWidget {
           _RoundIconButton(
             icon: Icons.undo,
             onTap: canUndo ? onUndo : () {},
+            semanticLabel: 'Undo',
           ),
         ],
       ),
@@ -830,18 +855,20 @@ class _OutlineActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onTap,
-      icon: Icon(icon, size: 16, color: _Gold.medium),
+      // brandDark (4.98:1 on cream) meets WCAG AA; the lighter _Gold.medium
+      // (2.79:1) fails for text — see the a11y pass (#63).
+      icon: Icon(icon, size: 16, color: AppColors.brandDark),
       label: Text(
         label,
         style: GoogleFonts.inter(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: _Gold.medium,
+          color: AppColors.brandDark,
         ),
       ),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 48),
-        side: const BorderSide(color: _Gold.medium),
+        side: const BorderSide(color: AppColors.brandDark),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.round),
         ),
@@ -871,12 +898,14 @@ class ProfileActionButtons extends StatelessWidget {
           _ActionCircle(
             onTap: onPass,
             gradient: false,
+            semanticLabel: 'Pass',
             child: const Icon(Icons.close,
                 size: 24, color: AppColors.interactive400),
           ),
           _ActionCircle(
             onTap: onInvite,
             gradient: true,
+            semanticLabel: 'Send invite',
             child: const Icon(Icons.send, size: 22, color: Colors.white),
           ),
         ],
@@ -890,32 +919,38 @@ class _ActionCircle extends StatelessWidget {
     required this.onTap,
     required this.gradient,
     required this.child,
+    required this.semanticLabel,
   });
 
   final VoidCallback onTap;
   final bool gradient;
   final Widget child;
+  final String semanticLabel;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      customBorder: const CircleBorder(),
-      child: Container(
-        width: 60,
-        height: 60,
-        decoration: BoxDecoration(
-          color: gradient ? null : Colors.white,
-          gradient: gradient ? AppColors.brandGradient : null,
-          shape: BoxShape.circle,
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 2.5,
-            ),
-          ],
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: gradient ? null : Colors.white,
+            gradient: gradient ? AppColors.brandGradient : null,
+            shape: BoxShape.circle,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 2.5,
+              ),
+            ],
+          ),
+          child: Center(child: child),
         ),
-        child: Center(child: child),
       ),
     );
   }

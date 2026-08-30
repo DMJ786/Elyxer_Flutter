@@ -168,6 +168,7 @@ class _Header extends StatelessWidget {
           IconButton(
             onPressed: () => context.pop(),
             icon: const Icon(Icons.arrow_back, color: AppColors.interactive400),
+            tooltip: 'Back',
           ),
           Expanded(
             child: Text(

@@ -207,6 +207,7 @@ class _Header extends StatelessWidget {
           IconButton(
             onPressed: () => context.pop(),
             icon: const Icon(Icons.arrow_back, color: AppColors.interactive400),
+            tooltip: 'Back',
           ),
           Expanded(
             child: Center(
@@ -341,15 +342,20 @@ class _InputField extends StatelessWidget {
                 Positioned(
                   top: 6,
                   right: 6,
-                  child: InkWell(
-                    onTap: onRemoveImage,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.5),
-                        shape: BoxShape.circle,
+                  child: Semantics(
+                    button: true,
+                    label: 'Remove photo',
+                    child: InkWell(
+                      onTap: onRemoveImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close,
+                            size: 16, color: Colors.white),
                       ),
-                      child: const Icon(Icons.close, size: 16, color: Colors.white),
                     ),
                   ),
                 ),
