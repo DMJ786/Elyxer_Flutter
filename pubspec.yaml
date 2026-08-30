@@ -10,6 +10,11 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Localization (l10n scaffolding — issue #64)
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+
   # State Management
   flutter_riverpod: ^3.0.3
   riverpod_annotation: ^3.0.3
@@ -75,6 +80,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # Generate AppLocalizations from lib/l10n/*.arb (see l10n.yaml).
+  generate: true
 
   # Assets
   assets:

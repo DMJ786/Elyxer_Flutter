@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'routes/app_router.dart';
 
@@ -62,6 +63,10 @@ class DatingAppVerification extends StatelessWidget {
 
       // Material 3 Theme
       theme: AppTheme.lightTheme,
+
+      // Localization (issue #64) — generated from lib/l10n/*.arb.
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
 
       // Router configuration
       routerConfig: appRouter,
