@@ -127,10 +127,24 @@ export interface ProfileStudioCacheTable {
   created_at: AutoTimestamp;
 }
 
+/** One row per stored photo; the bytes live in object storage (S3). */
+export interface UserPhotosTable {
+  id: Generated<string>;
+  user_id: string;
+  storage_path: string;
+  is_selfie: WithDefault<boolean>;
+  position: number;
+  width_px: number | null;
+  height_px: number | null;
+  size_bytes: number | null;
+  created_at: AutoTimestamp;
+}
+
 export interface Database {
   users: UsersTable;
   onboarding_profiles: OnboardingProfilesTable;
   background_profiles: BackgroundProfilesTable;
   profile_studio_generations: ProfileStudioGenerationsTable;
   profile_studio_cache: ProfileStudioCacheTable;
+  user_photos: UserPhotosTable;
 }
