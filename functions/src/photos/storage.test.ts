@@ -81,7 +81,6 @@ describe("validateFinalizeBody", () => {
       isSelfie: false,
       widthPx: 1080,
       heightPx: 1920,
-      sizeBytes: 204800,
     });
     expect(r.ok).toBe(true);
     if (!r.ok) return;
@@ -91,8 +90,19 @@ describe("validateFinalizeBody", () => {
       isSelfie: false,
       widthPx: 1080,
       heightPx: 1920,
-      sizeBytes: 204800,
     });
+  });
+
+  it("ignores a client-supplied sizeBytes (size is server-verified)", () => {
+    const r = validateFinalizeBody({
+      storagePath: "users/uid-1/photos/abc.jpg",
+      position: 0,
+      isSelfie: false,
+      sizeBytes: 999999999,
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.value).not.toHaveProperty("sizeBytes");
   });
 
   it("defaults missing metadata to null", () => {
@@ -105,7 +115,6 @@ describe("validateFinalizeBody", () => {
     if (!r.ok) return;
     expect(r.value.widthPx).toBeNull();
     expect(r.value.heightPx).toBeNull();
-    expect(r.value.sizeBytes).toBeNull();
   });
 
   it("rejects a missing storagePath", () => {
@@ -118,7 +127,7 @@ describe("validateFinalizeBody", () => {
         storagePath: "users/uid-1/photos/abc.jpg",
         position: 0,
         isSelfie: false,
-        sizeBytes: -1,
+        heightPx: -1,
       }).ok,
     ).toBe(false);
     expect(

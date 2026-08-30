@@ -1,21 +1,30 @@
 /**
  * POST /requestPhotoUploadUrl
  *
- * Issues a short-lived (5 min) Cloud Storage signed URL the client PUTs the
- * image bytes to directly, keeping the function out of the upload path. The
- * object path is always scoped to the caller's UID
- * (`users/<uid>/photos/<uuid>.jpg`), so a client can never obtain a URL for
- * someone else's prefix.
+ * Issues a short-lived (5 min) S3 presigned POST the client uploads the image
+ * bytes to directly, keeping the function out of the upload path. The object
+ * key is always scoped to the caller's UID (`users/<uid>/photos/<uuid>.jpg`),
+ * so a client can never obtain a ticket for someone else's prefix. The POST
+ * policy locks content-type to image/jpeg AND enforces the size cap
+ * (`content-length-range`), so an over-limit body is rejected by S3.
  *
- * Body: `{ position, isSelfie }`. Returns `{ uploadUrl, storagePath }`.
+ * Body: `{ position, isSelfie }`.
+ * Returns `{ upload: { url, fields }, storagePath, contentType, maxBytes,
+ *            expiresInMs }`.
  */
 
 import { randomUUID } from "crypto";
 import { onRequest } from "firebase-functions/v2/https";
-import { getStorage } from "firebase-admin/storage";
+import { logger } from "firebase-functions";
 import { getDb } from "../db/kysely";
 import { AuthError, verifyIdToken } from "../auth/verifyIdToken";
-import { photoObjectPath, SIGNED_URL_TTL_MS, validateSlot } from "./storage";
+import {
+  MAX_PHOTO_BYTES,
+  photoObjectPath,
+  SIGNED_URL_TTL_MS,
+  validateSlot,
+} from "./storage";
+import { createUploadPost } from "./s3";
 
 export const requestPhotoUploadUrl = onRequest(
   { region: "asia-south1" },
@@ -44,35 +53,42 @@ export const requestPhotoUploadUrl = onRequest(
       return;
     }
 
-    const user = await getDb()
-      .selectFrom("users")
-      .select(["id"])
-      .where("firebase_uid", "=", uid)
-      .executeTakeFirst();
+    let storagePath: string;
+    let upload: { url: string; fields: Record<string, string> };
+    try {
+      const user = await getDb()
+        .selectFrom("users")
+        .select(["id"])
+        .where("firebase_uid", "=", uid)
+        .executeTakeFirst();
 
-    if (!user) {
-      res.status(404).json({ error: "Complete account setup before uploading." });
+      if (!user) {
+        res
+          .status(404)
+          .json({ error: "Complete account setup before uploading." });
+        return;
+      }
+
+      // Key is derived server-side and scoped to the UID — the client never
+      // supplies it, so it can't target another user's prefix.
+      storagePath = photoObjectPath(uid, randomUUID());
+      upload = await createUploadPost(storagePath);
+    } catch (e) {
+      logger.error("photos.request_upload.unavailable", {
+        uid,
+        message: e instanceof Error ? e.message : String(e),
+      });
+      res.status(503).json({
+        error: "Photo upload is temporarily unavailable. Please try again.",
+      });
       return;
     }
 
-    // Path is derived server-side and scoped to the UID — the client never
-    // supplies it, so it can't target another user's prefix.
-    const storagePath = photoObjectPath(uid, randomUUID());
-
-    const [uploadUrl] = await getStorage()
-      .bucket()
-      .file(storagePath)
-      .getSignedUrl({
-        version: "v4",
-        action: "write",
-        expires: Date.now() + SIGNED_URL_TTL_MS,
-        contentType: "image/jpeg",
-      });
-
     res.status(200).json({
-      uploadUrl,
+      upload,
       storagePath,
       contentType: "image/jpeg",
+      maxBytes: MAX_PHOTO_BYTES,
       expiresInMs: SIGNED_URL_TTL_MS,
     });
   },

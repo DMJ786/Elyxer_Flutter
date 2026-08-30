@@ -1,15 +1,22 @@
 /**
  * Pure helpers for the photos pipeline — object-path building, UID scoping,
- * and request validation. No Firebase / Cloud Storage / DB here so the
- * security-relevant rules (path ownership, slot constraints) are unit-testable.
+ * and request validation. No AWS/S3/DB here so the security-relevant rules
+ * (path ownership, slot constraints, size cap) are unit-testable.
  */
 
 /** Grid slots 0..4 are regular photos; slot 5 is the selfie. */
 export const SELFIE_POSITION = 5;
 export const MAX_POSITION = SELFIE_POSITION;
 
-/** Signed upload URLs are valid for 5 minutes. */
+/** Presigned upload tickets are valid for 5 minutes. */
 export const SIGNED_URL_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Max accepted photo size. Enforced at S3 via the presigned-POST
+ * `content-length-range` policy AND re-checked against the object's real size
+ * in finalize — the client-supplied size is never trusted.
+ */
+export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 
 /** Storage object path for a user's photo: `users/<uid>/photos/<id>.jpg`. */
 export function photoObjectPath(uid: string, id: string): string {
@@ -63,9 +70,10 @@ export type FinalizeInput = {
   storagePath: string;
   position: number;
   isSelfie: boolean;
+  // Optional client hints (display metadata); size is NOT taken from the
+  // client — finalize reads the real object size from S3.
   widthPx: number | null;
   heightPx: number | null;
-  sizeBytes: number | null;
 };
 
 /** Optional non-negative integer, or `null` when absent. `undefined` = invalid. */
@@ -94,10 +102,6 @@ export function validateFinalizeBody(body: unknown): Result<FinalizeInput> {
   if (heightPx === undefined) {
     return { ok: false, error: "heightPx must be a non-negative integer." };
   }
-  const sizeBytes = optNonNegInt(b.sizeBytes);
-  if (sizeBytes === undefined) {
-    return { ok: false, error: "sizeBytes must be a non-negative integer." };
-  }
 
   return {
     ok: true,
@@ -107,7 +111,6 @@ export function validateFinalizeBody(body: unknown): Result<FinalizeInput> {
       isSelfie: slot.value.isSelfie,
       widthPx,
       heightPx,
-      sizeBytes,
     },
   };
 }

@@ -1,8 +1,8 @@
 /// PhotoUploadService tests.
 ///
-/// The BFF calls (request URL + finalize) are mocked with http_mock_adapter;
-/// the signed-URL PUT uses a tiny fake HttpClientAdapter so the streamed body
-/// and absolute URL are handled deterministically.
+/// The BFF calls (request presigned POST + finalize) are mocked with
+/// http_mock_adapter; the S3 upload uses a tiny fake HttpClientAdapter so the
+/// multipart body and absolute URL are handled deterministically.
 library;
 
 import 'dart:async';
@@ -14,9 +14,9 @@ import 'package:http_mock_adapter/http_mock_adapter.dart';
 import 'package:dating_app_verification/core/network/api_exceptions.dart';
 import 'package:dating_app_verification/services/photo_upload_service.dart';
 
-/// Records the PUT and returns a caller-chosen status. Never matches on body.
-class _FakePutAdapter implements HttpClientAdapter {
-  _FakePutAdapter({this.status = 200});
+/// Records the S3 upload request and returns a caller-chosen status.
+class _FakeUploadAdapter implements HttpClientAdapter {
+  _FakeUploadAdapter({this.status = 204});
   final int status;
   String? lastUrl;
   String? lastContentType;
@@ -43,22 +43,22 @@ class _FakePutAdapter implements HttpClientAdapter {
 }
 
 void main() {
-  const signedUrl = 'https://storage.googleapis.com/bucket/obj?sig=abc';
+  const uploadUrl = 'https://s3.ap-south-1.amazonaws.com/elyxer-photos';
   const path = 'users/uid-1/photos/x.jpg';
   final bytes = Uint8List.fromList([1, 2, 3]);
 
   late Dio bffDio;
   late DioAdapter bffAdapter;
-  late _FakePutAdapter putAdapter;
+  late _FakeUploadAdapter uploadAdapter;
   late PhotoUploadService service;
 
-  void wire({int putStatus = 200}) {
+  void wire({int uploadStatus = 204}) {
     bffDio = Dio(
       BaseOptions(baseUrl: 'https://api.test', validateStatus: (_) => true),
     );
     bffAdapter = DioAdapter(dio: bffDio);
-    putAdapter = _FakePutAdapter(status: putStatus);
-    final uploader = Dio()..httpClientAdapter = putAdapter;
+    uploadAdapter = _FakeUploadAdapter(status: uploadStatus);
+    final uploader = Dio()..httpClientAdapter = uploadAdapter;
     service = PhotoUploadService(dio: bffDio, uploader: uploader);
   }
 
@@ -66,15 +66,25 @@ void main() {
     bffAdapter.onPost(
       '/requestPhotoUploadUrl',
       (server) => server.reply(status, {
-        'uploadUrl': signedUrl,
+        'upload': {
+          'url': uploadUrl,
+          'fields': {
+            'key': path,
+            'Content-Type': 'image/jpeg',
+            'Policy': 'base64policy',
+            'X-Amz-Signature': 'sig',
+          },
+        },
         'storagePath': path,
         'contentType': 'image/jpeg',
+        'maxBytes': 10485760,
+        'expiresInMs': 300000,
       }),
       data: {'position': 0, 'isSelfie': false},
     );
   }
 
-  test('happy path: requests URL, PUTs bytes, finalizes, returns the photo',
+  test('happy path: requests POST, uploads bytes, finalizes, returns the photo',
       () async {
     wire();
     stubRequestUrl();
@@ -89,7 +99,6 @@ void main() {
         'isSelfie': false,
         'widthPx': 100,
         'heightPx': 200,
-        'sizeBytes': 3,
       },
     );
 
@@ -103,8 +112,8 @@ void main() {
 
     expect(result.storagePath, path);
     expect(result.position, 0);
-    expect(putAdapter.lastUrl, signedUrl, reason: 'PUT hit the signed URL');
-    expect(putAdapter.lastContentType, 'image/jpeg');
+    expect(uploadAdapter.lastUrl, uploadUrl, reason: 'POST hit the S3 URL');
+    expect(uploadAdapter.lastContentType, startsWith('multipart/form-data'));
   });
 
   test('a taken slot (409 on finalize) throws ValidationException', () async {
@@ -121,7 +130,28 @@ void main() {
         'isSelfie': false,
         'widthPx': null,
         'heightPx': null,
-        'sizeBytes': 3,
+      },
+    );
+
+    expect(
+      () => service.upload(bytes: bytes, position: 0, isSelfie: false),
+      throwsA(isA<ValidationException>()),
+    );
+  });
+
+  test('an over-limit object (413 on finalize) throws ValidationException',
+      () async {
+    wire();
+    stubRequestUrl();
+    bffAdapter.onPost(
+      '/finalizePhotoUpload',
+      (server) => server.reply(413, {'error': 'Uploaded photo exceeds the size limit.'}),
+      data: {
+        'storagePath': path,
+        'position': 0,
+        'isSelfie': false,
+        'widthPx': null,
+        'heightPx': null,
       },
     );
 
@@ -141,8 +171,8 @@ void main() {
     );
   });
 
-  test('a failed storage PUT throws PhotoUploadException', () async {
-    wire(putStatus: 500);
+  test('a failed storage upload throws PhotoUploadException', () async {
+    wire(uploadStatus: 500);
     stubRequestUrl();
 
     expect(

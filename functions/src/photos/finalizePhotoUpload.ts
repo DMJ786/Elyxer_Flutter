@@ -1,19 +1,22 @@
 /**
  * POST /finalizePhotoUpload
  *
- * Called by the client after it has PUT the bytes to the signed URL. Verifies
- * the path belongs to the caller (403 otherwise), that the object actually
- * exists in the bucket (404 — guards against orphaned rows), then records the
- * photo. A slot that already holds a photo returns 409 (client must replace).
+ * Called by the client after it has uploaded the bytes via the presigned POST.
+ * Verifies the path belongs to the caller (403 otherwise), reads the object's
+ * REAL size + content-type from S3 (404 if absent; 413/400 if it violates the
+ * limits — never trusting client-supplied metadata), then records the photo. A
+ * slot that already holds a photo returns 409, and the just-uploaded object is
+ * deleted so it doesn't orphan in the bucket.
  *
- * Body: `{ storagePath, position, isSelfie, widthPx?, heightPx?, sizeBytes? }`.
+ * Body: `{ storagePath, position, isSelfie, widthPx?, heightPx? }`.
  */
 
 import { onRequest } from "firebase-functions/v2/https";
-import { getStorage } from "firebase-admin/storage";
+import { logger } from "firebase-functions";
 import { getDb } from "../db/kysely";
 import { AuthError, verifyIdToken } from "../auth/verifyIdToken";
-import { isPathOwnedBy, validateFinalizeBody } from "./storage";
+import { isPathOwnedBy, MAX_PHOTO_BYTES, validateFinalizeBody } from "./storage";
+import { deleteObject, headObject } from "./s3";
 
 /** Postgres unique-violation SQLSTATE. */
 const UNIQUE_VIOLATION = "23505";
@@ -51,21 +54,49 @@ export const finalizePhotoUpload = onRequest(
       return;
     }
 
-    const user = await getDb()
-      .selectFrom("users")
-      .select(["id"])
-      .where("firebase_uid", "=", uid)
-      .executeTakeFirst();
+    let userId: string;
+    let sizeBytes: number;
+    try {
+      const user = await getDb()
+        .selectFrom("users")
+        .select(["id"])
+        .where("firebase_uid", "=", uid)
+        .executeTakeFirst();
 
-    if (!user) {
-      res.status(404).json({ error: "Complete account setup before uploading." });
-      return;
-    }
+      if (!user) {
+        res
+          .status(404)
+          .json({ error: "Complete account setup before uploading." });
+        return;
+      }
+      userId = user.id;
 
-    // Guard against orphaned rows: the object must actually be in the bucket.
-    const [exists] = await getStorage().bucket().file(data.storagePath).exists();
-    if (!exists) {
-      res.status(404).json({ error: "Uploaded object not found in storage." });
+      // Server-verified metadata: the object must exist, be a JPEG, and be
+      // within the size cap. The client-supplied size is never trusted.
+      const meta = await headObject(data.storagePath);
+      if (!meta) {
+        res.status(404).json({ error: "Uploaded object not found in storage." });
+        return;
+      }
+      if (meta.sizeBytes <= 0 || meta.sizeBytes > MAX_PHOTO_BYTES) {
+        await deleteObject(data.storagePath);
+        res.status(413).json({ error: "Uploaded photo exceeds the size limit." });
+        return;
+      }
+      if (meta.contentType && !meta.contentType.startsWith("image/")) {
+        await deleteObject(data.storagePath);
+        res.status(400).json({ error: "Uploaded object is not an image." });
+        return;
+      }
+      sizeBytes = meta.sizeBytes;
+    } catch (e) {
+      logger.error("photos.finalize.unavailable", {
+        uid,
+        message: e instanceof Error ? e.message : String(e),
+      });
+      res.status(503).json({
+        error: "Photo upload is temporarily unavailable. Please try again.",
+      });
       return;
     }
 
@@ -73,13 +104,13 @@ export const finalizePhotoUpload = onRequest(
       const photo = await getDb()
         .insertInto("user_photos")
         .values({
-          user_id: user.id,
+          user_id: userId,
           storage_path: data.storagePath,
           is_selfie: data.isSelfie,
           position: data.position,
           width_px: data.widthPx,
           height_px: data.heightPx,
-          size_bytes: data.sizeBytes,
+          size_bytes: sizeBytes,
         })
         .returning([
           "id",
@@ -96,6 +127,10 @@ export const finalizePhotoUpload = onRequest(
 
       res.status(201).json({ photo });
     } catch (e) {
+      // The upload doesn't belong to any accepted row now — delete it so it
+      // doesn't orphan in the bucket (the 409-replace path hits this too).
+      await deleteObject(data.storagePath);
+
       // (user_id, position) or storage_path already exists.
       if ((e as { code?: string }).code === UNIQUE_VIOLATION) {
         res.status(409).json({

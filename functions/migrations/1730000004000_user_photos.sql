@@ -1,5 +1,5 @@
--- Module 5 photo records. The image bytes live in Cloud Storage; this table
--- only records the final object path + metadata after a successful upload.
+-- Module 5 photo records. The image bytes live in S3; this table only records
+-- the final object path + server-verified metadata after a successful upload.
 --
 -- position 0..4 = regular grid photos, 5 = selfie. The unique (user_id,
 -- position) index enforces one photo per slot — the client must replace

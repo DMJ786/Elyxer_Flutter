@@ -128,7 +128,11 @@ class AddPhotoScreen extends ConsumerWidget {
         final ok = await _validatePhotoFile(file);
         if (!context.mounted) return;
         if (ok) {
-          // The next free grid slot is the current photo count (0-based).
+          // Next free grid slot = current photo count (0-based). NOTE: stable
+          // only while photos are appended; a mid-grid removal + re-add can
+          // collide with an already-uploaded server slot (409) — tolerated by
+          // the best-effort upload until the photo-management (server-side
+          // delete) flow lands.
           final position =
               ref.read(photosVerificationDataProvider).photos.length;
           ref
@@ -158,9 +162,10 @@ class AddPhotoScreen extends ConsumerWidget {
     ref.read(photosVerificationDataProvider.notifier).removePhotoAt(index);
   }
 
-  /// Uploads the picked file to Cloud Storage via the BFF presigned-URL flow.
-  /// Best-effort: any failure (offline, endpoint not yet deployed) is
-  /// swallowed so the in-memory photo grid keeps working.
+  /// Uploads the picked file to S3 via the BFF presigned-POST flow.
+  /// Best-effort: any failure (offline, endpoint not yet deployed, 409 slot
+  /// collision) is logged and swallowed so the in-memory photo grid keeps
+  /// working. Upload status / retry UI lands with the photo-management flow.
   Future<void> _uploadPhotoBestEffort(XFile file, int position) async {
     try {
       final bytes = await file.readAsBytes();
@@ -169,8 +174,8 @@ class AddPhotoScreen extends ConsumerWidget {
         position: position,
         isSelfie: false,
       );
-    } catch (_) {
-      // Intentionally ignored — see #40 for surfacing upload status.
+    } catch (e) {
+      debugPrint('Photo upload (best-effort) failed at slot $position: $e');
     }
   }
 
