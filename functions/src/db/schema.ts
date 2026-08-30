@@ -99,8 +99,38 @@ export interface BackgroundProfilesTable {
   updated_at: AutoTimestamp;
 }
 
+/** Append-only log of Profile Studio generations, for daily rate limiting. */
+export interface ProfileStudioGenerationsTable {
+  id: Generated<string>;
+  user_id: string;
+  tone: string;
+  input_chars: number;
+  duration_ms: number;
+  succeeded: boolean;
+  created_at: AutoTimestamp;
+}
+
+/**
+ * JSONB column — written via a raw `${json}::jsonb` expression and read
+ * back as a parsed object by the pg driver.
+ */
+type JsonbColumn<Select> = ColumnType<
+  Select,
+  RawBuilder<unknown>,
+  RawBuilder<unknown>
+>;
+
+/** (tone, inspiration) -> cached response, memoised with a 24h TTL. */
+export interface ProfileStudioCacheTable {
+  cache_key: string;
+  response: JsonbColumn<Record<string, unknown>>;
+  created_at: AutoTimestamp;
+}
+
 export interface Database {
   users: UsersTable;
   onboarding_profiles: OnboardingProfilesTable;
   background_profiles: BackgroundProfilesTable;
+  profile_studio_generations: ProfileStudioGenerationsTable;
+  profile_studio_cache: ProfileStudioCacheTable;
 }
