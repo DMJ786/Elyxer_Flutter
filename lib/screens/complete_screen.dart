@@ -4,6 +4,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import '../widgets/progress_indicator.dart';
 import '../widgets/next_button.dart';
@@ -22,6 +23,7 @@ class CompleteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.cream,
       body: SafeArea(
@@ -59,7 +61,7 @@ class CompleteScreen extends StatelessWidget {
 
               // Title
               Text(
-                'Verification Complete!',
+                l10n.verificationCompleteTitle,
                 style: Theme.of(context).textTheme.displayLarge,
                 textAlign: TextAlign.center,
               ),
@@ -67,7 +69,7 @@ class CompleteScreen extends StatelessWidget {
 
               // Subtitle
               Text(
-                'Your account has been successfully verified. You can now enjoy all features of the app.',
+                l10n.verificationCompleteBody,
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),

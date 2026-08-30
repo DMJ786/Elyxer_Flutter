@@ -1,0 +1,34 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Elyxer",
+  "@appTitle": {
+    "description": "The application name."
+  },
+
+  "verificationCompleteTitle": "Verification Complete!",
+  "@verificationCompleteTitle": {
+    "description": "Heading on the verification completion screen."
+  },
+  "verificationCompleteBody": "Your account has been successfully verified. You can now enjoy all features of the app.",
+  "@verificationCompleteBody": {
+    "description": "Body text on the verification completion screen."
+  },
+
+  "momentsTitle": "Moments",
+  "@momentsTitle": {
+    "description": "Header of the Moments tab. (Ready for migration once #62/#63 land.)"
+  },
+  "momentsSubtitle": "Let people connect with your moments",
+  "@momentsSubtitle": {},
+  "interestsTitle": "Interests",
+  "@interestsTitle": {},
+  "interestsSubtitle": "People who showed interest in you",
+  "@interestsSubtitle": {},
+  "chatsTitle": "Chats",
+  "@chatsTitle": {},
+  "chatsSubtitle": "Click on a connection to start chatting",
+  "@chatsSubtitle": {},
+  "discoverMagicSearch": "Magic Search",
+  "@discoverMagicSearch": {}
+}
